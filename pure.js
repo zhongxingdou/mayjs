@@ -342,8 +342,10 @@
       */
      var Base = {
         /**
-         * initialize instance of this prototype
+         * initialize instance of this prototype <br>
+         * 使用Pure.Base.create()或Pure.$obj()来创建实例，
          * @constructs
+         * @see Pure.$obj
          */
         initialize: function() {
             $meta.set(this, "protocols", []);

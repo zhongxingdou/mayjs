@@ -103,6 +103,13 @@
     
     
     
+        <h3 class="subsection-title">Namespaces</h3>
+        
+        <dl>
+            <dt><a href="namespaces.html#Pure.$meta"><a href="Pure.$meta.html">$meta</a></a></dt>
+            <dd></dd>
+        </dl>
+    
     
     
         <h3 class="subsection-title">Members</h3>
@@ -152,7 +159,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 410
+        pure.js, line 533
     </li></ul></dd>
     
     
@@ -289,7 +296,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 644
+        pure.js, line 767
     </li></ul></dd>
     
     
@@ -461,7 +468,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 184
+        pure.js, line 236
     </li></ul></dd>
     
     
@@ -620,7 +627,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 136
+        pure.js, line 184
     </li></ul></dd>
     
     
@@ -780,7 +787,7 @@ sub(10, 4);</code></pre>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 746
+        pure.js, line 871
     </li></ul></dd>
     
     
@@ -815,6 +822,93 @@ var color = $enum{{
  "RED": 1
 })</code></pre>
 
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="$fn"><span class="type-signature">&lt;static> </span>$fn<span class="signature">()</span><span class="type-signature"> &rarr; {Function}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        调用方法自身
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        pure.js, line 137
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Function</span>
+
+
+	</dd>
+</dl>
+
+        
+    
     
 </dd>
 
@@ -933,7 +1027,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 274
+        pure.js, line 328
     </li></ul></dd>
     
     
@@ -1124,7 +1218,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 239
+        pure.js, line 291
     </li></ul></dd>
     
     
@@ -1285,7 +1379,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 428
+        pure.js, line 551
     </li></ul></dd>
     
     
@@ -1510,7 +1604,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 225
+        pure.js, line 277
     </li></ul></dd>
     
     
@@ -1560,7 +1654,7 @@ var color = $enum{{
         
             
 <dt>
-    <h4 class="name" id="$methodize"><span class="type-signature">&lt;static> </span>$methodize<span class="signature">(fn)</span><span class="type-signature"> &rarr; {Function}</span></h4>
+    <h4 class="name" id="$methodize"><span class="type-signature">&lt;static> </span>$methodize<span class="signature">(fn, <span class="optional">context</span>, <span class="optional">methodizeTo</span>)</span><span class="type-signature"> &rarr; {Function}</span></h4>
     
     
 </dt>
@@ -1590,7 +1684,11 @@ var color = $enum{{
 		<th>Type</th>
 		
 		
+		<th>Argument</th>
 		
+		
+		
+		<th>Default</th>
 		
 		
 		<th class="last">Description</th>
@@ -1615,10 +1713,98 @@ var color = $enum{{
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last">pure function</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>context</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    this
+                
+                </td>
+            
+            
+            <td class="description last">第一个参数绑定到的对象</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>methodizeTo</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Function</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last">从context获取绑定对象的方法</td>
         </tr>
 	
 	
@@ -1649,7 +1835,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 160
+        pure.js, line 211
     </li></ul></dd>
     
     
@@ -1874,7 +2060,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 200
+        pure.js, line 252
     </li></ul></dd>
     
     
@@ -2009,7 +2195,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 173
+        pure.js, line 225
     </li></ul></dd>
     
     
@@ -2144,7 +2330,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 378
+        pure.js, line 501
     </li></ul></dd>
     
     
@@ -2279,7 +2465,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 704
+        pure.js, line 829
     </li></ul></dd>
     
     
@@ -2431,7 +2617,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 99
+        pure.js, line 147
     </li></ul></dd>
     
     
@@ -2567,7 +2753,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 360
+        pure.js, line 476
     </li></ul></dd>
     
     
@@ -2706,7 +2892,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 402
+        pure.js, line 525
     </li></ul></dd>
     
     
@@ -2864,7 +3050,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 79
+        pure.js, line 127
     </li></ul></dd>
     
     
@@ -3022,7 +3208,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 462
+        pure.js, line 585
     </li></ul></dd>
     
     
@@ -3157,7 +3343,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 490
+        pure.js, line 613
     </li></ul></dd>
     
     
@@ -3338,7 +3524,7 @@ var color = $enum{{
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        pure.js, line 111
+        pure.js, line 159
     </li></ul></dd>
     
     
@@ -3389,13 +3575,13 @@ var color = $enum{{
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Pure.$.html">$</a></li><li><a href="Pure.$global.html">$global</a></li><li><a href="Pure.Base.html">Base</a></li><li><a href="Pure.Protocol.html">Protocol</a></li></ul><h3>Namespaces</h3><ul><li><a href="Pure.html">Pure</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Pure.$.html">$</a></li><li><a href="Pure.$global.html">$global</a></li><li><a href="Pure.Base.html">Base</a></li><li><a href="Pure.Protocol.html">Protocol</a></li></ul><h3>Namespaces</h3><ul><li><a href="Pure.html">Pure</a></li><li><a href="Pure.$meta.html">$meta</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Thu Apr 18 2013 12:39:19 GMT+0800 (GMT+08:00)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Thu Apr 18 2013 19:56:43 GMT+0800 (GMT+08:00)
 </footer>
 
 <script> prettyPrint(); </script>

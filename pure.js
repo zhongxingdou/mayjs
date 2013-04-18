@@ -1,6 +1,52 @@
 (function(HOST) {
     /** @namespace Pure  */
     var Pure = {};
+    
+    /**
+     * @namespace Pure.$meta
+     */
+    var $meta = {
+        _parseName: function(name){
+            if(!/^__.*__$/.test(name)){
+                name = "__" + name + "__";
+            }
+            return name;
+        },
+        /**
+         * meta是否存在
+         * @memberof Pure.$meta
+         * @param  {Object}  obj
+         * @param  {String}  name
+         * @return {Boolean}
+         */
+        has: function(obj, name){
+            return obj.hasOwnProperty(this._parseName(name));
+        },
+        /**
+         * get meta form obj
+         * @memberof Pure.$meta
+         * @param  {Object}  obj
+         * @param  {String}  name
+         */
+        get: function(obj, name){
+            return obj[this._parseName(name)];
+        },
+        /**
+         * set meta of obj
+         * @memberof Pure.$meta
+         * @param {Object} obj
+         * @param {String} name meta name
+         * @param {Object} value meta value
+         * @param {Boolean} [readonly=false]
+         */
+        set: function (obj, name, value, readonly){
+            Object.defineProperty(obj, this._parseName(name), {
+                value: value,
+                writable: readonly !== true
+            });
+        }
+    };
+
 
     /**
      * 定义一个全局变量，如果已经定义了同名全局变量，将抛出错误<br>
@@ -85,13 +131,12 @@
     $global("$run", $run);
 
     /**
-     * 返回方法自身
+     * 调用方法自身
      * @memberof Pure
-     * 代替arguments.callee
      * @return {Function}
      */
     function $fn(){
-        return arguments.callee.caller();
+        return arguments.callee.caller.apply(this, arguments);
     }
 
     /**
@@ -149,7 +194,7 @@
         temp.value = obj;
 
         //generate members declare string
-        var keys = obj["__dsl__"] || Object.keys(obj);
+        var keys = $meta.get(obj, "dsl") || Object.keys(obj);
         var members = keys.map(function(name) {
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
@@ -264,8 +309,8 @@
             }
         });
 
-        if(module.__protocols__) {
-            module.__protocols__.forEach(function(protocol) {
+        if($meta.has("protocols")) {
+            $meta.get("protocols").forEach(function(protocol) {
                 $implement(protocol, obj);
             });
         }
@@ -282,33 +327,28 @@
      * @param  {Object} obj
      */
     function $implement(protocol, obj) {
-        if(!obj.__protocols__){
-            Object.defineProperty(obj, "__protocols__", {
-                value: [],
-                writable: true
-            });
+        if(!$meta.has("protocols")){
+            $meta.set(obj, "protocols", []);
         }
 
-        var protocols = obj.__protocols__;
+        var protocols = $meta.get(obj, "protocols");
         if(protocols.indexOf(protocol) == -1 && $support(protocol, obj)) {
             protocols.push(protocol);
         }
     }
 
-    /**
-     * 作为其他对象的根prototype
-     * @memberof Pure
-     * @class
-     * @type {Object}
-     */
+     /**
+      * @lends Pure.Base.prototype
+      */
      var Base = {
+        /**
+         * initialize instance of this prototype
+         * @constructs
+         */
         initialize: function() {
-            Object.defineProperty(this, "__protocols__", {
-                value: [],
-                writable: true
-            });
+            $meta.set(this, "protocols", []);
         },
-        callerOwner: function(caller){
+        _callerOwner: function(caller){
             var callerOwner = null;
             $trace(this, "__proto__", function(proto){
                 Object.keys(proto).forEach(function(p){
@@ -322,23 +362,45 @@
             });
             return callerOwner;
         },
+
         //返回此方法的调用者的拥有者(prototype)
         //此方法不可像this.proto().proto()这样用，请像this.proto().__proto__
-        proto: function(){
-            var callerOwner = this.callerOwner(arguments.callee.caller);
+        /**
+         * get member from base prototype
+         * @param  {String} member member name
+         * @return {Object}
+         */
+        protoMember: function(member){
+            var callerOwner = this._callerOwner(arguments.callee.caller);
             if(callerOwner){
-                return callerOwner.__proto__;
+                var ptoto;
+                if((proto = $meta.get(callerOwner, "proto"))){
+                    return proto[member];
+                }
             }
         },
+        /**
+         * 类似C#的base()和Java的super()，获取调用此方法的方法名，在对象的base prototype中调用这个方法
+         * @return {Object}
+         */
         base: function(){
             var caller = arguments.callee.caller;
-            var callerOwner = this.callerOwner(caller);
+            var callerOwner = this._callerOwner(caller);
+
             var callerName = caller["@name"];
             delete caller["@name"];
-            if(callerOwner && callerOwner.__proto__ && $is("function", callerOwner.__proto__[callerName])){
-                return callerOwner.__proto__[callerName].apply(this, arguments);
+
+            var base = callerOwner ? $meta.get(callerOwner, "proto") : null;
+            var fn = base ? base[callerName] : null;
+
+            if($is("function",fn)){
+                return fn.apply(this, arguments);
             }
         },
+        /**
+         * 替代new关键字，创建当前prototype的实例，如果有initialize方法，用它初始化实例
+         * @return {Object}
+         */
         create: function() {
             var proto = this;
 
@@ -348,10 +410,8 @@
             Base.initialize.call(o);
 
             //在proto#initialize之前赋值，initialize方法中调用this.base()时会使用
-            if(!o.__proto__){
-                Object.defineProperty(o, "__proto__", {
-                    value: proto
-                });
+            if(!$meta.has(o, "proto")){
+                $meta.set(o, "proto", proto, true);
             }
 
             if(proto.initialize) {
@@ -359,20 +419,52 @@
             }
             return o;
         },
+        /**
+         * include a module
+         * @param  {Object} module
+         * @param  {Object} [option]
+         * @return {Object} this
+         */
         include: function(module, option) {
             $include(module, this, option);
             return this;
         },
+        /**
+         * implement a protocol
+         * @param  {Protocol} protocol
+         * @return {Object} this
+         */
         implement: function(protocol) {
             $implement(protocol, this);
             return this;
         },
+        /**
+         * 判断对象是否支持指定协议
+         * @param  {Protocl} protocol
+         * @return {Boolean}
+         */
         supported: function(protocol) {
-            return this.__protocols__.indexOf(protocol) != -1;
+            return this.meta("protocols").indexOf(protocol) != -1;
         },
+        /**
+         * 获取对象的meta值
+         * @param  {String} name
+         * @return {Object}
+         */
+        meta: function(name){
+            return $meta.get(this, name);
+        },
+        /**
+         * dsl
+         * @function
+         * @see Pure.$dsl
+         */
         dsl: $dsl,
+        /**
+         * 指定对象的base prototype
+         * @readonly
+         */
         "@base": Object.prototype
-        // __protocols__: []
     };
 
     /**
@@ -388,18 +480,13 @@
 
         var op = Object.create(base);
 
-        if(!op.__proto__){
-            Object.defineProperty(op, "__proto__", {
-                value: base
-            });
+        if(!$meta.has(op, "proto")){
+            $meta.set(op, "proto", base, true);
         }
 
         $mix(obj, op);
 
-        Object.defineProperty(op, "__protocols__", {
-            value: [],
-            writable: true
-        });
+        $meta.set(op, "protocols", []);
   
         return op;
     }
@@ -497,7 +584,7 @@
      * @return {Boolean}
      */
      function $support(protocol, o) {
-        if(o.__protocols__ && o.__protocols__.indexOf(protocol) != -1) {
+        if($meta.has(o, "protocols") && $meta.get(o, "protocols").indexOf(protocol) != -1) {
             return true;
         }
 
@@ -559,8 +646,7 @@
         return proxy;
     }
 
-    $.__map__ = {};
-
+    $meta.set($, "map", {});
 
     /**
      * 从字典中查找prototype|protocol|value type的注册扩展模块
@@ -569,7 +655,7 @@
      * @return {Array}
      */
     $.findWrappersByType = function(type){
-        return $.__map__[type] || [];
+        return $meta.get($, "map")[type] || [];
     };
 
     /**
@@ -614,8 +700,8 @@
         var objType = typeof obj;
         if(objType == "object"){ //reference type
             wrappers = wrappers.concat($.findWrappersByPrototype(obj.prototype || obj.constructor.prototype));
-            if(obj.__protocols__){
-                obj.__protocols__.forEach(function(protocol){
+            if($meta.has(obj, "protocols")){
+                $meta.get(obj, "protocols").forEach(function(protocol){
                     addTypeWrappers(protocol);
                 });
             }
@@ -634,7 +720,7 @@
      * @return {Boolean} 是否已经注册
      */
     $.exists = function(type, module){
-        var wrappers = $.__map__[type];
+        var wrappers = $meta.get($, "map")[type];
         if(!wrappers || wrappers.length < 1){
             return false;
         }else{
@@ -655,9 +741,10 @@
         if(!type || ["string","object"].indexOf(typeof type) == -1)return;
         if(typeof module != "object")return;
 
-        var modules = $.__map__[type];
+        var map  = $meta.get($, "map");
+        var modules = map[type];
         if(!modules){
-            modules = $.__map__[type] = [];
+            modules = map[type] = [];
         }
 
         if(!$.exists(type, module)){
@@ -797,21 +884,20 @@
 
     var fns = ["$run", "$fn", "$parseArray", "$trace", "$methodize", "$module", "$proto", "$obj",
      "$merge", "$implement", "$include", "$protocol", "$is", "$support", "$dsl", "$overload",
-     "$", "$$", "$enum", "$global", "IBase", "Base", "Protocol"];
+     "$", "$$", "$enum", "$global", "$meta", "IBase", "Base", "Protocol"];
     fns.forEach(function(k) {
             Pure[k] = eval(k);
     });
 
     Pure.dsl = $dsl;
 
-    Object.defineProperty(Pure, "__dsl__", {
-        value: fns.filter(function(name){ return name.charAt(0) === "$";}),
-        writable: true
-    });
+    $meta.set(Pure, "dsl", fns.filter(function(name){
+        return name.charAt(0) === "$";
+    }));
 
     if(!$global.exists("console")){
         var console = {};
-        ["info","log","error","debug","warn","trace","dir",""].forEach(function(name){
+        ["info","log","error","debug","warn","trace","dir"].forEach(function(name){
             console["name"] = function(){};
         });
         $global("console", console);

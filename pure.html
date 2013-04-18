@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="lib/es5-shim.js"></script>
+    <script src="lib/es5-sham.js"></script>
+    <script src="pure.js"></script>
+    <script type="text/javascript">
+    $run(function(){
+        eval(Pure.dsl())
+
+        Animal = $proto({
+            myname: "Animal",
+            initialize: function(name){
+                this.name = name;
+            },
+            whoAmI: function(){
+                var s = "i'm " + this.name;
+                return s;
+            }
+        })
+
+        Human = $proto({
+            myname: "Human",
+            initialize: function(name){
+                this.base(name);
+                this.name = "Human " + this.name;
+            },
+            "@base": Animal 
+        });
+
+        Male = $proto({
+            myname: "Male",
+            initialize: function(name){
+                // this.proto().prototype.initialize.call(this, name);
+                this.base(name); //等同于效率更高的this.prototype.prototype.initialize.call(this, name);
+                this.name = "Male " + this.name;
+            },
+            whoAmI: function(){
+                var s = this.base();
+                return s + " , i'm stronger than female";
+            },
+            "@base": Human
+        })
+
+        hal = Male.create("hal");
+        console.info(hal.name);
+        console.info(hal.whoAmI());
+
+
+        var StringWrapper = {
+            "onIncluded": function(string){
+                this.string = string;
+            }, 
+            "toInteger": function(radix){ 
+                return parseInt(this.string, radix);  
+            }
+        }
+
+        var types = ["string", String.prototype];
+
+        types.forEach(function(type){
+            $.regist(type, StringWrapper);
+        });
+
+
+        console.info($$("123Hello").toInteger(16));
+
+        var a = new String("123Hello");
+        $a = $(a);
+        $$a = $$(a);
+
+        fn = $overload([["string","number"], function(name, age){ 
+            console.info("I'm "+name+ " and I'm " + age + " years old");
+        }], [["string"], function(name){
+            console.info("i'm " + name);
+        }]);
+
+        fn.overload(["string", "string"], function(name, interest){
+            console.info("I'm " + name + ", and i'm interesting "+ interest);
+        });
+
+        fn("lily");
+        fn("lily", 18);
+        fn("lily", "singing");
+    });
+</script>
+</head>
+<body>
+    Pure Framework
+</body>
+</html>

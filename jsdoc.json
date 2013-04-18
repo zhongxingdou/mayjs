@@ -1,0 +1,23 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "include": ["."],
+        "exclude": [],
+        "includePattern": ".+\\.js(doc)?$",
+        "excludePattern": "(^|\\/|\\\\)_|-min.js",
+    },
+    "plugins": [
+        "plugins/ignoreWrapFn"
+    ],
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    },
+    "jsVersion": 180,
+    "opts": {
+        "destination": "doc/",
+        "recurse": false
+    }
+}

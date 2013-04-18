@@ -18,7 +18,7 @@
                 var s = "i'm " + this.name;
                 return s;
             }
-        })
+        });
 
         Human = $proto({
             myname: "Human",
@@ -41,21 +41,21 @@
                 return s + " , i'm stronger than female";
             },
             "@base": Human
-        })
+        });
 
         hal = Male.create("hal");
         console.info(hal.name);
         console.info(hal.whoAmI());
 
 
-        var StringWrapper = {
-            "onIncluded": function(string){
-                this.string = string;
+        StringWrapper = $module({
+            "onIncluded": function(){
             }, 
-            "toInteger": function(radix){ 
-                return parseInt(this.string, radix);  
-            }
-        }
+            "toInteger": function(string, radix){ 
+                return parseInt(string, radix);  
+            },
+            "includeOption": {"methodize": true}
+        });
 
         var types = ["string", String.prototype];
 
@@ -63,12 +63,20 @@
             $.regist(type, StringWrapper);
         });
 
+        console.log($$("123Hello").toInteger(10) === 123);
 
-        console.info($$("123Hello").toInteger(16));
+        Pure.$.regist(Animal, StringWrapper, {methodizeTo: function(obj){ return obj.name; }});
+        hal.name = "123" + hal.name;
+        console.log($(hal).toInteger() == "123");
 
         var a = new String("123Hello");
         $a = $(a);
+        console.log(!a.hasOwnProperty("toInteger"));
+        console.log($a.hasOwnProperty("toInteger"));
+        console.log($a != a);
+
         $$a = $$(a);
+        console.log($$a == a);
 
         fn = $overload([["string","number"], function(name, age){ 
             console.info("I'm "+name+ " and I'm " + age + " years old");

@@ -160,11 +160,14 @@
      * 将普通函数包装成一个方法，函数的第一个参数指向this
      * @memberof Pure
      * @param  {Function} fn pure function
+     * @param  {Object}   [context=this] 第一个参数绑定到的对象
+     * @param  {Function} [methodizeTo] 从context获取绑定对象的方法
      * @return {Function}
      */
-     function $methodize(fn) {
+     function $methodize(fn, context, methodizeTo) {
         return function() {
-            var args = [this].concat(arguments);
+            context = context || this;
+            var args = [ methodizeTo ? methodizeTo(context) : context].concat($parseArray(arguments));
             return fn.apply(null, args);
         };
     }
@@ -207,7 +210,7 @@
         var p;
         if(whitelist && whitelist.length > 0){
             for(p in src){
-                if(!whitelist.indexOf(p)){
+                if(whitelist.indexOf(p) == -1){
                     dest[p] = src[p];
                 }
             }
@@ -229,7 +232,7 @@
      */
      function $merge(a, b, whitelist) {
         var obj = $clone(b);
-        $mix(a, obj, whitelist);
+        $mix(a || {}, obj, whitelist);
         return obj;
     }
 
@@ -242,17 +245,19 @@
      * @return {Object}
      */
     function $include(module, obj, option) {
-        option = $merge(option, {
+        var defauls = {
             "methodize": false,
-            "context": obj
-        });
+            "context": obj,
+            "methodizeTo": null
+        };
+        option = $merge(option, $merge(module.includeOption, defauls));
 
         var methodizeIt = option.methodize;
         Object.keys(module).forEach(function(p){
-            if(!(/^__.*__$/.test(p)) && p !== "onIncluded") {
+            if(!(/^__.*__$/.test(p)) && ["onIncluded","includeOption"].indexOf(p) == -1) {
                 var mp = module[p];
                 if(methodizeIt && typeof mp == "function") {
-                    obj[p] = $methodize(mp);
+                    obj[p] = $methodize(mp, option.context, option.methodizeTo);
                 } else {
                     obj[p] = module[p];
                 }

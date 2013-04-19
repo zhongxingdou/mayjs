@@ -7,9 +7,9 @@
     <script src="may.js"></script>
     <script type="text/javascript">
     $run(function(){
-        eval(Mayjs.dsl())
+        eval(Mayjs.dsl());
 
-        Animal = $proto({
+        Animal = Mayjs.Base.extend({
             myname: "Animal",
             initialize: function(name){
                 this.name = name;
@@ -20,16 +20,15 @@
             }
         });
 
-        Human = $proto({
+        Human = Animal.extend({
             myname: "Human",
             initialize: function(name){
                 this.base(name);
                 this.name = "Human " + this.name;
-            },
-            "@base": Animal 
+            }
         });
 
-        Male = $proto({
+        Male = Human.extend({
             myname: "Male",
             initialize: function(name){
                 // this.proto().prototype.initialize.call(this, name);
@@ -39,11 +38,10 @@
             whoAmI: function(){
                 var s = this.base();
                 return s + " , i'm stronger than female";
-            },
-            "@base": Human
+            }
         });
 
-        hal = Male.create("hal");
+        hal = new Male("hal");
         console.info(hal.name);
         console.info(hal.whoAmI());
 

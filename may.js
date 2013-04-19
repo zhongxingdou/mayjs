@@ -57,7 +57,7 @@
      */
     function $global(globalName, obj){
         if($global.exists(globalName)){
-            throw globalName + " has defined";
+            throw globalName + " has configd";
         }else{
             var o = obj || eval(globalName);
             HOST[globalName] = o;
@@ -76,7 +76,7 @@
      * @return {Boolean}
      */
     $global.exists = function(globalName){
-        return HOST.hasOwnProperty ? HOST.hasOwnProperty(globalName) : typeof HOST[globalName] !== "undefined";
+        return HOST.hasOwnProperty ? HOST.hasOwnProperty(globalName) : typeof HOST[globalName] !== "unconfigd";
     };
 
     $global["@variables"] = [];
@@ -293,18 +293,20 @@
         var defauls = {
             "methodize": false,
             "context": obj,
-            "methodizeTo": null
+            "methodizeTo": null,
+            "alias": null
         };
         option = $merge(option, $merge(module.includeOption, defauls));
 
         var methodizeIt = option.methodize;
         Object.keys(module).forEach(function(p){
+            var alias = option.alias && option.alias[p] ? option.alias[p] : p;
             if(!(/^__.*__$/.test(p)) && ["onIncluded","includeOption"].indexOf(p) == -1) {
                 var mp = module[p];
                 if(methodizeIt && typeof mp == "function") {
-                    obj[p] = $methodize(mp, option.context, option.methodizeTo);
+                    obj[alias] = $methodize(mp, option.context, option.methodizeTo);
                 } else {
-                    obj[p] = module[p];
+                    obj[alias] = module[p];
                 }
             }
         });
@@ -327,27 +329,100 @@
      * @param  {Object} obj
      */
     function $implement(protocol, obj) {
-        if(!$meta.has("protocols")){
+        if(!$meta.has(obj, "protocols")){
             $meta.set(obj, "protocols", []);
         }
 
         var protocols = $meta.get(obj, "protocols");
-        if(protocols.indexOf(protocol) == -1 && $support(protocol, obj)) {
+        if(protocols.indexOf(protocol) == -1) {
+            if(!$support(protocol, obj)){
+                throw "Not support protocol";
+            }
             protocols.push(protocol);
         }
+    }
+
+    var _clazzExtend = function(config){
+        return $extend(this.prototype, config);
+    };
+
+    function $safeCall(obj, method, args){
+        if(obj && $is("function", obj[method])){
+            return obj[method].apply(obj, args);
+        }
+    }
+
+    function $extend(baseProto, config){
+        var clazz = function(){
+            var initialize = clazz.prototype.initialize;
+            if(initialize){
+                initialize.apply(this, arguments);
+            }
+        };
+
+        ["implement","support","include"].forEach(function(p){
+            clazz[p] = function(){
+                $safeCall(clazz.prototype, p, arguments);
+            };
+        });
+
+        $meta.set(clazz, "config", config, true);
+
+        var proto = Object.create(baseProto);
+
+        //link to base prototype in IE
+        if(!proto["__proto__"]){
+            $meta.set(proto, "proto", baseProto, true);
+        }
+
+        //copy statics member to clazz
+        var statics = config["@statics"];
+        if(statics){
+            $mix(statics, clazz);
+        }
+
+        if(!clazz.extend){
+            clazz.extend = _clazzExtend;
+        }
+        
+
+        clazz.prototype = proto;
+
+        //copy prototype member of config to clazz.prototype
+        var defineProto = Object.keys(config).filter(function(name){
+            return name.charAt(0) != "@" && name != "constructor";
+        });
+        defineProto.forEach(function(p){
+            proto[p] = config[p];
+        });
+
+        //initialize clazz.prototype's protocols meta
+        $meta.set(proto, "protocols", []);
+
+        return clazz;
     }
 
      /**
       * @lends Mayjs.Base.prototype
       */
-     var Base = {
+    var Base = $extend(Object.prototype, {
+        "@statics": {
+            "extend": function(config){
+                if(!config.initialize){
+                    config.initialize = function(){
+                        this.base();
+                    };
+                }
+                return $extend(this.prototype, config);
+            }
+        },
         /**
          * initialize instance of this prototype <br>
          * 使用Mayjs.Base.create()或Mayjs.$obj()来创建实例，
          * @constructs
          * @see Mayjs.$obj
          */
-        initialize: function() {
+        "initialize": function() {
             $meta.set(this, "protocols", []);
         },
         _callerOwner: function(caller){
@@ -400,28 +475,6 @@
             }
         },
         /**
-         * 替代new关键字，创建当前prototype的实例，如果有initialize方法，用它初始化实例
-         * @return {Object}
-         */
-        create: function() {
-            var proto = this;
-
-            var o = Object.create(proto);
-
-            //总是调用Base的构造器
-            Base.initialize.call(o);
-
-            //在proto#initialize之前赋值，initialize方法中调用this.base()时会使用
-            if(!$meta.has(o, "proto")){
-                $meta.set(o, "proto", proto, true);
-            }
-
-            if(proto.initialize) {
-                proto.initialize.apply(o, arguments);
-            }
-            return o;
-        },
-        /**
          * include a module
          * @param  {Object} module
          * @param  {Object} [option]
@@ -461,39 +514,8 @@
          * @function
          * @see Mayjs.$dsl
          */
-        dsl: $dsl,
-        /**
-         * 指定对象的base prototype
-         * @readonly
-         */
-        "@base": Object.prototype
-    };
-
-    /**
-     * 将对象包装成特殊的prototype的对象
-     * 返回的prototype对象的prototype属性，默认为Base，可由obj参数指定
-     * @memberof Mayjs
-     * @param  {Object} obj 将被包装的对象
-     * @return {Object}     原型对象
-     */
-     function $proto(obj) {
-        var base = obj["@base"] || (obj["@base"] = Base);
-        delete obj["@base"];
-
-        var op = Object.create(base);
-
-        if(!$meta.has(op, "proto")){
-            $meta.set(op, "proto", base, true);
-        }
-
-        $mix(obj, op);
-
-        $meta.set(op, "protocols", []);
-  
-        return op;
-    }
-
-    Base = $proto(Base);
+        dsl: $dsl
+    });
 
     /**
      * 创建Base的便捷方法
@@ -502,7 +524,7 @@
      * @return {Base}
      */
      function $obj(a) {
-        var o = Base.create();
+        var o = new Base();
         $mix(a, o);
         return o;
     }
@@ -513,7 +535,7 @@
      * @class
      * @type {Base}
      */
-     var Protocol = $proto({
+     var Protocol = Base.extend({
         initialize: function(o) {
             $mix(o, this);
         }
@@ -526,7 +548,7 @@
      * @return {Protocol}
      */
      function $protocol(o) {
-        return Protocol.create(o);
+        return new Protocol(o);
     }
 
     /**
@@ -534,11 +556,15 @@
      * @type {Protocol}
      */
      var IBase = $protocol({
-        "initialize": Function,
-        "create": Function,
-        "include": Function,
-        "implement": Function,
-        "prototype": Object,
+        "initialize": [],
+        "include": [{"module": Object}, {"[includeOption]":Object}],
+        /*
+        "method": [{
+            "opt1": [Object, Array],
+            "opt2": Object,
+            "opt3": Object
+        }],*/
+        "implement": [Protocol],
         "__protocols__": Array
     });
 
@@ -552,7 +578,6 @@
      * @return {Boolean}
      */
      function $is(type, o) {
-        if(type === o) return true;
         if(type === null) return o === null;
         var result = false;
         switch(typeof type) {
@@ -594,17 +619,17 @@
             return false;
         }
 
-        var keys = Object.keys(o).filter(function(k) {
+        var keys = Object.keys(protocol).filter(function(k) {
             return k !== "@base";
         });
 
-        keys.forEach(function(k) {
-            if(!$is(protocol[k], o[k])) {
-                return false;
+        return keys.every(function(k) {
+            if($is(Array, protocol[k])){
+                return $is("function", o[k]);
+            }else{
+                return $is(protocol[k], o[k]);
             }
         });
-
-        return true;
     }
 
     /**
@@ -639,7 +664,7 @@
 
         if(wrappers.length === 0)return obj;
 
-        var proxy = Base.create();
+        var proxy = new Base();
 
         wrappers.forEach(function(wrapper){
             proxy.include(wrapper.module, $merge(wrapper.includeOption, {"context": obj}, ["context"]));
@@ -740,6 +765,10 @@
      * @param {Object} [includeOption]
      */
     $.regist = function(type, module, includeOption){
+        if($is("function", type)){
+            type = type.prototype;
+        }
+
         if(!type || ["string","object"].indexOf(typeof type) == -1)return;
         if(typeof module != "object")return;
 
@@ -884,9 +913,9 @@
         return _enum;
     }
 
-    var fns = ["$run", "$fn", "$parseArray", "$trace", "$methodize", "$module", "$proto", "$obj",
+    var fns = ["$run", "$fn", "$parseArray", "$trace", "$methodize", "$module", "$obj",
      "$merge", "$implement", "$include", "$protocol", "$is", "$support", "$dsl", "$overload",
-     "$", "$$", "$enum", "$global", "$meta", "IBase", "Base", "Protocol"];
+     "$", "$$", "$enum", "$global", "$meta", "$extend", "IBase", "Base", "Protocol"];
     fns.forEach(function(k) {
             Mayjs[k] = eval(k);
     });

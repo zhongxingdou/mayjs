@@ -76,19 +76,30 @@
         $$a = $$(a);
         console.log($$a == a);
 
-        fn = $overload([["string","number"], function(name, age){ 
+        fn = $overload(["string","number"], function(name, age){ 
             console.info("I'm "+name+ " and I'm " + age + " years old");
-        }], [["string"], function(name){
+        }).$overload(["string"], function(name){
             console.info("i'm " + name);
-        }]);
+        });
 
-        fn.overload(["string", "string"], function(name, interest){
+        fn.$overload(["string", "string"], function(name, interest){
             console.info("I'm " + name + ", and i'm interesting "+ interest);
+        }).$overload({
+            name: "string",
+            age: "number",
+            interesting: "string"
+        }, function(opt){
+            console.info("I'm "+opt.name+ " and I'm " + opt.age + " years old, and I'm interesting " + opt.interesting);
         });
 
         fn("lily");
         fn("lily", 18);
         fn("lily", "singing");
+        fn({
+            name: "Lucy",
+            age: 22,
+            interesting: "swimming"
+        });
     });
 </script>
 </head>

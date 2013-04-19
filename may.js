@@ -1,52 +1,97 @@
 (function(HOST) {
     /** @namespace Mayjs  */
     var Mayjs = {};
-    
-    /**
-     * @namespace Mayjs.$meta
-     */
-    var $meta = {
-        _parseName: function(name){
-            if(!/^__.*__$/.test(name)){
-                name = "__" + name + "__";
+
+    function _parseArgsMeta(argsDefine, paramNames){
+        var meta = [];
+        if($is(Array, argsDefine)){//在$interface中声明成员方法的参数类型时，总是使用数组
+            var l = argsDefine.length;
+            var i;
+            if(paramNames){//$def声明时带了方法定义，参数类型声明中无参数名项，参数名列表从方法定义中获取
+                for(i=0; i<l; i++){
+                    meta.push({
+                        "name": paramNames[i],
+                        "type": argsDefine[i]
+                    });
+                }
+            }else{//在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
+                for(i=0; i<l; i+=2){
+                    meta.push({
+                        "name": argsDefine[i],
+                        "type": argsDefine[i+1]
+                    });
+                }
             }
-            return name;
-        },
-        /**
-         * meta是否存在
-         * @memberof Mayjs.$meta
-         * @param  {Object}  obj
-         * @param  {String}  name
-         * @return {Boolean}
-         */
-        has: function(obj, name){
-            return obj.hasOwnProperty(this._parseName(name));
-        },
-        /**
-         * get meta form obj
-         * @memberof Mayjs.$meta
-         * @param  {Object}  obj
-         * @param  {String}  name
-         */
-        get: function(obj, name){
-            return obj[this._parseName(name)];
-        },
-        /**
-         * set meta of obj
-         * @memberof Mayjs.$meta
-         * @param {Object} obj
-         * @param {String} name meta name
-         * @param {Object} value meta value
-         * @param {Boolean} [readonly=false]
-         */
-        set: function (obj, name, value, readonly){
-            Object.defineProperty(obj, this._parseName(name), {
-                value: value,
-                writable: readonly !== true
+        }else{//在$def中定义的option,即$def({param1: Type1, param2: Type2}, function(param1, param2){});
+            meta.push({
+                "name": paramNames[0],
+                "type": $interface(argsDefine)
             });
         }
+        return meta;
+    }
+
+    var _parseParamNames = function(fn){
+        var m = fn.toString().match(/.*?\((.*)?\)/);
+        if(m && m[1]){
+            return m[1].split(",");
+        }
+        return [];
     };
 
+    function $def(argsDefine, fn){
+        $meta.set(fn, "paramspec", _parseArgsMeta(argsDefine, _parseParamNames(fn)));
+        return fn;
+    }
+
+    var _parseMetaName = function(name){
+        if(!/^__.*__$/.test(name)){
+            name = "__" + name + "__";
+        }
+        return name;
+    };
+
+    var $meta = function(obj, name){
+        return arguments.callee.get(obj, name);
+    };
+
+    /**
+     * set meta of obj
+     * @memberof Mayjs.$meta
+     * @function set
+     * @param {Object} obj
+     * @param {String} name meta name
+     * @param {Object} value meta value
+     * @param {Boolean} [readonly=false]
+     */
+    $meta.set = function(obj, name, value, readonly){
+        Object.defineProperty(obj, _parseMetaName(name), {
+            value: value,
+            writable: readonly !== true
+        });
+    };
+
+    /**
+     * get meta form obj
+     * @function get
+     * @memberof Mayjs.$meta
+     * @param  {Object}  obj
+     * @param  {String}  name
+     */
+    $meta.get = function(obj, name){
+        return obj[_parseMetaName(name)];
+    };
+
+    /**
+     * meta是否存在
+     * @memberof Mayjs.$meta
+     * @param  {Object}  obj
+     * @param  {String}  name
+     * @return {Boolean}
+     */
+    $meta.has = function(obj, name){
+        return obj.hasOwnProperty(_parseMetaName(name));
+    };
 
     /**
      * 定义一个全局变量，如果已经定义了同名全局变量，将抛出错误<br>
@@ -194,7 +239,7 @@
         temp.value = obj;
 
         //generate members declare string
-        var keys = $meta.get(obj, "dsl") || Object.keys(obj);
+        var keys = $meta(obj, "dsl") || Object.keys(obj);
         var members = keys.map(function(name) {
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
@@ -311,9 +356,9 @@
             }
         });
 
-        if($meta.has("protocols")) {
-            $meta.get("protocols").forEach(function(protocol) {
-                $implement(protocol, obj);
+        if($meta.has("interfaces")) {
+            $meta("interfaces").forEach(function(interface_) {
+                $implement(interface_, obj);
             });
         }
 
@@ -323,22 +368,30 @@
     }
 
     /**
-     * implement a protocol
+     * implement a interface
      * @memberof Mayjs
-     * @param  {Protocol} protocol
+     * @param  {Interface} interface_
      * @param  {Object} obj
      */
-    function $implement(protocol, obj) {
-        if(!$meta.has(obj, "protocols")){
-            $meta.set(obj, "protocols", []);
+    function $implement(interface_, obj) {
+        if(!$meta.has(obj, "interfaces")){
+            $meta.set(obj, "interfaces", []);
         }
 
-        var protocols = $meta.get(obj, "protocols");
-        if(protocols.indexOf(protocol) == -1) {
-            if(!$support(protocol, obj)){
-                throw "Not support protocol";
+        var interfaces = $meta(obj, "interfaces");
+        if(interfaces.indexOf(interface_) == -1) {
+            if(!$support(interface_, obj)){
+                throw "Not support interface_";
             }
-            protocols.push(protocol);
+
+            //write arguments meta for methods of obj
+            Object.keys(interface_).forEach(function(p){
+                if($is(Array, interface_[p])){
+                    $meta.set(obj[p], "paramspec", _parseArgsMeta(interface_[p]));
+                }
+            });
+
+            interfaces.push(interface_);
         }
     }
 
@@ -396,8 +449,8 @@
             proto[p] = config[p];
         });
 
-        //initialize clazz.prototype's protocols meta
-        $meta.set(proto, "protocols", []);
+        //initialize clazz.prototype's interfaces meta
+        $meta.set(proto, "interfaces", []);
 
         return clazz;
     }
@@ -423,7 +476,7 @@
          * @see Mayjs.$obj
          */
         "initialize": function() {
-            $meta.set(this, "protocols", []);
+            $meta.set(this, "interfaces", []);
         },
         _callerOwner: function(caller){
             var callerOwner = null;
@@ -451,7 +504,7 @@
             var callerOwner = this._callerOwner(arguments.callee.caller);
             if(callerOwner){
                 var ptoto;
-                if((proto = $meta.get(callerOwner, "proto"))){
+                if((proto = $meta(callerOwner, "proto"))){
                     return proto[member];
                 }
             }
@@ -467,7 +520,7 @@
             var callerName = caller["@name"];
             delete caller["@name"];
 
-            var base = callerOwner ? $meta.get(callerOwner, "proto") : null;
+            var base = callerOwner ? $meta(callerOwner, "proto") : null;
             var fn = base ? base[callerName] : null;
 
             if($is("function",fn)){
@@ -485,21 +538,21 @@
             return this;
         },
         /**
-         * implement a protocol
-         * @param  {Protocol} protocol
+         * implement a interface_
+         * @param  {Interface} interface_
          * @return {Object} this
          */
-        implement: function(protocol) {
-            $implement(protocol, this);
+        implement: function(interface_) {
+            $implement(interface_, this);
             return this;
         },
         /**
          * 判断对象是否支持指定协议
-         * @param  {Protocl} protocol
+         * @param  {Protocl} interface_
          * @return {Boolean}
          */
-        supported: function(protocol) {
-            return this.meta("protocols").indexOf(protocol) != -1;
+        supported: function(interface_) {
+            return this.meta("interfaces").indexOf(interface_) != -1;
         },
         /**
          * 获取对象的meta值
@@ -507,7 +560,7 @@
          * @return {Object}
          */
         meta: function(name){
-            return $meta.get(this, name);
+            return $meta(this, name);
         },
         /**
          * dsl
@@ -530,42 +583,46 @@
     }
 
     /**
-     * interface
+     * interface prototype
      * @memberof Mayjs
-     * @class
-     * @type {Base}
+     * @type {Object}
      */
-     var Protocol = Base.extend({
-        initialize: function(o) {
-            $mix(o, this);
-        }
-    });
+     var Interface = {};
 
     /**
-     * 创建Protocol的快捷方法
+     * 创建Interface的快捷方法
      * @memberof Mayjs
-     * @param  {Object} o protocol description
-     * @return {Protocol}
+     * @param  {Object} define interface define
+     * @param  {Interface} base base interface
+     * @return {Interface}
      */
-     function $protocol(o) {
-        return new Protocol(o);
+     function $interface(define, base) {
+        var interface_;
+        if(base){
+            if(!Interface.isPrototypeOf(base))throw "Parameter base is not an Interface";
+            interface_ = Object.create(base);
+        }else{
+            interface_ = Object.create(Interface);
+        }
+        $mix(define, interface_);
+        return interface_;
     }
 
     /**
      * @memberof Mayjs
-     * @type {Protocol}
+     * @type {Interface}
      */
-     var IBase = $protocol({
+     var IBase = $interface({
         "initialize": [],
-        "include": [{"module": Object}, {"[includeOption]":Object}],
+        "include": ["module:", Object, "[includeOption]:", Object],
         /*
         "method": [{
             "opt1": [Object, Array],
             "opt2": Object,
             "opt3": Object
         }],*/
-        "implement": [Protocol],
-        "__protocols__": Array
+        "implement": ["interface:", Interface],
+        "__interfaces__": Array
     });
 
      Base.implement(IBase);
@@ -585,7 +642,7 @@
             result = typeof(o) == type;
             break;
             case "object":
-            if(Protocol.isPrototypeOf(type)) {
+            if(Interface.isPrototypeOf(type)) {
                 result = $support(type, o);
             } else {
                 result = type.isPrototypeOf(o);
@@ -606,28 +663,28 @@
     /**
      * 判断一个对象是否支持指定协议
      * @memberof Mayjs
-     * @param  {Protocol} protocol
+     * @param  {Interface} interface_
      * @param  {Object} o
      * @return {Boolean}
      */
-     function $support(protocol, o) {
-        if($meta.has(o, "protocols") && $meta.get(o, "protocols").indexOf(protocol) != -1) {
+     function $support(interface_, o) {
+        if($meta.has(o, "interfaces") && $meta(o, "interfaces").indexOf(interface_) != -1) {
             return true;
         }
 
-        if(protocol["@base"] && !$support(protocol["@base"], o)) {
+        if(interface_["@base"] && !$support(interface_["@base"], o)) {
             return false;
         }
 
-        var keys = Object.keys(protocol).filter(function(k) {
+        var keys = Object.keys(interface_).filter(function(k) {
             return k !== "@base";
         });
 
         return keys.every(function(k) {
-            if($is(Array, protocol[k])){
+            if($is(Array, interface_[k])){
                 return $is("function", o[k]);
             }else{
-                return $is(protocol[k], o[k]);
+                return $is(interface_[k], o[k]);
             }
         });
     }
@@ -676,13 +733,13 @@
     $meta.set($, "map", {});
 
     /**
-     * 从字典中查找prototype|protocol|value type的注册扩展模块
+     * 从字典中查找prototype|interface_|value type的注册扩展模块
      * @memberof Mayjs.$
-     * @param {Object|Protocol|String} type
+     * @param {Object|Interface|String} type
      * @return {Array}
      */
     $.findWrappersByType = function(type){
-        return $meta.get($, "map")[type] || [];
+        return $meta($, "map")[type] || [];
     };
 
     /**
@@ -713,7 +770,7 @@
     /**
      * 查找对象的扩展模块
      * @memberof Mayjs.$
-     * @param {Object|Protocol|String} obj
+     * @param {Object|Interface|String} obj
      * @return {Array}
      */
     $.findWrappersByObj = function(obj){
@@ -727,9 +784,9 @@
         var objType = typeof obj;
         if(objType == "object"){ //reference type
             wrappers = wrappers.concat($.findWrappersByPrototype(obj.prototype || obj.constructor.prototype));
-            if($meta.has(obj, "protocols")){
-                $meta.get(obj, "protocols").forEach(function(protocol){
-                    addTypeWrappers(protocol);
+            if($meta.has(obj, "interfaces")){
+                $meta(obj, "interfaces").forEach(function(interface_){
+                    addTypeWrappers(interface_);
                 });
             }
         }else{ //value type
@@ -742,12 +799,12 @@
     /**
      * 判断一个module是否注册为指定type的wrapper
      * @memberof Mayjs.$
-     * @param  {Object|Protocol|String} type
+     * @param  {Object|Interface|String} type
      * @param  {Object} module 作为wrapper的module
      * @return {Boolean} 是否已经注册
      */
     $.exists = function(type, module){
-        var wrappers = $meta.get($, "map")[type];
+        var wrappers = $meta($, "map")[type];
         if(!wrappers || wrappers.length < 1){
             return false;
         }else{
@@ -758,10 +815,10 @@
     };
 
     /**
-     * 注册一个prototype或protocol或value object的扩展模块
+     * 注册一个prototype或interface_或value object的扩展模块
      * @memberof Mayjs.$
      * @param {Object} module
-     * @param {Object|Protocol|String} type
+     * @param {Object|Interface|String} type
      * @param {Object} [includeOption]
      */
     $.regist = function(type, module, includeOption){
@@ -772,7 +829,7 @@
         if(!type || ["string","object"].indexOf(typeof type) == -1)return;
         if(typeof module != "object")return;
 
-        var map  = $meta.get($, "map");
+        var map  = $meta($, "map");
         var modules = map[type];
         if(!modules){
             modules = map[type] = [];
@@ -816,41 +873,60 @@
 
     $mix($, $$);
 
+    function $checkParams(fn, args){
+        var caller = fn || arguments.callee.caller;
+        args = args || caller["arguments"];
+        var paramsMeta = $meta(fn, "paramspec");
+        var type;
+        for(var i=0, l=args.length; i<l; i++){
+            type = paramsMeta[i].type;
+            //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
+            if(type === null)return true;
+            if(!$is(type, args[i])){
+                return false;
+            }
+        }
+        return true;
+    }
+
     var _dispatch = function(overloads, args){
         var l = args.length;
 
-        var matches = overloads.filter(function(o){
-            return o.paramTypes.length >= l;
+        var argsMeta = function(fn){
+            return $meta(fn, "paramspec");
+        };
+
+        var matches = overloads.filter(function(fn){
+            return argsMeta(fn).length >= l;
         });
         if(matches.length <= 1)return matches[0];
 
-        var orderedMatches = matches.sort(function(m1, m2){
-            return m1.paramTypes.length - m2.paramTypes.length;
+        var orderedMatches = matches.sort(function(fn1, fn2){
+            return argsMeta(fn1).length - argsMeta(fn2).length;
         });
 
-        return orderedMatches.filter(function(m){
-            for(var i=0; i<l; i++){
-                if(!$is(m.paramTypes[i], args[i])){
-                    return false;
-                }
+        var fn;
+        while((fn = orderedMatches.shift())){
+            if($checkParams(fn, args)){
+                return fn;
             }
-            return true;
-        })[0];
+        }
     };
 
     /**
      * function overload
      * @memberof Mayjs
-     * @param {Array[]} overload functions and its params type
+     * @param {Array} paramsType params types
+     * @param {Function} fn overload function
      * @return {Function}
      * @example
-     *   fn = Mayjs.overload([["string","number"], function(name, age){
+     *   fn = $overload(["string","number"], function(name, age){
      *       return "I'm "+name+ " and I'm " + age + " years old";
-     *   }], [["string"], function(name){
+     *   }).$overload(["string"], function(name){
      *       return "i'm " + name;
-     *   }]);
+     *   });
      *
-     *   fn.overload(["string", "string"], function(name, interest){
+     *   fn.$overload(["string", "string"], function(name, interest){
      *       return "I'm " + name + ", and i'm interesting "+ interest;
      *   });
      *
@@ -858,32 +934,26 @@
      *   fn("lily", 18);
      *   fn("lily", "singing");
      */
-    var $overload = function (/* [[String, Number], fn1], [[Protocol, String], fn2] */){
+
+    function $overload (paramsType, fn){
         //存储重载的方法
-        var _overloads = $parseArray(arguments).map(function(overload){
-            return {
-                fn: overload[1],
-                paramTypes: overload[0]
-            };
-        });
+        var _overloads = [$def(paramsType, fn)];
 
         var main = function(){
             var args = arguments;
             var fn = _dispatch(_overloads, args);
-            if(fn && fn.fn){
-                return fn.fn.apply(this, args);
+            if(fn){
+                return fn.apply(this, args);
             }
         };
 
-        main.overload = function(paramTypes, fn){
-            _overloads.push({
-                fn: fn,
-                paramTypes: paramTypes
-            });
+        main.$overload = function(argsMeta, fn){
+            _overloads.push($def(argsMeta, fn));
+            return this;
         };
 
         return main;
-    };
+    }
 
      /**
      * 声明一个枚举
@@ -914,8 +984,8 @@
     }
 
     var fns = ["$run", "$fn", "$parseArray", "$trace", "$methodize", "$module", "$obj",
-     "$merge", "$implement", "$include", "$protocol", "$is", "$support", "$dsl", "$overload",
-     "$", "$$", "$enum", "$global", "$meta", "$extend", "IBase", "Base", "Protocol"];
+     "$merge", "$implement", "$include", "$interface", "$is", "$support", "$dsl", "$overload",
+     "$", "$$", "$enum", "$global", "$meta", "$extend", "$checkParams", "IBase", "Base", "Interface"];
     fns.forEach(function(k) {
             Mayjs[k] = eval(k);
     });

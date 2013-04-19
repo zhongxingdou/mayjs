@@ -672,21 +672,18 @@
             return true;
         }
 
-        if(interface_["@base"] && !$support(interface_["@base"], o)) {
-            return false;
-        }
-
-        var keys = Object.keys(interface_).filter(function(k) {
-            return k !== "@base";
-        });
-
-        return keys.every(function(k) {
-            if($is(Array, interface_[k])){
-                return $is("function", o[k]);
+        for(var k in interface_){
+           if($is(Array, interface_[k])){
+                if(!$is("function", o[k])){
+                    return false;
+                }
             }else{
-                return $is(interface_[k], o[k]);
+                if(!$is(interface_[k], o[k])){
+                    return false;
+                }
             }
-        });
+        }
+        return true;
     }
 
     /**

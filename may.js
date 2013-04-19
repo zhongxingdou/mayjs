@@ -1,9 +1,9 @@
 (function(HOST) {
-    /** @namespace Pure  */
-    var Pure = {};
+    /** @namespace Mayjs  */
+    var Mayjs = {};
     
     /**
-     * @namespace Pure.$meta
+     * @namespace Mayjs.$meta
      */
     var $meta = {
         _parseName: function(name){
@@ -14,7 +14,7 @@
         },
         /**
          * meta是否存在
-         * @memberof Pure.$meta
+         * @memberof Mayjs.$meta
          * @param  {Object}  obj
          * @param  {String}  name
          * @return {Boolean}
@@ -24,7 +24,7 @@
         },
         /**
          * get meta form obj
-         * @memberof Pure.$meta
+         * @memberof Mayjs.$meta
          * @param  {Object}  obj
          * @param  {String}  name
          */
@@ -33,7 +33,7 @@
         },
         /**
          * set meta of obj
-         * @memberof Pure.$meta
+         * @memberof Mayjs.$meta
          * @param {Object} obj
          * @param {String} name meta name
          * @param {Object} value meta value
@@ -50,8 +50,8 @@
 
     /**
      * 定义一个全局变量，如果已经定义了同名全局变量，将抛出错误<br>
-     * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new Pure.$global()调用。
-     * @class Pure.$global
+     * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new Mayjs.$global()调用。
+     * @class Mayjs.$global
      * @param  {String} globalName variable name
      * @param  {Object} [obj]
      */
@@ -71,7 +71,7 @@
 
     /**
      * 判断全局变量是否已经定义
-     * @memberof Pure.$global
+     * @memberof Mayjs.$global
      * @param  {String} globalName variable name
      * @return {Boolean}
      */
@@ -83,7 +83,7 @@
 
     /**
      * 删除一个全局变量，并移除注册信息
-     * @memberof Pure.$global
+     * @memberof Mayjs.$global
      * @param  {String} globalName variable name
      * @return {Boolean} 删除成功返回true，变量不存在或删除失败返回false
      */
@@ -107,20 +107,20 @@
 
     /**
      * 列举被管理的全局变量名
-     * @memberof Pure.$global
+     * @memberof Mayjs.$global
      * @return {String[]}
      */
     $global.list = function(){
         return [].concat($global["@variables"]);
     };
 
-    $global("Pure", Pure);
+    $global("Mayjs", Mayjs);
 
     HOST.global = {};
 
     /**
      * 仅仅是运行一个方法，避免暴露全局变量
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Function} fn
      * @param  {Object}   context 作为当前对象的对象
      * @return {Object}
@@ -132,7 +132,7 @@
 
     /**
      * 调用方法自身
-     * @memberof Pure
+     * @memberof Mayjs
      * @return {Function}
      */
     function $fn(){
@@ -141,7 +141,7 @@
 
     /**
      * 将类Array对象转换成Array
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object} arrayLikeObj
      * @return {Array}
      */
@@ -151,7 +151,7 @@
 
     /**
      * 根据指定属性来追溯
-     * @memberof Pure
+     * @memberof Mayjs
      * @param {Object} o 对象
      * @param {String} prop 属性名
      * @param {Function} fn(a) 处理函数(追溯到的对象)
@@ -168,7 +168,7 @@
 
     /**
      * 生成供eval()函数将指定变量成员声明为当前作用域内变量的代码
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {String} [obj=this]
      * @return {String}
      * @example
@@ -203,7 +203,7 @@
 
     /**
      * 将普通函数包装成一个方法，函数的第一个参数指向this
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Function} fn pure function
      * @param  {Object}   [context=this] 第一个参数绑定到的对象
      * @param  {Function} [methodizeTo] 从context获取绑定对象的方法
@@ -219,7 +219,7 @@
 
     /**
      * 定义一个module
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object} o
      * @return {Object}
      */
@@ -229,7 +229,7 @@
 
     /**
      * clone object
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object} o    被克隆的对象
      * @param  {Boolean} [deep=false] 是否深度克隆
      * @return {Object}      o的克隆
@@ -244,7 +244,7 @@
 
     /**
      * copy members of src to dest
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object} src [description]
      * @param  {Object} dest [description]
      * @param  {String[]} [whitelist=null] 不想被覆盖的成员
@@ -269,7 +269,7 @@
 
     /**
      * merge a to b
-     * @memberof Pure
+     * @memberof Mayjs
      * @param {Object} a
      * @param {Object} b
      * @param  {String[]} [whitelist=null] 不想被覆盖的成员
@@ -283,7 +283,7 @@
 
     /**
      * include module to obj with option
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object} module
      * @param  {Object} obj
      * @param  {Object} [option]
@@ -322,7 +322,7 @@
 
     /**
      * implement a protocol
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Protocol} protocol
      * @param  {Object} obj
      */
@@ -338,14 +338,14 @@
     }
 
      /**
-      * @lends Pure.Base.prototype
+      * @lends Mayjs.Base.prototype
       */
      var Base = {
         /**
          * initialize instance of this prototype <br>
-         * 使用Pure.Base.create()或Pure.$obj()来创建实例，
+         * 使用Mayjs.Base.create()或Mayjs.$obj()来创建实例，
          * @constructs
-         * @see Pure.$obj
+         * @see Mayjs.$obj
          */
         initialize: function() {
             $meta.set(this, "protocols", []);
@@ -459,7 +459,7 @@
         /**
          * dsl
          * @function
-         * @see Pure.$dsl
+         * @see Mayjs.$dsl
          */
         dsl: $dsl,
         /**
@@ -472,7 +472,7 @@
     /**
      * 将对象包装成特殊的prototype的对象
      * 返回的prototype对象的prototype属性，默认为Base，可由obj参数指定
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object} obj 将被包装的对象
      * @return {Object}     原型对象
      */
@@ -497,7 +497,7 @@
 
     /**
      * 创建Base的便捷方法
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object} a
      * @return {Base}
      */
@@ -509,7 +509,7 @@
 
     /**
      * interface
-     * @memberof Pure
+     * @memberof Mayjs
      * @class
      * @type {Base}
      */
@@ -521,7 +521,7 @@
 
     /**
      * 创建Protocol的快捷方法
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object} o protocol description
      * @return {Protocol}
      */
@@ -530,7 +530,7 @@
     }
 
     /**
-     * @memberof Pure
+     * @memberof Mayjs
      * @type {Protocol}
      */
      var IBase = $protocol({
@@ -546,7 +546,7 @@
 
     /**
      * 对象类型判断
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Object|String}  type
      * @param  {Object}  o
      * @return {Boolean}
@@ -580,7 +580,7 @@
 
     /**
      * 判断一个对象是否支持指定协议
-     * @memberof Pure
+     * @memberof Mayjs
      * @param  {Protocol} protocol
      * @param  {Object} o
      * @return {Boolean}
@@ -609,7 +609,7 @@
 
     /**
      * 将一个值对象转换成引用对象
-     * @memberof Pure
+     * @memberof Mayjs
      * @param {Object} value
      * @return {Object}
      */
@@ -627,7 +627,7 @@
      /**
       * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
       * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
-      * @memberof Pure
+      * @memberof Mayjs
       * @class
       * @param {Object} obj 对象
       * @return {Object} 对象的代理
@@ -652,7 +652,7 @@
 
     /**
      * 从字典中查找prototype|protocol|value type的注册扩展模块
-     * @memberof Pure.$
+     * @memberof Mayjs.$
      * @param {Object|Protocol|String} type
      * @return {Array}
      */
@@ -662,7 +662,7 @@
 
     /**
      * 查找对象原型链的扩展模块
-     * @memberof Pure.$
+     * @memberof Mayjs.$
      * @param {Object} proto 对象的原型
      * @return {Array}
      */
@@ -687,7 +687,7 @@
 
     /**
      * 查找对象的扩展模块
-     * @memberof Pure.$
+     * @memberof Mayjs.$
      * @param {Object|Protocol|String} obj
      * @return {Array}
      */
@@ -716,7 +716,7 @@
 
     /**
      * 判断一个module是否注册为指定type的wrapper
-     * @memberof Pure.$
+     * @memberof Mayjs.$
      * @param  {Object|Protocol|String} type
      * @param  {Object} module 作为wrapper的module
      * @return {Boolean} 是否已经注册
@@ -734,7 +734,7 @@
 
     /**
      * 注册一个prototype或protocol或value object的扩展模块
-     * @memberof Pure.$
+     * @memberof Mayjs.$
      * @param {Object} module
      * @param {Object|Protocol|String} type
      * @param {Object} [includeOption]
@@ -763,7 +763,7 @@
     /**
      * 给对象包含对象原型的扩展模块，并返回对象自己
      * 如果对象是值类型，会新建一个它对应的引用类型对象，包含扩展模块后返回
-     * @memberof Pure
+     * @memberof Mayjs
      * @param {Object} obj 对象
      * @param {Object}
      */
@@ -811,11 +811,11 @@
 
     /**
      * function overload
-     * @memberof Pure
+     * @memberof Mayjs
      * @param {Array[]} overload functions and its params type
      * @return {Function}
      * @example
-     *   fn = Pure.overload([["string","number"], function(name, age){
+     *   fn = Mayjs.overload([["string","number"], function(name, age){
      *       return "I'm "+name+ " and I'm " + age + " years old";
      *   }], [["string"], function(name){
      *       return "i'm " + name;
@@ -858,7 +858,7 @@
 
      /**
      * 声明一个枚举
-     * @memberof Pure
+     * @memberof Mayjs
      * @param {...String} names enumeration key
      * @example
      * var color = $enum("BLUE", "RED", "YELLOW");
@@ -888,12 +888,12 @@
      "$merge", "$implement", "$include", "$protocol", "$is", "$support", "$dsl", "$overload",
      "$", "$$", "$enum", "$global", "$meta", "IBase", "Base", "Protocol"];
     fns.forEach(function(k) {
-            Pure[k] = eval(k);
+            Mayjs[k] = eval(k);
     });
 
-    Pure.dsl = $dsl;
+    Mayjs.dsl = $dsl;
 
-    $meta.set(Pure, "dsl", fns.filter(function(name){
+    $meta.set(Mayjs, "dsl", fns.filter(function(name){
         return name.charAt(0) === "$";
     }));
 

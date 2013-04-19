@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <script src="lib/es5-shim.js"></script>
     <script src="lib/es5-sham.js"></script>
-    <script src="pure.js"></script>
+    <script src="may.js"></script>
     <script type="text/javascript">
     $run(function(){
-        eval(Pure.dsl())
+        eval(Mayjs.dsl())
 
         Animal = $proto({
             myname: "Animal",
@@ -65,7 +65,7 @@
 
         console.log($$("123Hello").toInteger(10) === 123);
 
-        Pure.$.regist(Animal, StringWrapper, {methodizeTo: function(obj){ return obj.name; }});
+        $.regist(Animal, StringWrapper, {methodizeTo: function(obj){ return obj.name; }});
         hal.name = "123" + hal.name;
         console.log($(hal).toInteger() == "123");
 
@@ -95,6 +95,6 @@
 </script>
 </head>
 <body>
-    Pure Framework
+    Mayjs Lib
 </body>
 </html>

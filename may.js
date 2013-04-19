@@ -76,7 +76,7 @@
      * @return {Boolean}
      */
     $global.exists = function(globalName){
-        return HOST.hasOwnProperty ? HOST.hasOwnProperty(globalName) : typeof HOST[globalName] !== "unconfigd";
+        return HOST.hasOwnProperty ? HOST.hasOwnProperty(globalName) : typeof HOST[globalName] !== "undefined";
     };
 
     $global["@variables"] = [];
@@ -346,9 +346,9 @@
         return $extend(this.prototype, config);
     };
 
-    function $safeCall(obj, method, args){
+    function $safeCall(obj, method, args, context){
         if(obj && $is("function", obj[method])){
-            return obj[method].apply(obj, args);
+            return obj[method].apply(context || obj, args);
         }
     }
 

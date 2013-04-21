@@ -9,7 +9,7 @@ Mayjs.Interface = {};
 Mayjs.interface_ = {
     _parseArgsMeta: function(argsDefine, paramNames) {
         var meta = [];
-        if(Mayjs.interface_.is(Array, argsDefine)) { //在$interface中声明成员方法的参数类型时，总是使用数组
+        if(Mayjs.interface_.is(Array, argsDefine)) {
             var l = argsDefine.length;
             var i;
             if(paramNames) { //$def声明时带了方法定义，参数类型声明中无参数名项，参数名列表从方法定义中获取
@@ -154,11 +154,15 @@ Mayjs.interface_ = {
             interfaces.push(interface_);
         }
     },
-
-    checkParams: function(fn, args) {
-        var caller = fn || arguments.callee.caller;
-        args = args || caller["arguments"];
-        var paramsMeta = Mayjs.meta.get(fn, "paramspec");
+    checkParams: function() {
+        var caller = arguments.callee.caller;
+        var args = caller["arguments"];
+        var paramsMeta;
+        if(arguments.length === 0){
+            paramsMeta = Mayjs.meta.get(caller, "paramspec");
+        }else{
+            paramsMeta = Mayjs.interface_._parseArgsMeta(Mayjs.util.parseArray(arguments), Mayjs.util.parseParamNames(caller));
+        }
         var type;
         for(var i = 0, l = args.length; i < l; i++) {
             type = paramsMeta[i].type;

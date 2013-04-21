@@ -5,6 +5,21 @@
  * @type {Object}
  */
 Mayjs.overload = {
+    _checkParams: function(fn, args) {
+        var caller = fn || arguments.callee.caller;
+        var paramsMeta = Mayjs.meta.get(caller, "paramspec");
+        args = args || caller["arguments"];
+        var type;
+        for(var i = 0, l = args.length; i < l; i++) {
+            type = paramsMeta[i].type;
+            //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
+            if(type === null) return true;
+            if(!Mayjs.interface_.is(type, args[i])) {
+                return false;
+            }
+        }
+        return true;
+    },
     dispatch: function(overloads, args) {
         var l = args.length;
 
@@ -23,7 +38,7 @@ Mayjs.overload = {
 
         var fn;
         while((fn = orderedMatches.shift())) {
-            if(Mayjs.interface_.checkParams(fn, args)) {
+            if(Mayjs.overload._checkParams(fn, args)) {
                 return fn;
             }
         }

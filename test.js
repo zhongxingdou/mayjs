@@ -27,7 +27,7 @@ $run(function() {
             this.base(name); //等同于效率更高的this.prototype.prototype.initialize.call(this, name);
             this.name = "Male " + this.name;
         },
-        whoAmI: function() {
+        whoAmI: function()      {
             var s = this.base();
             return s + " , i'm stronger than female";
         }
@@ -97,4 +97,20 @@ $run(function() {
         age: 22,
         interesting: "swimming"
     });
+
+    fn2 =  $def(["string", "number"], function(name, age){
+        if(!$checkParams()){
+            throw "params error";
+        }
+        console.info("I'm " + name + " and I'm " + age + " years old");
+    });
+    fn2("Jim", 13);
+
+    //test $checkParams
+    function abc(name, age){
+        console.info($checkParams("string", "number"));
+    }
+
+    abc("hal", 18);
+    abc("hal", "18");
 });

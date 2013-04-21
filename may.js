@@ -35,7 +35,7 @@
         return Mayjs.interface_.create(o, base);
     };
 
-    mix(Mayjs.overload, _dsl);
+    mix(Mayjs.overload, _dsl, ["_checkParams"]);
 
     var dsl = Mayjs.dsl;
     Object.keys(_dsl).forEach(function(name){

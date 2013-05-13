@@ -1,5 +1,5 @@
-$run(function() {
-    eval(Mayjs.dsl());
+Mayjs.$run(function() {
+    eval(Mayjs.$dsl(Mayjs.dsl));
 
     Animal = Mayjs.Base.extend({
         myname: "Animal",

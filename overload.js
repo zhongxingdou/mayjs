@@ -4,27 +4,31 @@
  * @require Mayjs.interface
  * @type {Object}
  */
-Mayjs.overload = {
-    _checkParams: function(fn, args) {
+
+Mayjs.$run(function(Mayjs) {
+    var meta = Mayjs.meta;
+
+    function _checkParams(fn, args) {
         var caller = fn || arguments.callee.caller;
-        var paramsMeta = Mayjs.meta.get(caller, "paramspec");
+        var paramsMeta = meta.get(caller, "paramspec");
         args = args || caller["arguments"];
         var type;
         for(var i = 0, l = args.length; i < l; i++) {
             type = paramsMeta[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
-            if(!Mayjs.interface_.is(type, args[i])) {
+            if(!Mayjs.$is(type, args[i])) {
                 return false;
             }
         }
         return true;
-    },
-    dispatch: function(overloads, args) {
+    }
+
+    function dispatch(overloads, args) {
         var l = args.length;
 
         var argsMeta = function(fn) {
-                return Mayjs.meta.get(fn, "paramspec");
+                return meta.get(fn, "paramspec");
             };
 
         var matches = overloads.filter(function(fn) {
@@ -38,11 +42,11 @@ Mayjs.overload = {
 
         var fn;
         while((fn = orderedMatches.shift())) {
-            if(Mayjs.overload._checkParams(fn, args)) {
+            if(_checkParams(fn, args)) {
                 return fn;
             }
         }
-    },
+    }
 
     /**
      * function overload
@@ -66,24 +70,25 @@ Mayjs.overload = {
      *   fn("lily", "singing");
      */
 
-    overload: function(paramsType, fn) {
-        var self = Mayjs.overload;
+    function $overload(paramsType, fn) {
         //存储重载的方法
-        var _overloads = [Mayjs.interface_.def(paramsType, fn)];
+        var _overloads = [Mayjs.$def(paramsType, fn)];
 
         var main = function() {
                 var args = arguments;
-                var fn = self.dispatch(_overloads, args);
+                var fn = dispatch(_overloads, args);
                 if(fn) {
                     return fn.apply(this, args);
                 }
             };
 
         main.overload = function(argsMeta, fn) {
-            _overloads.push(Mayjs.interface_.def(argsMeta, fn));
+            _overloads.push(Mayjs.$def(argsMeta, fn));
             return this;
         };
 
         return main;
     }
-};
+
+    Mayjs.$overload = $overload;
+}, Mayjs);

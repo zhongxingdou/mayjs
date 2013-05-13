@@ -7,3 +7,4 @@
 * [ok] support验证interface不通过base，通过它的prototype,即通过for in 或 object.keys/???
 * test
 * 减少文件大小
+* global.js util.js core.js meta.js合并成may.js

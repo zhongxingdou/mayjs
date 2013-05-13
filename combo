@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-cat global.js util.js meta.js core.js interface.js module.js base.js $.js overload.js may.js > may-all.js
-gjc may-all.js
+cat global.js util.js meta.js interface.js module.js base.js $.js overload.js dsl.js > may.js
+gjc may.js

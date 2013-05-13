@@ -1,4 +1,11 @@
-Mayjs.module = {
+/**
+ * @require Mayjs.meta
+ * @require Mayjs.util
+ * @require Mayjs.$interface
+ */
+Mayjs.$run(function(Mayjs) {
+    var meta = Mayjs.meta;
+    var util = Mayjs.util;
 
     /**
      * 定义一个module
@@ -7,9 +14,10 @@ Mayjs.module = {
      * @return {Object}
      */
 
-    create: function(o) {
+    function $module(o) {
         return o;
-    },
+    }
+
     /**
      * include module to obj with option
      * @memberof Mayjs
@@ -19,14 +27,14 @@ Mayjs.module = {
      * @return {Object}
      */
 
-    include: function(module, obj, option) {
+    function $include(module, obj, option) {
         var defauls = {
             "methodize": false,
             "context": obj,
             "methodizeTo": null,
             "alias": null
         };
-        option = Mayjs.core.merge(option, Mayjs.core.merge(module.includeOption, defauls));
+        option = util.merge(option, util.merge(module.includeOption, defauls));
 
         var methodizeIt = option.methodize;
         Object.keys(module).forEach(function(p) {
@@ -34,16 +42,16 @@ Mayjs.module = {
             if(!(/^__.*__$/.test(p)) && ["onIncluded", "includeOption"].indexOf(p) == -1) {
                 var mp = module[p];
                 if(methodizeIt && typeof mp == "function") {
-                    obj[alias] = Mayjs.core.methodize(mp, option.context, option.methodizeTo);
+                    obj[alias] = util.methodize(mp, option.context, option.methodizeTo);
                 } else {
                     obj[alias] = module[p];
                 }
             }
         });
 
-        if(Mayjs.meta.has("interfaces")) {
-            Mayjs.meta.get("interfaces").forEach(function(interface_) {
-                Mayjs.interface_.implement(interface_, obj);
+        if(meta.has("interfaces")) {
+            meta.get("interfaces").forEach(function(interface_) {
+                Mayjs.$implement(interface_, obj);
             });
         }
 
@@ -51,4 +59,7 @@ Mayjs.module = {
             module.onIncluded.call(obj, option.context);
         }
     }
-};
+
+    Mayjs.$module = $module;
+    Mayjs.$include = $include;
+}, Mayjs);

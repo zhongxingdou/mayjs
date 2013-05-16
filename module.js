@@ -34,7 +34,7 @@ Mayjs.$run(function(Mayjs) {
             "methodizeTo": null,
             "alias": null
         };
-        option = util.merge(option, util.merge(module.includeOption, defauls));
+        option = util.merge(defauls, module.includeOption, option);
 
         var methodizeIt = option.methodize;
         Object.keys(module).forEach(function(p) {

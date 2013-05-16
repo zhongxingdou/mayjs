@@ -9,18 +9,18 @@
      */
 
     var $global = function(globalName, obj) {
-        if ($global.defined(globalName)) {
-            throw globalName + " defined";
-        } else {
-            var o = obj || eval(globalName);
-            HOST[globalName] = o;
+            if($global.defined(globalName)) {
+                throw globalName + " defined";
+            } else {
+                var o = obj || eval(globalName);
+                HOST[globalName] = o;
 
-            var variables = $global.__variables__;
-            if (variables.indexOf(globalName) == -1) {
-                variables.push(globalName);
+                var variables = $global.__variables__;
+                if(variables.indexOf(globalName) == -1) {
+                    variables.push(globalName);
+                }
             }
-        }
-    };
+        };
 
     /**
      * 判断全局变量是否已经定义
@@ -45,7 +45,7 @@
      */
     $global.del = function(globalName) {
         var i = this.__variables__.indexOf(globalName);
-        if (i >= 0) {
+        if(i >= 0) {
             var variables = this.__variables__;
             this.__variables__ = variables.slice(0, i) + variables.slice(i + 1);
         }
@@ -63,7 +63,7 @@
     };
 
 
-    if (typeof(console) == "undefined") {
+    if(typeof(console) == "undefined") {
         console = {};
         ["info", "log", "error", "debug", "warn", "trace", "dir"].forEach(function(name) {
             console["name"] = function() {};
@@ -71,12 +71,12 @@
     }
 
     var $run = function(fn) {
-        if (arguments.length == 1) {
-            return fn();
-        } else {
-            return fn.apply(this, Array.prototype.slice.call(arguments, 1));
-        }
-    };
+            if(arguments.length == 1) {
+                return fn();
+            } else {
+                return fn.apply(this, Array.prototype.slice.call(arguments, 1));
+            }
+        };
 
     /**
      * 生成供eval()函数将指定变量成员声明为当前作用域内变量的代码
@@ -96,23 +96,23 @@
      */
 
     var $dsl = function(obj) {
-        obj = obj || this;
+            obj = obj || this;
 
-        //create global tempObj
-        var tempVarName = "_temp" + Date.now();
-        eval(tempVarName + "={value: {}}");
+            //create global tempObj
+            var tempVarName = "_temp" + Date.now();
+            eval(tempVarName + "={value: {}}");
 
-        //get tempObj and set it's value with obj
-        var temp = eval(tempVarName);
-        temp.value = obj;
+            //get tempObj and set it's value with obj
+            var temp = eval(tempVarName);
+            temp.value = obj;
 
-        //generate members declare string
-        var keys = Object.keys(obj);
-        var members = keys.map(function(name) {
-            return name + "=" + tempVarName + ".value" + "['" + name + "']";
-        });
-        return "var " + members.join(",") + "; delete " + tempVarName;
-    };
+            //generate members declare string
+            var keys = Object.keys(obj);
+            var members = keys.map(function(name) {
+                return name + "=" + tempVarName + ".value" + "['" + name + "']";
+            });
+            return "var " + members.join(",") + "; delete " + tempVarName;
+        };
 
     $global("Mayjs", {
         "$global": $global,
@@ -276,18 +276,24 @@
         },
 
         /**
-         * merge a to b
+         * merge a to b to c ... n
          * @memberof Mayjs
          * @param {Object} a
          * @param {Object} b
-         * @param  {String[]} [whitelist=null] 不想被覆盖的成员
          * @return {Object} merge result
          */
 
-        merge: function(a, b, whitelist) {
+        merge: function(a, b, c, n) {
             var util = Mayjs.util;
-            var obj = util.clone(b);
-            util.mix(a || {}, obj, whitelist);
+            var obj = {}, curr = null, p;
+
+            for(var i=0,l=arguments.length; i<l; i++){
+                curr = arguments[i];
+                for(p in curr){
+                    obj[p] = curr[p];
+                }
+            }
+
             return obj;
         }
     };
@@ -378,7 +384,7 @@ Mayjs.$run(function(Mayjs) {
         return meta;
     }
 
-    function $def(argsDefine, fn) {
+    function def(argsDefine, fn) {
         meta.set(fn, "paramspec", _parseArgsMeta(argsDefine, util.parseParamNames(fn)));
         return fn;
     }
@@ -413,6 +419,8 @@ Mayjs.$run(function(Mayjs) {
 
     function $is(type, o) {
         if(type === null) return o === null;
+        if(type === undefined) return o === undefined;
+
         var result = false;
         switch(typeof type) {
         case "string":
@@ -451,6 +459,8 @@ Mayjs.$run(function(Mayjs) {
         }
 
         for(var k in interface_) {
+            if(/^__.*__$/.test(k))continue;
+            
             if($is(Array, interface_[k])) {
                 if(!$is("function", o[k])) {
                     return false;
@@ -519,7 +529,7 @@ Mayjs.$run(function(Mayjs) {
     Mayjs.$support = $support;
     Mayjs.$is = $is;
     Mayjs.$checkParams = $checkParams;
-    Mayjs.$def = $def;
+    Mayjs.util.def = def;
     Mayjs.Interface = Interface;
 }, Mayjs);/**
  * @require Mayjs.meta
@@ -557,7 +567,7 @@ Mayjs.$run(function(Mayjs) {
             "methodizeTo": null,
             "alias": null
         };
-        option = util.merge(option, util.merge(module.includeOption, defauls));
+        option = util.merge(defauls, module.includeOption, option);
 
         var methodizeIt = option.methodize;
         Object.keys(module).forEach(function(p) {
@@ -599,27 +609,27 @@ Mayjs.$run(function(Mayjs) {
     var util = Mayjs.util;
 
     function $extend(baseProto, config) {
-        var clazz = function() {
+        var proto = Object.create(baseProto);
+        var clazz;
+        if(!Object["__proto__"]) {
+            meta.set(proto, "proto", baseProto, true);
+            clazz = function() {
+                this["__proto__"] = proto;
                 var initialize = clazz.prototype.initialize;
                 if(initialize) {
                     initialize.apply(this, arguments);
                 }
             };
-
-        meta.set(clazz, "config", config, true);
-
-        var proto = Object.create(baseProto);
-
-        //link to base prototype in IE
-        if(!proto["__proto__"]) {
-            meta.set(proto, "proto", baseProto, true);
+        }else{
+            clazz = function() {
+                var initialize = clazz.prototype.initialize;
+                if(initialize) {
+                    initialize.apply(this, arguments);
+                }
+            };
         }
 
-        //copy statics member to clazz
-        var statics = config["@statics"];
-        if(statics) {
-            util.mix(statics, clazz);
-        }
+        // meta.set(clazz, "config", config, true);
 
         if(!clazz.extend) {
             var fn = arguments.callee;
@@ -628,28 +638,17 @@ Mayjs.$run(function(Mayjs) {
             };
         }
 
-        clazz.prototype = proto;
+        for(var p in config){
+            var ap = config[p];
+            if(typeof(ap) == "function"){
+                meta.set(ap, "name", p);
+            }
+            proto[p] = ap;
+        }
 
-        //copy prototype member of config to clazz.prototype
-        var defineProto = Object.keys(config).filter(function(name) {
-            return name.charAt(0) != "@" && name != "constructor";
-        });
-        defineProto.forEach(function(p) {
-            proto[p] = config[p];
-        });
-
-        //initialize clazz.prototype's interfaces meta
         meta.set(proto, "interfaces", []);
 
-        var implns = config["@implements"];
-        if(implns){
-            if(!Mayjs.$is(Array, implns)){
-                implns = [implns];
-            }
-            implns.forEach(function(interface_){
-                Mayjs.$implement(interface_, proto);
-            });
-        }
+        clazz.prototype = proto;
 
         return clazz;
     }
@@ -666,17 +665,6 @@ Mayjs.$run(function(Mayjs) {
      * @lends Mayjs.Base.prototype
      */
     var Base = $extend(Object.prototype, {
-        "@implements": IBase,
-        "@statics": {
-            "extend": function(config) {
-                if(!config.initialize) {
-                    config.initialize = function() {
-                        this.base();
-                    };
-                }
-                return $extend(this.prototype, config);
-            }
-        },
         /**
          * initialize instance of this prototype <br>
          * 使用Mayjs.Base.create()或Mayjs.$obj()来创建实例，
@@ -686,18 +674,29 @@ Mayjs.$run(function(Mayjs) {
         "initialize": function() {
             meta.set(this, "interfaces", []);
         },
-        _callerOwner: function(caller) {
+        _callerOwner: function(caller, callerName) {
             var callerOwner = null;
-            util.trace(this, "__proto__", function(proto) {
-                Object.keys(proto).forEach(function(p) {
-                    if(proto[p] == caller) {
+            if(callerName){
+                if(this["__proto__"][callerName] == caller){
+                    return this["__proto__"];
+                }
+                util.trace(this, "__proto__", function(proto) {
+                    if(proto.hasOwnProperty(callerName) && proto[callerName] == caller){
                         callerOwner = proto;
-                        caller["@name"] = p;
                         return false;
                     }
                 });
-                if(callerOwner) return false;
-            });
+            }else{
+                util.trace(this, "__proto__", function(proto) {
+                    Object.keys(proto).forEach(function(p) {
+                        if(proto[p] == caller) {
+                            callerOwner = proto;
+                            meta.set(caller,"name", p);
+                            return false;
+                        }
+                    });
+                });
+            }
             return callerOwner;
         },
 
@@ -708,25 +707,27 @@ Mayjs.$run(function(Mayjs) {
          * @param  {String} member member name
          * @return {Object}
          */
+         /*
         protoMember: function(member) {
-            var callerOwner = this._callerOwner(arguments.callee.caller);
+            var caller = arguments.callee.caller;
+            var callerName = caller.name || meta.get(caller, "name");
+            var callerOwner = this._callerOwner(caller, callerName);
             if(callerOwner) {
-                var ptoto;
-                if((proto = meta.get(callerOwner, "proto"))) {
+                var ptoto = meta.get(callerOwner, "proto");
+                if(proto) {
                     return proto[member];
                 }
             }
-        },
+        },*/
         /**
          * 类似C#的base()和Java的super()，获取调用此方法的方法名，在对象的base prototype中调用这个方法
          * @return {Object}
          */
         base: function() {
             var caller = arguments.callee.caller;
-            var callerOwner = this._callerOwner(caller);
-
-            var callerName = caller["@name"];
-            delete caller["@name"];
+            var callerName = caller.name || meta.get(caller, "name");
+            var callerOwner = this._callerOwner(caller, callerName);
+            if(!callerName)callerName = meta.get(caller, "name"); //在this._callerOwner方法中会为caller设置name meta;
 
             var base = callerOwner ? meta.get(callerOwner, "proto") : null;
             var fn = base ? base[callerName] : null;
@@ -778,9 +779,27 @@ Mayjs.$run(function(Mayjs) {
         dsl: Mayjs.$dsl
     });
 
+    Mayjs.$implement(IBase, Base.prototype);
+
+    Base.extend = function(config) {
+        var o = $extend(this.prototype, config);
+        if(!config.initialize) {
+            o.prototype.initialize = function() {
+                this.base();
+            };
+        }
+        return o;
+    };
+
+    function $class(proto){
+        return Base.extend(proto);
+    }
+
+
     Mayjs.$extend = $extend;
     Mayjs.Base = Base;
     Mayjs.IBase = IBase;
+    Mayjs.$class = $class;
 },Mayjs);/**
  * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
  * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
@@ -808,9 +827,9 @@ Mayjs.$run(function(Mayjs) {
         var proxy = new Mayjs.Base();
 
         wrappers.forEach(function(wrapper) {
-            proxy.include(wrapper.module, util.merge(wrapper.includeOption, {
+            proxy.include(wrapper.module, util.merge({
                 "context": obj
-            }, ["context"]));
+            }, wrapper.includeOption));
         });
 
         return proxy;
@@ -927,7 +946,7 @@ Mayjs.$run(function(Mayjs) {
             if(!$.exists(type, module)) {
                 modules.push({
                     "module": module,
-                    "includeOption": includeOption
+                    "includeOption": util.merge(module.includeOption, includeOption)
                 });
             }
 
@@ -952,11 +971,7 @@ Mayjs.$run(function(Mayjs) {
         if(wrappers.length === 0) return obj;
 
         wrappers.forEach(function(wrapper) {
-            if(obj.include) {
-                obj.include(wrapper.module, wrapper.includeOption);
-            } else {
-                Mayjs.$include(wrapper.module, obj, wrapper.includeOption);
-            }
+            Mayjs.$include(wrapper.module, obj, wrapper.includeOption);
         });
 
         return obj;
@@ -973,6 +988,7 @@ Mayjs.$run(function(Mayjs) {
 
 Mayjs.$run(function(Mayjs) {
     var meta = Mayjs.meta;
+    var util = Mayjs.util;
 
     function _checkParams(fn, args) {
         var caller = fn || arguments.callee.caller;
@@ -1014,6 +1030,7 @@ Mayjs.$run(function(Mayjs) {
         }
     }
 
+
     /**
      * function overload
      * @memberof Mayjs
@@ -1036,9 +1053,10 @@ Mayjs.$run(function(Mayjs) {
      *   fn("lily", "singing");
      */
 
+
     function $overload(paramsType, fn) {
         //存储重载的方法
-        var _overloads = [Mayjs.$def(paramsType, fn)];
+        var _overloads = [util.def(paramsType, fn)];
 
         var main = function() {
                 var args = arguments;
@@ -1049,7 +1067,7 @@ Mayjs.$run(function(Mayjs) {
             };
 
         main.overload = function(argsMeta, fn) {
-            _overloads.push(Mayjs.$def(argsMeta, fn));
+            _overloads.push(util.def(argsMeta, fn));
             return this;
         };
 
@@ -1072,8 +1090,9 @@ Mayjs.$run(function(Mayjs) {
         }
     };
 
+    var utilExcludes = ["parseParamNames", "def"];
     Object.keys(util).forEach(function(name) {
-        if(name != "parseParamNames")
+        if(utilExcludes.indexOf(name) == -1)
             dsl["$" + name] = util[name];
     });
 
@@ -1085,3 +1104,5 @@ Mayjs.$run(function(Mayjs) {
 
     return dsl;
 }, Mayjs);
+
+Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);

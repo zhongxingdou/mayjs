@@ -13,8 +13,9 @@ Mayjs.dsl = Mayjs.$run(function(Mayjs) {
         }
     };
 
+    var utilExcludes = ["parseParamNames", "def"];
     Object.keys(util).forEach(function(name) {
-        if(name != "parseParamNames")
+        if(utilExcludes.indexOf(name) == -1)
             dsl["$" + name] = util[name];
     });
 
@@ -26,3 +27,5 @@ Mayjs.dsl = Mayjs.$run(function(Mayjs) {
 
     return dsl;
 }, Mayjs);
+
+Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);

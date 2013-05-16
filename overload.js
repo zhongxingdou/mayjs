@@ -7,6 +7,7 @@
 
 Mayjs.$run(function(Mayjs) {
     var meta = Mayjs.meta;
+    var util = Mayjs.util;
 
     function _checkParams(fn, args) {
         var caller = fn || arguments.callee.caller;
@@ -48,6 +49,7 @@ Mayjs.$run(function(Mayjs) {
         }
     }
 
+
     /**
      * function overload
      * @memberof Mayjs
@@ -70,9 +72,10 @@ Mayjs.$run(function(Mayjs) {
      *   fn("lily", "singing");
      */
 
+
     function $overload(paramsType, fn) {
         //存储重载的方法
-        var _overloads = [Mayjs.$def(paramsType, fn)];
+        var _overloads = [util.def(paramsType, fn)];
 
         var main = function() {
                 var args = arguments;
@@ -83,7 +86,7 @@ Mayjs.$run(function(Mayjs) {
             };
 
         main.overload = function(argsMeta, fn) {
-            _overloads.push(Mayjs.$def(argsMeta, fn));
+            _overloads.push(util.def(argsMeta, fn));
             return this;
         };
 

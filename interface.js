@@ -38,7 +38,7 @@ Mayjs.$run(function(Mayjs) {
         return meta;
     }
 
-    function $def(argsDefine, fn) {
+    function def(argsDefine, fn) {
         meta.set(fn, "paramspec", _parseArgsMeta(argsDefine, util.parseParamNames(fn)));
         return fn;
     }
@@ -73,6 +73,8 @@ Mayjs.$run(function(Mayjs) {
 
     function $is(type, o) {
         if(type === null) return o === null;
+        if(type === undefined) return o === undefined;
+
         var result = false;
         switch(typeof type) {
         case "string":
@@ -111,6 +113,8 @@ Mayjs.$run(function(Mayjs) {
         }
 
         for(var k in interface_) {
+            if(/^__.*__$/.test(k))continue;
+            
             if($is(Array, interface_[k])) {
                 if(!$is("function", o[k])) {
                     return false;
@@ -179,6 +183,6 @@ Mayjs.$run(function(Mayjs) {
     Mayjs.$support = $support;
     Mayjs.$is = $is;
     Mayjs.$checkParams = $checkParams;
-    Mayjs.$def = $def;
+    Mayjs.util.def = def;
     Mayjs.Interface = Interface;
 }, Mayjs);

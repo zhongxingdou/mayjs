@@ -25,9 +25,9 @@ Mayjs.$run(function(Mayjs) {
         var proxy = new Mayjs.Base();
 
         wrappers.forEach(function(wrapper) {
-            proxy.include(wrapper.module, util.merge(wrapper.includeOption, {
+            proxy.include(wrapper.module, util.merge({
                 "context": obj
-            }, ["context"]));
+            }, wrapper.includeOption));
         });
 
         return proxy;
@@ -144,7 +144,7 @@ Mayjs.$run(function(Mayjs) {
             if(!$.exists(type, module)) {
                 modules.push({
                     "module": module,
-                    "includeOption": includeOption
+                    "includeOption": util.merge(module.includeOption, includeOption)
                 });
             }
 
@@ -169,11 +169,7 @@ Mayjs.$run(function(Mayjs) {
         if(wrappers.length === 0) return obj;
 
         wrappers.forEach(function(wrapper) {
-            if(obj.include) {
-                obj.include(wrapper.module, wrapper.includeOption);
-            } else {
-                Mayjs.$include(wrapper.module, obj, wrapper.includeOption);
-            }
+            Mayjs.$include(wrapper.module, obj, wrapper.includeOption);
         });
 
         return obj;

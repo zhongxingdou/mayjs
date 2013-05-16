@@ -12,27 +12,27 @@ Mayjs.$run(function(Mayjs) {
     var util = Mayjs.util;
 
     function $extend(baseProto, config) {
-        var clazz = function() {
+        var proto = Object.create(baseProto);
+        var clazz;
+        if(!Object["__proto__"]) {
+            meta.set(proto, "proto", baseProto, true);
+            clazz = function() {
+                this["__proto__"] = proto;
                 var initialize = clazz.prototype.initialize;
                 if(initialize) {
                     initialize.apply(this, arguments);
                 }
             };
-
-        meta.set(clazz, "config", config, true);
-
-        var proto = Object.create(baseProto);
-
-        //link to base prototype in IE
-        if(!proto["__proto__"]) {
-            meta.set(proto, "proto", baseProto, true);
+        }else{
+            clazz = function() {
+                var initialize = clazz.prototype.initialize;
+                if(initialize) {
+                    initialize.apply(this, arguments);
+                }
+            };
         }
 
-        //copy statics member to clazz
-        var statics = config["@statics"];
-        if(statics) {
-            util.mix(statics, clazz);
-        }
+        // meta.set(clazz, "config", config, true);
 
         if(!clazz.extend) {
             var fn = arguments.callee;
@@ -41,28 +41,17 @@ Mayjs.$run(function(Mayjs) {
             };
         }
 
-        clazz.prototype = proto;
+        for(var p in config){
+            var ap = config[p];
+            if(typeof(ap) == "function"){
+                meta.set(ap, "name", p);
+            }
+            proto[p] = ap;
+        }
 
-        //copy prototype member of config to clazz.prototype
-        var defineProto = Object.keys(config).filter(function(name) {
-            return name.charAt(0) != "@" && name != "constructor";
-        });
-        defineProto.forEach(function(p) {
-            proto[p] = config[p];
-        });
-
-        //initialize clazz.prototype's interfaces meta
         meta.set(proto, "interfaces", []);
 
-        var implns = config["@implements"];
-        if(implns){
-            if(!Mayjs.$is(Array, implns)){
-                implns = [implns];
-            }
-            implns.forEach(function(interface_){
-                Mayjs.$implement(interface_, proto);
-            });
-        }
+        clazz.prototype = proto;
 
         return clazz;
     }
@@ -79,17 +68,6 @@ Mayjs.$run(function(Mayjs) {
      * @lends Mayjs.Base.prototype
      */
     var Base = $extend(Object.prototype, {
-        "@implements": IBase,
-        "@statics": {
-            "extend": function(config) {
-                if(!config.initialize) {
-                    config.initialize = function() {
-                        this.base();
-                    };
-                }
-                return $extend(this.prototype, config);
-            }
-        },
         /**
          * initialize instance of this prototype <br>
          * 使用Mayjs.Base.create()或Mayjs.$obj()来创建实例，
@@ -99,18 +77,29 @@ Mayjs.$run(function(Mayjs) {
         "initialize": function() {
             meta.set(this, "interfaces", []);
         },
-        _callerOwner: function(caller) {
+        _callerOwner: function(caller, callerName) {
             var callerOwner = null;
-            util.trace(this, "__proto__", function(proto) {
-                Object.keys(proto).forEach(function(p) {
-                    if(proto[p] == caller) {
+            if(callerName){
+                if(this["__proto__"][callerName] == caller){
+                    return this["__proto__"];
+                }
+                util.trace(this, "__proto__", function(proto) {
+                    if(proto.hasOwnProperty(callerName) && proto[callerName] == caller){
                         callerOwner = proto;
-                        caller["@name"] = p;
                         return false;
                     }
                 });
-                if(callerOwner) return false;
-            });
+            }else{
+                util.trace(this, "__proto__", function(proto) {
+                    Object.keys(proto).forEach(function(p) {
+                        if(proto[p] == caller) {
+                            callerOwner = proto;
+                            meta.set(caller,"name", p);
+                            return false;
+                        }
+                    });
+                });
+            }
             return callerOwner;
         },
 
@@ -121,25 +110,27 @@ Mayjs.$run(function(Mayjs) {
          * @param  {String} member member name
          * @return {Object}
          */
+         /*
         protoMember: function(member) {
-            var callerOwner = this._callerOwner(arguments.callee.caller);
+            var caller = arguments.callee.caller;
+            var callerName = caller.name || meta.get(caller, "name");
+            var callerOwner = this._callerOwner(caller, callerName);
             if(callerOwner) {
-                var ptoto;
-                if((proto = meta.get(callerOwner, "proto"))) {
+                var ptoto = meta.get(callerOwner, "proto");
+                if(proto) {
                     return proto[member];
                 }
             }
-        },
+        },*/
         /**
          * 类似C#的base()和Java的super()，获取调用此方法的方法名，在对象的base prototype中调用这个方法
          * @return {Object}
          */
         base: function() {
             var caller = arguments.callee.caller;
-            var callerOwner = this._callerOwner(caller);
-
-            var callerName = caller["@name"];
-            delete caller["@name"];
+            var callerName = caller.name || meta.get(caller, "name");
+            var callerOwner = this._callerOwner(caller, callerName);
+            if(!callerName)callerName = meta.get(caller, "name"); //在this._callerOwner方法中会为caller设置name meta;
 
             var base = callerOwner ? meta.get(callerOwner, "proto") : null;
             var fn = base ? base[callerName] : null;
@@ -191,7 +182,25 @@ Mayjs.$run(function(Mayjs) {
         dsl: Mayjs.$dsl
     });
 
+    Mayjs.$implement(IBase, Base.prototype);
+
+    Base.extend = function(config) {
+        var o = $extend(this.prototype, config);
+        if(!config.initialize) {
+            o.prototype.initialize = function() {
+                this.base();
+            };
+        }
+        return o;
+    };
+
+    function $class(proto){
+        return Base.extend(proto);
+    }
+
+
     Mayjs.$extend = $extend;
     Mayjs.Base = Base;
     Mayjs.IBase = IBase;
+    Mayjs.$class = $class;
 },Mayjs);

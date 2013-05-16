@@ -3,3 +3,4 @@
 * 给Mayjs.Base增加this.property()
 * 支持property 事件
 * 减少dsl中的方法
+* 把includeOption放到module的meta中去

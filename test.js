@@ -1,7 +1,7 @@
 Mayjs.$run(function() {
-    eval(Mayjs.$dsl(Mayjs.dsl));
+    eval(Mayjs.DSL);
 
-    Animal = Mayjs.Base.extend({
+    Animal = $class({
         myname: "Animal",
         initialize: function(name) {
             this.name = name;
@@ -97,14 +97,6 @@ Mayjs.$run(function() {
         age: 22,
         interesting: "swimming"
     });
-
-    fn2 =  $def(["string", "number"], function(name, age){
-        if(!$checkParams()){
-            throw "params error";
-        }
-        console.info("I'm " + name + " and I'm " + age + " years old");
-    });
-    fn2("Jim", 13);
 
     //test $checkParams
     function abc(name, age){

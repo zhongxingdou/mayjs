@@ -154,18 +154,24 @@ Mayjs.util = Mayjs.$run(function(Mayjs) {
         },
 
         /**
-         * merge a to b
+         * merge a to b to c ... n
          * @memberof Mayjs
          * @param {Object} a
          * @param {Object} b
-         * @param  {String[]} [whitelist=null] 不想被覆盖的成员
          * @return {Object} merge result
          */
 
-        merge: function(a, b, whitelist) {
+        merge: function(a, b, c, n) {
             var util = Mayjs.util;
-            var obj = util.clone(b);
-            util.mix(a || {}, obj, whitelist);
+            var obj = {}, curr = null, p;
+
+            for(var i=0,l=arguments.length; i<l; i++){
+                curr = arguments[i];
+                for(p in curr){
+                    obj[p] = curr[p];
+                }
+            }
+
             return obj;
         }
     };

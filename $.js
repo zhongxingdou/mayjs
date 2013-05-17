@@ -17,13 +17,11 @@ Mayjs.$run(function(Mayjs) {
 
     function $(obj) {
         var wrappers = arguments.callee.findWrappersByObj(obj);
-
-        obj = util.toObject(obj);
-
         if(wrappers.length === 0) return obj;
 
+        obj = util.toObject(obj);
         var proxy = new Mayjs.Base();
-
+        
         wrappers.forEach(function(wrapper) {
             proxy.include(wrapper.module, util.merge({
                 "context": obj
@@ -163,11 +161,9 @@ Mayjs.$run(function(Mayjs) {
 
     function $$(obj) {
         var wrappers = $.findWrappersByObj(obj);
-
-        obj = util.toObject(obj);
-
         if(wrappers.length === 0) return obj;
 
+        obj = util.toObject(obj);
         wrappers.forEach(function(wrapper) {
             Mayjs.$include(wrapper.module, obj, wrapper.includeOption);
         });

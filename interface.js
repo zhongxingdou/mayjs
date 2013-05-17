@@ -9,37 +9,37 @@ Mayjs.$run(function(Mayjs) {
 
     var Interface = {};
 
-    function _parseArgsMeta(argsDefine, paramNames) {
+    function _parseParamTypes(paramTypes, paramNames) {
         var meta = [];
-        if($is(Array, argsDefine)) {
-            var l = argsDefine.length;
+        if($is(Array, paramTypes)) {
+            var l = paramTypes.length;
             var i;
             if(paramNames) { //$def声明时带了方法定义，参数类型声明中无参数名项，参数名列表从方法定义中获取
                 for(i = 0; i < l; i++) {
                     meta.push({
                         "name": paramNames[i],
-                        "type": argsDefine[i]
+                        "type": paramTypes[i]
                     });
                 }
             } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
                 for(i = 0; i < l; i += 2) {
                     meta.push({
-                        "name": argsDefine[i],
-                        "type": argsDefine[i + 1]
+                        "name": paramTypes[i],
+                        "type": paramTypes[i + 1]
                     });
                 }
             }
         } else { //在$def中定义的option,即$def({param1: Type1, param2: Type2}, function(param1, param2){});
             meta.push({
                 "name": paramNames[0],
-                "type": $interface(argsDefine)
+                "type": $interface(paramTypes)
             });
         }
         return meta;
     }
 
-    function def(argsDefine, fn) {
-        meta.set(fn, "paramspec", _parseArgsMeta(argsDefine, util.parseParamNames(fn)));
+    function def(paramTypes, fn) {
+        meta.set(fn, "param_types", _parseParamTypes(paramTypes, util.parseParamNames(fn)));
         return fn;
     }
 
@@ -149,7 +149,7 @@ Mayjs.$run(function(Mayjs) {
             //write arguments meta for methods of obj
             Object.keys(interface_).forEach(function(p) {
                 if($is(Array, interface_[p])) {
-                    meta.set(obj[p], "paramspec", _parseArgsMeta(interface_[p]));
+                    meta.set(obj[p], "param_types", _parseParamTypes(interface_[p]));
                 }
             });
 
@@ -160,15 +160,15 @@ Mayjs.$run(function(Mayjs) {
     function $checkParams() {
         var caller = arguments.callee.caller;
         var args = caller["arguments"];
-        var paramsMeta;
+        var paramTypes;
         if(arguments.length === 0) {
-            paramsMeta = meta.get(caller, "paramspec");
+            paramTypes = meta.get(caller, "param_types");
         } else {
-            paramsMeta = _parseArgsMeta(util.parseArray(arguments), util.parseParamNames(caller));
+            paramTypes = _parseParamTypes(util.parseArray(arguments), util.parseParamNames(caller));
         }
         var type;
         for(var i = 0, l = args.length; i < l; i++) {
-            type = paramsMeta[i].type;
+            type = paramTypes[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
             if(!$is(type, args[i])) {

@@ -9,41 +9,41 @@ Mayjs.$run(function(Mayjs) {
     var meta = Mayjs.meta;
     var util = Mayjs.util;
 
-    function _checkParams(fn, args) {
+    function _checkParams(fn, params) {
         var caller = fn || arguments.callee.caller;
-        var paramsMeta = meta.get(caller, "paramspec");
-        args = args || caller["arguments"];
+        var paramsMeta = meta.get(caller, "param_types");
+        params = params || caller["arguments"];
         var type;
-        for(var i = 0, l = args.length; i < l; i++) {
+        for(var i = 0, l = params.length; i < l; i++) {
             type = paramsMeta[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
-            if(!Mayjs.$is(type, args[i])) {
+            if(!Mayjs.$is(type, params[i])) {
                 return false;
             }
         }
         return true;
     }
 
-    function dispatch(overloads, args) {
-        var l = args.length;
+    function dispatch(overloads, params) {
+        var l = params.length;
 
-        var argsMeta = function(fn) {
-                return meta.get(fn, "paramspec");
+        var paramTypes = function(fn) {
+                return meta.get(fn, "param_types");
             };
 
         var matches = overloads.filter(function(fn) {
-            return argsMeta(fn).length >= l;
+            return paramTypes(fn).length >= l;
         });
         if(matches.length <= 1) return matches[0];
 
         var orderedMatches = matches.sort(function(fn1, fn2) {
-            return argsMeta(fn1).length - argsMeta(fn2).length;
+            return paramTypes(fn1).length - paramTypes(fn2).length;
         });
 
         var fn;
         while((fn = orderedMatches.shift())) {
-            if(_checkParams(fn, args)) {
+            if(_checkParams(fn, params)) {
                 return fn;
             }
         }
@@ -53,7 +53,7 @@ Mayjs.$run(function(Mayjs) {
     /**
      * function overload
      * @memberof Mayjs
-     * @param {Array} paramsType params types
+     * @param {Array} paramsTypes params types
      * @param {Function} fn overload function
      * @return {Function}
      * @example
@@ -73,20 +73,20 @@ Mayjs.$run(function(Mayjs) {
      */
 
 
-    function $overload(paramsType, fn) {
+    function $overload(paramsTypes, fn) {
         //存储重载的方法
-        var _overloads = [util.def(paramsType, fn)];
+        var _overloads = [util.def(paramsTypes, fn)];
 
         var main = function() {
-                var args = arguments;
-                var fn = dispatch(_overloads, args);
+                var params = arguments;
+                var fn = dispatch(_overloads, params);
                 if(fn) {
-                    return fn.apply(this, args);
+                    return fn.apply(this, params);
                 }
             };
 
-        main.overload = function(argsMeta, fn) {
-            _overloads.push(util.def(argsMeta, fn));
+        main.overload = function(paramTypes, fn) {
+            _overloads.push(util.def(paramTypes, fn));
             return this;
         };
 

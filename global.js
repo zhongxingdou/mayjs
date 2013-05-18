@@ -107,7 +107,10 @@
             temp.value = obj;
 
             //generate members declare string
-            var keys = Object.keys(obj);
+            var keys = Object.keys(obj).filter(function(k){
+                 return obj.hasOwnProperty(k) && typeof obj[k] == "function";
+            });
+
             var members = keys.map(function(name) {
                 return name + "=" + tempVarName + ".value" + "['" + name + "']";
             });

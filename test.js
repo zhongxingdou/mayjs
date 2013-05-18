@@ -1,4 +1,4 @@
-Mayjs.init({injectPrototype: false});
+Mayjs.init({injectPrototype: true});
 Mayjs.$run(function() {
     eval(Mayjs.DSL);
 
@@ -43,22 +43,20 @@ Mayjs.$run(function() {
         "onIncluded": function() {},
         "toInteger": function(string, radix) {
             return parseInt(string, radix);
-        },
-        "includeOption": {
-            "methodize": true
         }
     });
 
     var types = ["string", String.prototype];
 
     types.forEach(function(type) {
-        $.regist(type, StringWrapper);
+        $.regist(type, StringWrapper, {"methodize": true});
     });
 
     console.log($$("123Hello").toInteger(10) === 123);
 
     $.regist(Animal, StringWrapper, {
-        methodizeTo: function(obj) {
+        "methodize": true,
+        "methodizeTo": function(obj) {
             return obj.name;
         }
     });
@@ -106,4 +104,5 @@ Mayjs.$run(function() {
 
     abc("hal", 18);
     abc("hal", "18");
+    console.info(abc.paramNames());
 });

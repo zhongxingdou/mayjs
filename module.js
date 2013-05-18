@@ -30,16 +30,16 @@ Mayjs.$run(function(Mayjs) {
     function $include(module, obj, option) {
         var defauls = {
             "methodize": false,
-            "context": obj,
+            "context": null,
             "methodizeTo": null,
             "alias": null
         };
-        option = util.merge(defauls, module.includeOption, option);
+        option = util.merge(defauls, option);
 
         var needMethodize = option.methodize;
         Object.keys(module).forEach(function(p) {
             var alias = option.alias && option.alias[p] ? option.alias[p] : p;
-            if(!(/^__.*__$/.test(p)) && ["onIncluded", "includeOption"].indexOf(p) == -1) {
+            if(!(/^__.*__$/.test(p)) && "onIncluded" != p) {
                 var mp = module[p];
                 if(needMethodize && typeof mp == "function") {
                     obj[alias] = util.methodize(mp, option.context, option.methodizeTo);

@@ -145,7 +145,7 @@ Mayjs.$run(function(Mayjs) {
 
             var wrapper = {
                 "module": module,
-                "includeOption": util.merge(module.includeOption, includeOption)
+                "includeOption": includeOption
             };
 
             if(typeWrappers.length === 0) {

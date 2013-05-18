@@ -66,13 +66,13 @@ Mayjs.util = Mayjs.$run(function(Mayjs) {
         /**
          * copy members of src to dest
          * @memberof Mayjs
-         * @param  {Object} src [description]
          * @param  {Object} dest [description]
+         * @param  {Object} src [description]
          * @param  {String[]} [whitelist=null] 不想被覆盖的成员
          * @return {Object}
          */
 
-        mix: function(src, dest, whitelist) {
+        mix: function(dest, src, whitelist) {
             if(!src) return dest;
             var p;
             if(whitelist && whitelist.length > 0) {

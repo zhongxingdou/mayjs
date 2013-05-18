@@ -59,7 +59,7 @@ Mayjs.$run(function(Mayjs) {
         } else {
             interface_ = Object.create(Interface);
         }
-        util.mix(define, interface_);
+        util.mix(interface_, define);
         return interface_;
     }
 

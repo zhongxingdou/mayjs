@@ -118,6 +118,7 @@
         };
 
     $global("Mayjs", {
+        "VERSION": 0.5,
         "$global": $global,
         "$run": $run,
         "HOST": HOST,

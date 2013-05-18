@@ -37,14 +37,14 @@ Mayjs.$run(function(Mayjs) {
         option = util.merge(defauls, option);
 
         var needMethodize = option.methodize;
-        Object.keys(module).forEach(function(p) {
-            var alias = option.alias && option.alias[p] ? option.alias[p] : p;
-            if(!(/^__.*__$/.test(p)) && "onIncluded" != p) {
-                var mp = module[p];
-                if(needMethodize && typeof mp == "function") {
-                    obj[alias] = util.methodize(mp, option.context, option.methodizeTo);
+
+        util.forEach(module, function(k, v){
+            if("onIncluded" != k) {
+                var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
+                if(needMethodize && typeof v == "function") {
+                    obj[name] = util.methodize(v, option.context, option.methodizeTo);
                 } else {
-                    obj[alias] = module[p];
+                    obj[name] = v;
                 }
             }
         });

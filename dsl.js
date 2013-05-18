@@ -37,6 +37,7 @@ Mayjs.$run(function(Mayjs) {
         meta: Mayjs.meta.get,
         setMeta: Mayjs.meta.set,
         hasMeta: Mayjs.meta.has,
+        forEach: util.forEach,
         support: function(obj, interface_) {
             return Mayjs.$support(interface_, obj);
         },

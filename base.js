@@ -61,6 +61,7 @@ Mayjs.$run(function(Mayjs) {
      */
     var IBase = Mayjs.$interface({
         "initialize": [],
+        "base": [],
         "__interfaces__": Array
     });
 

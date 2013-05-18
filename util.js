@@ -1,5 +1,12 @@
 Mayjs.util = Mayjs.$run(function(Mayjs) {
     return {
+        forEach: function(obj, fn){
+            for(var p in obj){
+                if(obj.hasOwnProperty(p) && !(/^_/.test(p))){
+                    if(fn(p, obj[p]) === false)break;
+                }
+            }
+        },
         /**
          * 将一个值对象转换成引用对象
          * @memberof Mayjs

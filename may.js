@@ -126,6 +126,13 @@
     });
 })(this);Mayjs.util = Mayjs.$run(function(Mayjs) {
     return {
+        forEach: function(obj, fn){
+            for(var p in obj){
+                if(obj.hasOwnProperty(p) && !(/^_/.test(p))){
+                    if(fn(p, obj[p]) === false)break;
+                }
+            }
+        },
         /**
          * 将一个值对象转换成引用对象
          * @memberof Mayjs
@@ -574,14 +581,14 @@ Mayjs.$run(function(Mayjs) {
         option = util.merge(defauls, option);
 
         var needMethodize = option.methodize;
-        Object.keys(module).forEach(function(p) {
-            var alias = option.alias && option.alias[p] ? option.alias[p] : p;
-            if(!(/^__.*__$/.test(p)) && "onIncluded" != p) {
-                var mp = module[p];
-                if(needMethodize && typeof mp == "function") {
-                    obj[alias] = util.methodize(mp, option.context, option.methodizeTo);
+
+        util.forEach(module, function(k, v){
+            if("onIncluded" != k) {
+                var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
+                if(needMethodize && typeof v == "function") {
+                    obj[name] = util.methodize(v, option.context, option.methodizeTo);
                 } else {
-                    obj[alias] = module[p];
+                    obj[name] = v;
                 }
             }
         });
@@ -662,6 +669,7 @@ Mayjs.$run(function(Mayjs) {
      */
     var IBase = Mayjs.$interface({
         "initialize": [],
+        "base": [],
         "__interfaces__": Array
     });
 
@@ -1012,9 +1020,9 @@ Mayjs.$run(function(Mayjs) {
      */
 
 
-    function $overload(paramsTypes, fn) {
+    function $overload(paramTypes, fn) {
         //存储重载的方法
-        var _overloads = [util.def(paramsTypes, fn)];
+        var _overloads = [ typeof paramTypes == "function" ? paramTypes : util.def(paramsTypes, fn)];
 
         var main = function() {
                 var params = arguments;
@@ -1024,12 +1032,10 @@ Mayjs.$run(function(Mayjs) {
                 }
             };
 
-        if(!main.overload){
-            main.overload = function(paramTypes, fn) {
-                _overloads.push(util.def(paramTypes, fn));
-                return this;
-            };
-        }
+        main.overload = function(paramTypes, fn) {
+            _overloads.push(typeof paramTypes == "function" ? paramTypes : util.def(paramTypes, fn));
+            return this;
+        };
         return main;
     }
 
@@ -1055,8 +1061,10 @@ Mayjs.$run(function(Mayjs) {
     Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);
 
     Mayjs.MFunction = Mayjs.$module({
-        overload: function(fn, paramTypes) {
-            return Mayjs.$overload(paramTypes, fn);
+        overload: function(fn, overFnparamTypes, overFn) {
+            var main = Mayjs.$overload(fn);
+            main.overload(overFnparamTypes, overFn);
+            return main;
         },
         paramNames: function(fn) {
             return util.parseParamNames(fn);
@@ -1073,6 +1081,7 @@ Mayjs.$run(function(Mayjs) {
         meta: Mayjs.meta.get,
         setMeta: Mayjs.meta.set,
         hasMeta: Mayjs.meta.has,
+        forEach: util.forEach,
         support: function(obj, interface_) {
             return Mayjs.$support(interface_, obj);
         },

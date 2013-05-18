@@ -147,8 +147,8 @@ Mayjs.util = Mayjs.$run(function(Mayjs) {
         methodize: function(fn, context, methodizeTo) {
             var slice = Array.prototype.slice;
             return function() {
-                context = context || this;
-                var args = [methodizeTo ? methodizeTo(context) : context].concat(slice.call(arguments, 0));
+                var obj = context || this;
+                var args = [methodizeTo ? methodizeTo(obj) : obj].concat(slice.call(arguments, 0));
                 return fn.apply(null, args);
             };
         },

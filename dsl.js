@@ -19,8 +19,10 @@ Mayjs.$run(function(Mayjs) {
     Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);
 
     Mayjs.MFunction = Mayjs.$module({
-        overload: function(fn, paramTypes) {
-            return Mayjs.$overload(paramTypes, fn);
+        overload: function(fn, overFnparamTypes, overFn) {
+            var main = Mayjs.$overload(fn);
+            main.overload(overFnparamTypes, overFn);
+            return main;
         },
         paramNames: function(fn) {
             return util.parseParamNames(fn);

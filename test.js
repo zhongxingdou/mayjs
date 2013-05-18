@@ -81,12 +81,13 @@ Mayjs.$run(function() {
     fn.overload(["string", "string"], function(name, interest) {
         console.info("I'm " + name + ", and i'm interesting " + interest);
     }).overload({
-        name: "string",
-        age: "number",
-        interesting: "string"
-    }, function(opt) {
-        console.info("I'm " + opt.name + " and I'm " + opt.age + " years old, and I'm interesting " + opt.interesting);
-    });
+            name: "string",
+            age: "number",
+            interesting: "string"
+        }, function(opt) {
+            console.info("I'm " + opt.name + " and I'm " + opt.age + " years old, and I'm interesting " + opt.interesting);
+        }
+    );
 
     fn("lily");
     fn("lily", 18);

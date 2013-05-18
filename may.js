@@ -704,25 +704,6 @@ Mayjs.$run(function(Mayjs) {
             return callerOwner;
         },
 
-        //返回此方法的调用者的拥有者(prototype)
-        //此方法不可像this.proto().proto()这样用，请像this.proto().__proto__
-        /**
-         * get member from base prototype
-         * @param  {String} member member name
-         * @return {Object}
-         */
-         /*
-        protoMember: function(member) {
-            var caller = arguments.callee.caller;
-            var callerName = caller.name || meta.get(caller, "name");
-            var callerOwner = this._callerOwner(caller, callerName);
-            if(callerOwner) {
-                var ptoto = meta.get(callerOwner, "proto");
-                if(proto) {
-                    return proto[member];
-                }
-            }
-        },*/
         /**
          * 类似C#的base()和Java的super()，获取调用此方法的方法名，在对象的base prototype中调用这个方法
          * @return {Object}
@@ -739,48 +720,7 @@ Mayjs.$run(function(Mayjs) {
             if(typeof fn == "function") {
                 return fn.apply(this, arguments);
             }
-        },
-        /**
-         * include a module
-         * @param  {Object} module
-         * @param  {Object} [option]
-         * @return {Object} this
-         */
-        include: function(module, option) {
-            Mayjs.$include(module, this, option);
-            return this;
-        },
-        /**
-         * implement a interface_
-         * @param  {Interface} interface_
-         * @return {Object} this
-         */
-        implement: function(interface_) {
-            Mayjs.$implement(interface_, this);
-            return this;
-        },
-        /**
-         * 判断对象是否支持指定协议
-         * @param  {Protocl} interface_
-         * @return {Boolean}
-         */
-        supported: function(interface_) {
-            return this.meta("interfaces").indexOf(interface_) != -1;
-        },
-        /**
-         * 获取对象的meta值
-         * @param  {String} name
-         * @return {Object}
-         */
-        meta: function(name) {
-            return meta.get(this, name);
-        },
-        /**
-         * dsl
-         * @function
-         * @see Mayjs.$dsl
-         */
-        dsl: Mayjs.$dsl
+        }
     });
 
     Mayjs.$implement(IBase, Base.prototype);
@@ -799,11 +739,18 @@ Mayjs.$run(function(Mayjs) {
         return Base.extend(proto);
     }
 
+    function $obj(obj){
+        var o = new Base();
+        util.mix(o, obj);
+        return o;
+    }
+
 
     Mayjs.$extend = $extend;
     Mayjs.Base = Base;
     Mayjs.IBase = IBase;
     Mayjs.$class = $class;
+    Mayjs.$obj = $obj;
 },Mayjs);/**
  * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
  * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
@@ -826,7 +773,7 @@ Mayjs.$run(function(Mayjs) {
         var wrappers = arguments.callee.findWrappersByObj(obj);
         if(wrappers.length === 0) return obj;
 
-        var proxy = new Mayjs.Base();
+        var proxy = {};
         
         wrappers.forEach(function(wrapper) {
             Mayjs.$include(wrapper.module, proxy, util.merge({
@@ -1101,7 +1048,8 @@ Mayjs.$run(function(Mayjs) {
         $global: Mayjs.$global,
         $interface: Mayjs.$interface,
         $module: Mayjs.$module,
-        $run: Mayjs.$run
+        $run: Mayjs.$run,
+        $obj: Mayjs.$obj
     };
     
     Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);
@@ -1157,6 +1105,8 @@ Mayjs.$run(function(Mayjs) {
                 "context": null
             });
         } else {
+            Mayjs.$include(Mayjs.MObject, Mayjs.Base.prototype, {"methodize": true});
+
             Mayjs.$.regist(Object, Mayjs.MObject, {
                 methodize: true
             });

@@ -1,4 +1,4 @@
-Mayjs.init({injectPrototype: true});
+Mayjs.init({injectPrototype: false});
 Mayjs.$run(function() {
     eval(Mayjs.DSL);
 
@@ -104,5 +104,5 @@ Mayjs.$run(function() {
 
     abc("hal", 18);
     abc("hal", "18");
-    console.info(abc.paramNames());
+    console.info($(abc).paramNames());
 });

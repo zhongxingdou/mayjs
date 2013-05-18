@@ -20,7 +20,7 @@ Mayjs.$run(function(Mayjs) {
         var wrappers = arguments.callee.findWrappersByObj(obj);
         if(wrappers.length === 0) return obj;
 
-        var proxy = new Mayjs.Base();
+        var proxy = {};
         
         wrappers.forEach(function(wrapper) {
             Mayjs.$include(wrapper.module, proxy, util.merge({

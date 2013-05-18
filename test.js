@@ -1,3 +1,4 @@
+Mayjs.init({injectPrototype: false});
 Mayjs.$run(function() {
     eval(Mayjs.DSL);
 
@@ -73,9 +74,9 @@ Mayjs.$run(function() {
     $$a = $$(a);
     console.log($$a == a);
 
-    fn = $overload(["string", "number"], function(name, age) {
+    var fn = $($def(["string", "number"], function(name, age) {
         console.info("I'm " + name + " and I'm " + age + " years old");
-    }).overload(["string"], function(name) {
+    })).overload(["string"], function(name) {
         console.info("i'm " + name);
     });
 

@@ -107,7 +107,10 @@
             temp.value = obj;
 
             //generate members declare string
-            var keys = Object.keys(obj);
+            var keys = Object.keys(obj).filter(function(k){
+                 return obj.hasOwnProperty(k) && typeof obj[k] == "function";
+            });
+
             var members = keys.map(function(name) {
                 return name + "=" + tempVarName + ".value" + "['" + name + "']";
             });
@@ -188,13 +191,13 @@
         /**
          * copy members of src to dest
          * @memberof Mayjs
-         * @param  {Object} src [description]
          * @param  {Object} dest [description]
+         * @param  {Object} src [description]
          * @param  {String[]} [whitelist=null] 不想被覆盖的成员
          * @return {Object}
          */
 
-        mix: function(src, dest, whitelist) {
+        mix: function(dest, src, whitelist) {
             if(!src) return dest;
             var p;
             if(whitelist && whitelist.length > 0) {
@@ -355,37 +358,37 @@ Mayjs.$run(function(Mayjs) {
 
     var Interface = {};
 
-    function _parseArgsMeta(argsDefine, paramNames) {
+    function _parseParamTypes(paramTypes, paramNames) {
         var meta = [];
-        if($is(Array, argsDefine)) {
-            var l = argsDefine.length;
+        if($is(Array, paramTypes)) {
+            var l = paramTypes.length;
             var i;
             if(paramNames) { //$def声明时带了方法定义，参数类型声明中无参数名项，参数名列表从方法定义中获取
                 for(i = 0; i < l; i++) {
                     meta.push({
                         "name": paramNames[i],
-                        "type": argsDefine[i]
+                        "type": paramTypes[i]
                     });
                 }
             } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
                 for(i = 0; i < l; i += 2) {
                     meta.push({
-                        "name": argsDefine[i],
-                        "type": argsDefine[i + 1]
+                        "name": paramTypes[i],
+                        "type": paramTypes[i + 1]
                     });
                 }
             }
         } else { //在$def中定义的option,即$def({param1: Type1, param2: Type2}, function(param1, param2){});
             meta.push({
                 "name": paramNames[0],
-                "type": $interface(argsDefine)
+                "type": $interface(paramTypes)
             });
         }
         return meta;
     }
 
-    function def(argsDefine, fn) {
-        meta.set(fn, "paramspec", _parseArgsMeta(argsDefine, util.parseParamNames(fn)));
+    function def(paramTypes, fn) {
+        meta.set(fn, "param_types", _parseParamTypes(paramTypes, util.parseParamNames(fn)));
         return fn;
     }
 
@@ -405,7 +408,7 @@ Mayjs.$run(function(Mayjs) {
         } else {
             interface_ = Object.create(Interface);
         }
-        util.mix(define, interface_);
+        util.mix(interface_, define);
         return interface_;
     }
 
@@ -495,7 +498,7 @@ Mayjs.$run(function(Mayjs) {
             //write arguments meta for methods of obj
             Object.keys(interface_).forEach(function(p) {
                 if($is(Array, interface_[p])) {
-                    meta.set(obj[p], "paramspec", _parseArgsMeta(interface_[p]));
+                    meta.set(obj[p], "param_types", _parseParamTypes(interface_[p]));
                 }
             });
 
@@ -506,15 +509,15 @@ Mayjs.$run(function(Mayjs) {
     function $checkParams() {
         var caller = arguments.callee.caller;
         var args = caller["arguments"];
-        var paramsMeta;
+        var paramTypes;
         if(arguments.length === 0) {
-            paramsMeta = meta.get(caller, "paramspec");
+            paramTypes = meta.get(caller, "param_types");
         } else {
-            paramsMeta = _parseArgsMeta(util.parseArray(arguments), util.parseParamNames(caller));
+            paramTypes = _parseParamTypes(util.parseArray(arguments), util.parseParamNames(caller));
         }
         var type;
         for(var i = 0, l = args.length; i < l; i++) {
-            type = paramsMeta[i].type;
+            type = paramTypes[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
             if(!$is(type, args[i])) {
@@ -569,12 +572,12 @@ Mayjs.$run(function(Mayjs) {
         };
         option = util.merge(defauls, module.includeOption, option);
 
-        var methodizeIt = option.methodize;
+        var needMethodize = option.methodize;
         Object.keys(module).forEach(function(p) {
             var alias = option.alias && option.alias[p] ? option.alias[p] : p;
             if(!(/^__.*__$/.test(p)) && ["onIncluded", "includeOption"].indexOf(p) == -1) {
                 var mp = module[p];
-                if(methodizeIt && typeof mp == "function") {
+                if(needMethodize && typeof mp == "function") {
                     obj[alias] = util.methodize(mp, option.context, option.methodizeTo);
                 } else {
                     obj[alias] = module[p];
@@ -818,16 +821,14 @@ Mayjs.$run(function(Mayjs) {
     var meta = Mayjs.meta;
 
     function $(obj) {
-        var wrappers = arguments.callee.findWrappersByObj(obj);
-
         obj = util.toObject(obj);
-
+        var wrappers = arguments.callee.findWrappersByObj(obj);
         if(wrappers.length === 0) return obj;
 
         var proxy = new Mayjs.Base();
-
+        
         wrappers.forEach(function(wrapper) {
-            proxy.include(wrapper.module, util.merge({
+            Mayjs.$include(wrapper.module, proxy, util.merge({
                 "context": obj
             }, wrapper.includeOption));
         });
@@ -835,9 +836,9 @@ Mayjs.$run(function(Mayjs) {
         return proxy;
     }
 
-    meta.set($, "map", {});
+    meta.set($, "map", []);
 
-    util.mix({
+    util.mix($, {
 
         /**
          * 从字典中查找prototype|interface_|value type的注册扩展模块
@@ -846,7 +847,10 @@ Mayjs.$run(function(Mayjs) {
          * @return {Array}
          */
         findWrappersByType: function(type) {
-            return meta.get($, "map")[type] || [];
+            var ms = meta.get($, "map").filter(function(item){
+                return item.type == type;
+            });
+            return ms.length === 0 ? [] : ms[0].modules;
         },
 
         /**
@@ -864,7 +868,7 @@ Mayjs.$run(function(Mayjs) {
 
                 oldProto = proto;
 
-                proto = oldProto.prototype || (oldProto.constructor ? oldProto.constructor.prototype : null);
+                proto = oldProto["__proto__"] || (oldProto.constructor ? oldProto.constructor.prototype : null);
 
                 if(proto == oldProto) {
                     break;
@@ -889,8 +893,8 @@ Mayjs.$run(function(Mayjs) {
                 };
 
             var objType = typeof obj;
-            if(objType == "object") { //reference type
-                wrappers = wrappers.concat($.findWrappersByPrototype(obj.prototype || obj.constructor.prototype));
+            if(objType == "object" || objType == "function") { //reference type
+                wrappers = wrappers.concat($.findWrappersByPrototype(obj["__proto__"] || obj.constructor.prototype));
                 if(meta.has(obj, "interfaces")) {
                     Maysj.meta.get(obj, "interfaces").forEach(function(interface_) {
                         addTypeWrappers(interface_);
@@ -911,14 +915,11 @@ Mayjs.$run(function(Mayjs) {
          * @return {Boolean} 是否已经注册
          */
         exists: function(type, module) {
-            var wrappers = meta.get($, "map")[type];
-            if(!wrappers || wrappers.length < 1) {
-                return false;
-            } else {
-                return wrappers.filter(function(w) {
-                    return w.module == module;
-                }).length > 0;
-            }
+            return meta.get($, "map").filter(function(item){
+                return item.type == type;
+            }).filter(function(wrapper){
+                return wrapper.module == module;
+            }).length > 0;
         },
 
         /**
@@ -930,29 +931,40 @@ Mayjs.$run(function(Mayjs) {
          */
         regist: function(type, module, includeOption) {
             var $ = this;
-            if(typeof type == "function") {
-                type = type.prototype;
+            if(type != Function.prototype){// typeof Function.prototype == "function" true
+                if(typeof type == "function") {
+                    type = type.prototype;
+                }
+
+                if(type != Function.prototype){
+                    if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
+                }
             }
 
-            if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
             if(typeof module != "object") return;
 
             var map = meta.get($, "map");
-            var modules = map[type];
-            if(!modules) {
-                modules = map[type] = [];
-            }
+            var typeWrappers = map.filter(function(item){
+                return item.type == type;
+            });
 
-            if(!$.exists(type, module)) {
-                modules.push({
-                    "module": module,
-                    "includeOption": util.merge(module.includeOption, includeOption)
-                });
+            var wrapper = {
+                "module": module,
+                "includeOption": util.merge(module.includeOption, includeOption)
+            };
+
+            if(typeWrappers.length === 0) {
+                typeWrappers = {"type": type, modules: [wrapper]};
+                map.push(typeWrappers);
+            }else{
+                if(typeWrappers.modules.filter(function(wrapper){return wrapper.module == module;}).length === 0) {
+                    typeWrappers.modules.push(wrapper);
+                }
             }
 
             return this;
         }
-    }, $);
+    });
 
 
     /**
@@ -964,10 +976,8 @@ Mayjs.$run(function(Mayjs) {
      */
 
     function $$(obj) {
-        var wrappers = $.findWrappersByObj(obj);
-
         obj = util.toObject(obj);
-
+        var wrappers = $.findWrappersByObj(obj);
         if(wrappers.length === 0) return obj;
 
         wrappers.forEach(function(wrapper) {
@@ -990,41 +1000,41 @@ Mayjs.$run(function(Mayjs) {
     var meta = Mayjs.meta;
     var util = Mayjs.util;
 
-    function _checkParams(fn, args) {
+    function _checkParams(fn, params) {
         var caller = fn || arguments.callee.caller;
-        var paramsMeta = meta.get(caller, "paramspec");
-        args = args || caller["arguments"];
+        var paramsMeta = meta.get(caller, "param_types");
+        params = params || caller["arguments"];
         var type;
-        for(var i = 0, l = args.length; i < l; i++) {
+        for(var i = 0, l = params.length; i < l; i++) {
             type = paramsMeta[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
-            if(!Mayjs.$is(type, args[i])) {
+            if(!Mayjs.$is(type, params[i])) {
                 return false;
             }
         }
         return true;
     }
 
-    function dispatch(overloads, args) {
-        var l = args.length;
+    function dispatch(overloads, params) {
+        var l = params.length;
 
-        var argsMeta = function(fn) {
-                return meta.get(fn, "paramspec");
+        var paramTypes = function(fn) {
+                return meta.get(fn, "param_types");
             };
 
         var matches = overloads.filter(function(fn) {
-            return argsMeta(fn).length >= l;
+            return paramTypes(fn).length >= l;
         });
         if(matches.length <= 1) return matches[0];
 
         var orderedMatches = matches.sort(function(fn1, fn2) {
-            return argsMeta(fn1).length - argsMeta(fn2).length;
+            return paramTypes(fn1).length - paramTypes(fn2).length;
         });
 
         var fn;
         while((fn = orderedMatches.shift())) {
-            if(_checkParams(fn, args)) {
+            if(_checkParams(fn, params)) {
                 return fn;
             }
         }
@@ -1034,7 +1044,7 @@ Mayjs.$run(function(Mayjs) {
     /**
      * function overload
      * @memberof Mayjs
-     * @param {Array} paramsType params types
+     * @param {Array} paramsTypes params types
      * @param {Function} fn overload function
      * @return {Function}
      * @example
@@ -1054,55 +1064,112 @@ Mayjs.$run(function(Mayjs) {
      */
 
 
-    function $overload(paramsType, fn) {
+    function $overload(paramsTypes, fn) {
         //存储重载的方法
-        var _overloads = [util.def(paramsType, fn)];
+        var _overloads = [util.def(paramsTypes, fn)];
 
         var main = function() {
-                var args = arguments;
-                var fn = dispatch(_overloads, args);
+                var params = arguments;
+                var fn = dispatch(_overloads, params);
                 if(fn) {
-                    return fn.apply(this, args);
+                    return fn.apply(this, params);
                 }
             };
 
-        main.overload = function(argsMeta, fn) {
-            _overloads.push(util.def(argsMeta, fn));
-            return this;
-        };
-
+        if(!main.overload){
+            main.overload = function(paramTypes, fn) {
+                _overloads.push(util.def(paramTypes, fn));
+                return this;
+            };
+        }
         return main;
     }
 
     Mayjs.$overload = $overload;
-}, Mayjs);Mayjs.dsl = Mayjs.$run(function(Mayjs) {
+}, Mayjs);Mayjs.dsl = Mayjs.$run(function(Mayjs, HOST) {
     var util = Mayjs.util;
 
     var dsl = {
-        $obj: function(a) {
-            var o = new this.Base();
-            Mayjs.util.mix(a, o);
-            return o;
-        },
+        //使用$({})代替
+        // $obj: function(a) {
+            // var o = new this.Base();
+            // Mayjs.util.mix(a, o);
+            // return o;
+        // },
 
-        $meta: function(obj, name) {
-            return Mayjs.meta.get(obj, name);
-        }
+        //使用obj.meta obj.setMeta代替
+        // $meta: function(obj, name) {
+            // return Mayjs.meta.get(obj, name);
+        // }
     };
 
-    var utilExcludes = ["parseParamNames", "def"];
+    Mayjs.MFunction = Mayjs.$module({
+        overload: function(fn, paramTypes){
+            return Mayjs.$overload(paramTypes, fn);
+        },
+        paramNames: function(fn){
+           return  Mayjs.util.parseParamNames(fn);
+        },
+        methodize: util.methodize
+    });
+
+    Mayjs.MObject = Mayjs.$module({
+        trace: util.trace,
+        clone: util.clone,
+        merge: util.merge,
+        mix: util.mix,
+        dsl: Mayjs.$dsl,
+        meta: Mayjs.meta.get,
+        setMeta: Mayjs.meta.set,
+        hasMeta: Mayjs.meta.has,
+        support: function(obj, interface_){
+            return Mayjs.$support(interface_, obj);
+        },
+        implement: function(obj, interface_){
+            return Mayjs.$implement(interface_, obj);
+        },
+        is: function(obj, type){
+            return Mayjs.$is(type, obj);
+        },
+        include: function(obj, module, option){
+            return Mayjs.$include(module, obj, option);
+        }
+    });
+
+
+    var utilExcludes = ["parseParamNames", "toObject", "clone", "overload", "parseArray", "trace",  "methodize", "mix", "merge"];
     Object.keys(util).forEach(function(name) {
         if(utilExcludes.indexOf(name) == -1)
             dsl["$" + name] = util[name];
     });
 
+    var MayjsExcludes = ["$dsl", "$support","$is", "$extend", "$implement", "$include", "$overload"];
     Object.keys(Mayjs).forEach(function(name) {
         if(/^\$/.test(name)){
-            dsl[name] = Mayjs[name];
+            if(MayjsExcludes.indexOf(name) == -1)
+                dsl[name] = Mayjs[name];
         }
     });
 
+    Mayjs.init = function(option){
+        option = Mayjs.util.merge({
+            "injectPrototype": true
+        }, option);
+
+        if(option.injectPrototype){
+            Mayjs.$include(Mayjs.MObject, Object.prototype, {"methodize": true});
+            Object.keys(Mayjs.MObject).forEach(function(k){
+                HOST[k] = undefined;
+            });
+            Mayjs.$include(Mayjs.MFunction, Function.prototype, {"methodize": true});
+        }else{
+            Mayjs.$.regist(Object, Mayjs.MObject, {methodize: true});
+            Mayjs.$.regist(Function, Mayjs.MFunction, {methodize: true});
+        }
+    };
+
     return dsl;
-}, Mayjs);
+}, Mayjs, this);
 
 Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);
+

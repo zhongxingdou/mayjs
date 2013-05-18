@@ -73,9 +73,9 @@ Mayjs.$run(function(Mayjs) {
      */
 
 
-    function $overload(paramsTypes, fn) {
+    function $overload(paramTypes, fn) {
         //存储重载的方法
-        var _overloads = [util.def(paramsTypes, fn)];
+        var _overloads = [ typeof paramTypes == "function" ? paramTypes : util.def(paramsTypes, fn)];
 
         var main = function() {
                 var params = arguments;
@@ -85,12 +85,10 @@ Mayjs.$run(function(Mayjs) {
                 }
             };
 
-        if(!main.overload){
-            main.overload = function(paramTypes, fn) {
-                _overloads.push(util.def(paramTypes, fn));
-                return this;
-            };
-        }
+        main.overload = function(paramTypes, fn) {
+            _overloads.push(typeof paramTypes == "function" ? paramTypes : util.def(paramTypes, fn));
+            return this;
+        };
         return main;
     }
 

@@ -16,14 +16,14 @@ Mayjs.$run(function(Mayjs) {
     var meta = Mayjs.meta;
 
     function $(obj) {
+        obj = util.toObject(obj);
         var wrappers = arguments.callee.findWrappersByObj(obj);
         if(wrappers.length === 0) return obj;
 
-        obj = util.toObject(obj);
         var proxy = new Mayjs.Base();
         
         wrappers.forEach(function(wrapper) {
-            proxy.include(wrapper.module, util.merge({
+            Mayjs.$include(wrapper.module, proxy, util.merge({
                 "context": obj
             }, wrapper.includeOption));
         });
@@ -31,9 +31,9 @@ Mayjs.$run(function(Mayjs) {
         return proxy;
     }
 
-    meta.set($, "map", {});
+    meta.set($, "map", []);
 
-    util.mix({
+    util.mix($, {
 
         /**
          * 从字典中查找prototype|interface_|value type的注册扩展模块
@@ -42,7 +42,10 @@ Mayjs.$run(function(Mayjs) {
          * @return {Array}
          */
         findWrappersByType: function(type) {
-            return meta.get($, "map")[type] || [];
+            var ms = meta.get($, "map").filter(function(item){
+                return item.type == type;
+            });
+            return ms.length === 0 ? [] : ms[0].modules;
         },
 
         /**
@@ -60,7 +63,7 @@ Mayjs.$run(function(Mayjs) {
 
                 oldProto = proto;
 
-                proto = oldProto.prototype || (oldProto.constructor ? oldProto.constructor.prototype : null);
+                proto = oldProto["__proto__"] || (oldProto.constructor ? oldProto.constructor.prototype : null);
 
                 if(proto == oldProto) {
                     break;
@@ -85,8 +88,8 @@ Mayjs.$run(function(Mayjs) {
                 };
 
             var objType = typeof obj;
-            if(objType == "object") { //reference type
-                wrappers = wrappers.concat($.findWrappersByPrototype(obj.prototype || obj.constructor.prototype));
+            if(objType == "object" || objType == "function") { //reference type
+                wrappers = wrappers.concat($.findWrappersByPrototype(obj["__proto__"] || obj.constructor.prototype));
                 if(meta.has(obj, "interfaces")) {
                     Maysj.meta.get(obj, "interfaces").forEach(function(interface_) {
                         addTypeWrappers(interface_);
@@ -107,14 +110,11 @@ Mayjs.$run(function(Mayjs) {
          * @return {Boolean} 是否已经注册
          */
         exists: function(type, module) {
-            var wrappers = meta.get($, "map")[type];
-            if(!wrappers || wrappers.length < 1) {
-                return false;
-            } else {
-                return wrappers.filter(function(w) {
-                    return w.module == module;
-                }).length > 0;
-            }
+            return meta.get($, "map").filter(function(item){
+                return item.type == type;
+            }).filter(function(wrapper){
+                return wrapper.module == module;
+            }).length > 0;
         },
 
         /**
@@ -126,29 +126,40 @@ Mayjs.$run(function(Mayjs) {
          */
         regist: function(type, module, includeOption) {
             var $ = this;
-            if(typeof type == "function") {
-                type = type.prototype;
+            if(type != Function.prototype){// typeof Function.prototype == "function" true
+                if(typeof type == "function") {
+                    type = type.prototype;
+                }
+
+                if(type != Function.prototype){
+                    if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
+                }
             }
 
-            if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
             if(typeof module != "object") return;
 
             var map = meta.get($, "map");
-            var modules = map[type];
-            if(!modules) {
-                modules = map[type] = [];
-            }
+            var typeWrappers = map.filter(function(item){
+                return item.type == type;
+            });
 
-            if(!$.exists(type, module)) {
-                modules.push({
-                    "module": module,
-                    "includeOption": util.merge(module.includeOption, includeOption)
-                });
+            var wrapper = {
+                "module": module,
+                "includeOption": util.merge(module.includeOption, includeOption)
+            };
+
+            if(typeWrappers.length === 0) {
+                typeWrappers = {"type": type, modules: [wrapper]};
+                map.push(typeWrappers);
+            }else{
+                if(typeWrappers.modules.filter(function(wrapper){return wrapper.module == module;}).length === 0) {
+                    typeWrappers.modules.push(wrapper);
+                }
             }
 
             return this;
         }
-    }, $);
+    });
 
 
     /**
@@ -160,10 +171,10 @@ Mayjs.$run(function(Mayjs) {
      */
 
     function $$(obj) {
+        obj = util.toObject(obj);
         var wrappers = $.findWrappersByObj(obj);
         if(wrappers.length === 0) return obj;
 
-        obj = util.toObject(obj);
         wrappers.forEach(function(wrapper) {
             Mayjs.$include(wrapper.module, obj, wrapper.includeOption);
         });

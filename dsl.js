@@ -12,7 +12,8 @@ Mayjs.$run(function(Mayjs) {
         $global: Mayjs.$global,
         $interface: Mayjs.$interface,
         $module: Mayjs.$module,
-        $run: Mayjs.$run
+        $run: Mayjs.$run,
+        $obj: Mayjs.$obj
     };
     
     Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);
@@ -68,6 +69,8 @@ Mayjs.$run(function(Mayjs) {
                 "context": null
             });
         } else {
+            Mayjs.$include(Mayjs.MObject, Mayjs.Base.prototype, {"methodize": true});
+
             Mayjs.$.regist(Object, Mayjs.MObject, {
                 methodize: true
             });

@@ -85,11 +85,12 @@ Mayjs.$run(function(Mayjs) {
                 }
             };
 
-        main.overload = function(paramTypes, fn) {
-            _overloads.push(util.def(paramTypes, fn));
-            return this;
-        };
-
+        if(!main.overload){
+            main.overload = function(paramTypes, fn) {
+                _overloads.push(util.def(paramTypes, fn));
+                return this;
+            };
+        }
         return main;
     }
 

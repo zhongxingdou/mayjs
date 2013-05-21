@@ -13,7 +13,9 @@ Mayjs.$run(function(Mayjs) {
         $interface: Mayjs.$interface,
         $module: Mayjs.$module,
         $run: Mayjs.$run,
-        $obj: Mayjs.$obj
+        $obj: Mayjs.$obj,
+        $is: Mayjs.$is,
+        $implement: Mayjs.$implement
     };
     
     Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);
@@ -51,7 +53,8 @@ Mayjs.$run(function(Mayjs) {
         },
         include: function(obj, module, option) {
             return Mayjs.$include(module, obj, option);
-        }
+        },
+        overwrite: util.overwrite
     });
 
     Mayjs.init = function(option) {

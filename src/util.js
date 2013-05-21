@@ -160,6 +160,14 @@ Mayjs.$run(function(Mayjs) {
             };
         },
 
+        overwrite: function(obj, funcName, overwriter){
+            var _baseFn = obj[funcName].bind(obj);
+            obj[funcName] = function(){
+                var args = [_baseFn].concat(Mayjs.util.parseArray(arguments));
+                return overwriter.apply(obj, args);
+            };
+        },
+
         /**
          * merge a to b to c ... n
          * @memberof Mayjs

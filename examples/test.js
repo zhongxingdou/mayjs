@@ -106,4 +106,47 @@ Mayjs.$run(function() {
     abc("hal", 18);
     abc("hal", "18");
     console.info($(abc).paramNames());
+
+    var IAnimal = $interface({
+        "move": [{"distance": Number}]
+    });
+    
+    var IBird = $interface({
+        "fly": [{"distance": Number}]
+    }, IAnimal);
+    
+    
+    var Animal = $class({
+        initialize: function(name){
+            var _name = name || "";
+            this.getName = function(){
+                return  "Animal: " + _name;
+            };
+        },
+        move: function(distance){
+            return this.getName() + " moved " + distance + " step.";
+        }
+    });
+    $implement(IAnimal, Animal.prototype);
+    
+    var Bird = Animal.extend({
+        initialize: function(name){
+            this.base(name);
+            this.overwrite("getName", function(base){
+                    return "Bird: " + base();
+            });
+        },
+        fly: function(){
+            return this.getName() + " is flying.";
+        }
+    });
+    $implement(IBird, Bird.prototype);
+    
+    
+    var monkey = new Animal("Monkey");
+    console.info(monkey.move(4));
+    
+    var poly = new Bird("Poly");
+    console.info(poly.move(3));
+    console.info(poly.fly());
 });

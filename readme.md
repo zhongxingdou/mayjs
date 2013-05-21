@@ -3,7 +3,6 @@
 
 
 ##Features
----
 + Classes
 + Interfaces
 + Modules 
@@ -16,7 +15,6 @@
 + Keyword methods (Some usefully methods to rescue JavaScript ugly syntax and weakness)
 
 ##Getting started
----
 The quickest way to start using May.js in your project, is by simply including may.js
 
 ```html
@@ -30,15 +28,68 @@ The quickest way to start using May.js in your project, is by simply including m
 				eval(Mayjs.DSL);
 				
 				var Duck = $class({
-					sayHello: function(){
+					quack: function(){
 						return "Quack quack!";
 					}
 				});
 				
-				new Duck().sayHello();
+				new Duck().quack();
 			});
 		</script>
 	</head>
 	<body>
 	</body>
+</html>
+```
+
+##Examples
+###Classes
+```javascript
+Mayjs.$run(function(){
+    eval(Mayjs.DSL);
+    var IAnimal = $interface({
+        "move": [{"distance": Number}]
+    });
+    
+    var IBird = $interface({
+        "fly": [{"distance": Number}]
+    }, IAnimal);
+    
+    
+    var Animal = $class({
+        initialize: function(name){
+            var _name = name || "";
+            this.getName = function(){
+                return  "Animal: " + _name;
+            };
+        },
+        move: function(distance){
+            return this.getName() + " moved " + distance + " step.";
+        }
+    });
+    $implement(IAnimal, Animal.prototype);
+    
+    var Bird = Animal.extend({
+        initialize: function(name){
+            this.base(name);
+            this.overwrite("getName", function(base){
+                    return "Bird: " + base();
+            });
+        },
+        fly: function(){
+            return this.getName() + " is flying.";
+        }
+    });
+    $implement(IBird, Bird.prototype);
+    
+    
+    var monkey = new Animal("Monkey");
+    console.info(monkey.move(4));
+    
+    var poly = new Bird("Poly");
+    console.info(poly.move(3));
+    console.info(poly.fly());
+    
+});
+
 ```

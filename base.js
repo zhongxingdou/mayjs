@@ -151,4 +151,4 @@ Mayjs.$run(function(Mayjs) {
     Mayjs.IBase = IBase;
     Mayjs.$class = $class;
     Mayjs.$obj = $obj;
-},Mayjs);
+}, Mayjs);

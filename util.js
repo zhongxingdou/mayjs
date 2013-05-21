@@ -1,5 +1,5 @@
-Mayjs.util = Mayjs.$run(function(Mayjs) {
-    return {
+Mayjs.$run(function(Mayjs) {
+    Mayjs.util = {
         forEach: function(obj, fn){
             for(var p in obj){
                 if(obj.hasOwnProperty(p) && !(/^_/.test(p))){

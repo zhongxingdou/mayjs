@@ -124,8 +124,8 @@
         "HOST": HOST,
         "$dsl": $dsl
     });
-})(this);Mayjs.util = Mayjs.$run(function(Mayjs) {
-    return {
+})(this);Mayjs.$run(function(Mayjs) {
+    Mayjs.util = {
         forEach: function(obj, fn){
             for(var p in obj){
                 if(obj.hasOwnProperty(p) && !(/^_/.test(p))){
@@ -308,7 +308,7 @@
             return obj;
         }
     };
-}, Mayjs);Mayjs.meta = Mayjs.$run(function() {
+}, Mayjs);Mayjs.$run(function(Mayjs) {
     var _parseMetaName = function(name) {
             if(!/^__.*__$/.test(name)) {
                 name = "__" + name + "__";
@@ -316,7 +316,7 @@
             return name;
     };
 
-    return {
+    Mayjs.meta = {
         /**
          * set meta of obj
          * @memberof Mayjs.$meta
@@ -355,7 +355,7 @@
             return obj.hasOwnProperty(_parseMetaName(name));
         }
     };
-});/**
+}, Mayjs);/**
  * @require Mayjs.util
  * @require Maysj.meta
  */
@@ -759,7 +759,7 @@ Mayjs.$run(function(Mayjs) {
     Mayjs.IBase = IBase;
     Mayjs.$class = $class;
     Mayjs.$obj = $obj;
-},Mayjs);/**
+}, Mayjs);/**
  * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
  * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
  * @require Mayjs.util

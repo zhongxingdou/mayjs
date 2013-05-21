@@ -1,4 +1,4 @@
-Mayjs.meta = Mayjs.$run(function() {
+Mayjs.$run(function(Mayjs) {
     var _parseMetaName = function(name) {
             if(!/^__.*__$/.test(name)) {
                 name = "__" + name + "__";
@@ -6,7 +6,7 @@ Mayjs.meta = Mayjs.$run(function() {
             return name;
     };
 
-    return {
+    Mayjs.meta = {
         /**
          * set meta of obj
          * @memberof Mayjs.$meta
@@ -45,4 +45,4 @@ Mayjs.meta = Mayjs.$run(function() {
             return obj.hasOwnProperty(_parseMetaName(name));
         }
     };
-});
+}, Mayjs);

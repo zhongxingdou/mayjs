@@ -12,22 +12,20 @@ Mayjs.$run(function(Mayjs) {
     function _parseParamTypes(paramTypes, paramNames) {
         var meta = [];
         if($is(Array, paramTypes)) {
-            var l = paramTypes.length;
-            var i;
             if(paramNames) { //$def声明时带了方法定义，参数类型声明中无参数名项，参数名列表从方法定义中获取
-                for(i = 0; i < l; i++) {
+                for(var i = 0, l=paramNames.length; i < l; i++) {
                     meta.push({
                         "name": paramNames[i],
                         "type": paramTypes[i]
                     });
                 }
             } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
-                for(i = 0; i < l; i += 2) {
-                    meta.push({
-                        "name": paramTypes[i],
-                        "type": paramTypes[i + 1]
+                paramTypes.forEach(function(item){
+                    util.forEach(item, function(paramName, paramType){
+                        meta.push({"name": paramName, "type": paramType });
+                        return false;
                     });
-                }
+                });
             }
         } else { //在$def中定义的option,即$def({param1: Type1, param2: Type2}, function(param1, param2){});
             meta.push({

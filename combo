@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-cat global.js util.js meta.js interface.js module.js base.js $.js overload.js dsl.js > may.js
+cd src
+cat global.js util.js meta.js interface.js module.js base.js $.js overload.js dsl.js > ../may.js
+cd -
 gjc may.js
 # 下面三行是一条语句
 # sed -e '/Mayjs.$run/d' -e '/})(this);/d' -e '/}, Mayjs/d'

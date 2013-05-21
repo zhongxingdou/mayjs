@@ -112,7 +112,7 @@ Mayjs.$run(function() {
     });
     
     var IBird = $interface({
-        "fly": [{"distance": Number}]
+        "fly": []
     }, IAnimal);
     
     
@@ -149,4 +149,12 @@ Mayjs.$run(function() {
     var poly = new Bird("Poly");
     console.info(poly.move(3));
     console.info(poly.fly());
+
+    var Duck = $class({
+        quack: function(){
+            return "Quack quack!";
+        }
+    });
+
+    console.info(new Duck().quack());
 });

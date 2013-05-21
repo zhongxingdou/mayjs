@@ -33,7 +33,7 @@ The quickest way to start using May.js in your project, is by simply including m
 					}
 				});
 				
-				new Duck().quack();
+				console.info(new Duck().quack()); //Quack quack! 
 			});
 		</script>
 	</head>
@@ -43,7 +43,7 @@ The quickest way to start using May.js in your project, is by simply including m
 ```
 
 ##Examples
-###Classes
+###Classes and Interfaces
 ```javascript
 Mayjs.$run(function(){
     eval(Mayjs.DSL);
@@ -52,7 +52,7 @@ Mayjs.$run(function(){
     });
     
     var IBird = $interface({
-        "fly": [{"distance": Number}]
+        "fly": []
     }, IAnimal);
     
     
@@ -84,11 +84,11 @@ Mayjs.$run(function(){
     
     
     var monkey = new Animal("Monkey");
-    console.info(monkey.move(4));
+    console.info(monkey.move(4)); //Animal: Monkey moved 4 step. 
     
     var poly = new Bird("Poly");
-    console.info(poly.move(3));
-    console.info(poly.fly());
+    console.info(poly.move(3)); //Bird: Animal: Poly moved 3 step.
+    console.info(poly.fly()); //Bird: Animal: Poly is flying.
     
 });
 

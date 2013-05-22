@@ -56,7 +56,7 @@ Mayjs.$run(function(Mayjs) {
         }
 
         if(module.onIncluded) {
-            module.onIncluded.call(obj, option.context);
+            module.onIncluded.call(obj, option.context || obj);
         }
     }
 

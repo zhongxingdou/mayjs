@@ -60,6 +60,11 @@ Mayjs.$run(function(Mayjs) {
 
             while(proto) {
                 wrappers = wrappers.concat(this.findWrappersByType(proto));
+                if(meta.has(proto, "interfaces")) {
+                    meta.get(proto, "interfaces").forEach(function(interface_) {
+                        wrappers = wrappers.concat($.findWrappersByType(interface_));
+                    });
+                }
 
                 oldProto = proto;
 
@@ -91,7 +96,7 @@ Mayjs.$run(function(Mayjs) {
             if(objType == "object" || objType == "function") { //reference type
                 wrappers = wrappers.concat($.findWrappersByPrototype(obj["__proto__"] || obj.constructor.prototype));
                 if(meta.has(obj, "interfaces")) {
-                    Maysj.meta.get(obj, "interfaces").forEach(function(interface_) {
+                    meta.get(obj, "interfaces").forEach(function(interface_) {
                         addTypeWrappers(interface_);
                     });
                 }
@@ -152,8 +157,8 @@ Mayjs.$run(function(Mayjs) {
                 typeWrappers = {"type": type, modules: [wrapper]};
                 map.push(typeWrappers);
             }else{
-                if(typeWrappers.modules.filter(function(wrapper){return wrapper.module == module;}).length === 0) {
-                    typeWrappers.modules.push(wrapper);
+                if(typeWrappers[0].modules.filter(function(wrapper){return wrapper.module == module;}).length === 0) {
+                    typeWrappers[0].modules.push(wrapper);
                 }
             }
 

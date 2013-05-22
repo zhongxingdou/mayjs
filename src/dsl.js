@@ -15,7 +15,9 @@ Mayjs.$run(function(Mayjs) {
         $run: Mayjs.$run,
         $obj: Mayjs.$obj,
         $is: Mayjs.$is,
-        $implement: Mayjs.$implement
+        $implement: Mayjs.$implement,
+        $support: Mayjs.$support,
+        $dsl: Mayjs.$dsl
     };
     
     Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);
@@ -37,20 +39,10 @@ Mayjs.$run(function(Mayjs) {
         clone: util.clone,
         merge: util.merge,
         mix: util.mix,
-        dsl: Mayjs.$dsl,
         meta: Mayjs.meta.get,
         setMeta: Mayjs.meta.set,
         hasMeta: Mayjs.meta.has,
         forEach: util.forEach,
-        support: function(obj, interface_) {
-            return Mayjs.$support(interface_, obj);
-        },
-        implement: function(obj, interface_) {
-            return Mayjs.$implement(interface_, obj);
-        },
-        is: function(obj, type) {
-            return Mayjs.$is(type, obj);
-        },
         include: function(obj, module, option) {
             return Mayjs.$include(module, obj, option);
         },

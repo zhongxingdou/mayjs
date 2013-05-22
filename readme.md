@@ -6,10 +6,10 @@
 + Classes
 + Interfaces
 + Modules 
-+ Object Wrapper (wraps object like jQuery use $ to wrap document elements)
-+ Global variable management
-+ Function overload
++ Object wrapper (wraps object like jQuery use $ to wrap document elements)
++ Global variables management
 + Uniform type assert
++ Function overload
 + Method arguments validate and merge
 + DSL (includes methods of any object into current scope)
 + Keyword methods (Some usefully methods to rescue JavaScript ugly syntax and weakness)
@@ -165,8 +165,51 @@ Mayjs.$run(function(){
     //Human: Lily can run!
     //Human: Lily can eat!
     //Human: Lily is eating apple
+```
+###Global variables management
+```javascript
+    ...previous code...
     
+    //list managed global variablers
+    $global.list(); //["Mayjs"]
+  
+    console.info(typeof Jim); //undefined
     
+    //declare a global variable
+    $global("Jim", {"name": "Jim", "age": 18});
+    $global.list(); //["Mayjs", "Jim"]
+    
+    console.info(Mayjs.HOST.Jim);
+    console.info(Jim);
+    
+    //delete global variable
+    $global.del("Jim");
+    console.info(typeof Jim); //undefined
 ```
 
+###Uniform type assert
+```javascript
+    ...previous code...
+    console.assert($is("string", ""));
+    console.assert($is(String, "") === false);
+    console.assert($is(String, new String("")));
+
+    console.assert($is("number", 8));
+    console.assert($is("number", "8") === false);
+
+    console.assert($is(Array, []));
+    console.assert($is(Object, []));
+
+    console.assert($is(Object, {}));
+    console.assert($is(Object.prototype, {}));
+
+    console.assert($is(IAnimal, monkey));
+    console.assert($is(IAnimal, poly));
+    console.assert($is(IAnimal, lily));
+
+    console.assert($is(IBird, poly));
+
+    console.assert($is(null, null));
+    console.assert($is(null, undefined) === false);
+```
 

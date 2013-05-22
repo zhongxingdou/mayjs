@@ -47,6 +47,7 @@ The quickest way to start using May.js in your project, is by simply including m
 ```javascript
 Mayjs.$run(function(){
     eval(Mayjs.DSL);
+    
     var IAnimal = $interface({
         "move": [{"distance": Number}]
     });
@@ -93,3 +94,79 @@ Mayjs.$run(function(){
 });
 
 ```
+
+###Modules
+```javascript
+    ...previous code...
+    
+    var MRun = $module({
+        onIncluded: function(animal){
+            this.animal = animal;
+            console.info(animal.getName() + " can run!");
+        },
+        run: function(){
+            return this.animal.getName() + " is running!";
+        }
+    });
+    
+    monkey.include(MRun); //Animal: Monkey can run! 
+    console.info(monkey.run()); //Animal: Monkey running! 
+```
+
+###Object wrapper
+```javascript
+   ...previous code...
+   
+    $.regist(IAnimal, MRun);
+  
+    //auto wrap animal with wrapper which module registed for IAnimal.
+    console.info($(poly).run());
+    
+    poly.hasOwnProperty("poly"); //false
+    
+    //auto mix module MRun to poly 
+    var poly2 = $$(poly);
+    console.info(poly2.run());
+
+    
+    if(poly2 == poly){
+        console.info("poly2 and poly were one and the same bird.");
+    }
+  
+    var Human = $class({
+        initialize: function(name){
+            var _name = name || "";
+            this.getName = function(){
+                return  "Human: " + _name;
+            };
+        },
+        move: function(distance){
+            return this.getName() + " moved " + distance + " step.";
+        }
+    });
+    
+    $implement(IAnimal, Human.prototype);
+    
+    
+    var MEat = $module({
+        onIncluded: function(animal){
+            console.info(animal.getName() + " can eat!");
+        },
+        eat: function(animal, food){
+            return animal.getName() + " is eating " + food;
+        }
+    });
+    
+    $.regist(IAnimal, MEat, {"methodize": true});
+    
+    var lily = new Human("Lily");
+    
+    console.info($(lily).eat("apple"));
+    //Human: Lily can run!
+    //Human: Lily can eat!
+    //Human: Lily is eating apple
+    
+    
+```
+
+

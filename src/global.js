@@ -47,7 +47,7 @@
         var i = this.__variables__.indexOf(globalName);
         if(i >= 0) {
             var variables = this.__variables__;
-            this.__variables__ = variables.slice(0, i) + variables.slice(i + 1);
+            this.__variables__ = variables.slice(0, i).concat(variables.slice(i + 1));
         }
         HOST[globalName] = null;
         delete HOST[globalName];
@@ -118,7 +118,7 @@
         };
 
     $global("Mayjs", {
-        "VERSION": 0.5,
+        "VERSION": "0.5",
         "$global": $global,
         "$run": $run,
         "HOST": HOST,

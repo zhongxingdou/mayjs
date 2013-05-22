@@ -8,10 +8,10 @@
 + Modules 
 + Object wrapper (wraps object like jQuery use $ to wrap document elements)
 + Global variables management
++ DSL (includes methods of any object into current scope)
 + Uniform type assert
 + Function overload
 + Method arguments validate and merge
-+ DSL (includes methods of any object into current scope)
 + Keyword methods (Some usefully methods to rescue JavaScript ugly syntax and weakness)
 
 ##Getting started
@@ -186,10 +186,29 @@ Mayjs.$run(function(){
     $global.del("Jim");
     console.info(typeof Jim); //undefined
 ```
+###DSL
+```javascript
+   ...previous code...
+   
+   var calc = {
+   	add: function(a, b){
+   	    return a+b;
+   	},
+   	sub: function(a, b){
+   	   return a-b;
+   	}
+   }
+   
+   eval($dsl(calc));
+   
+   add(4, 3);
+   sub(6, 3);
+```
 
 ###Uniform type assert
 ```javascript
     ...previous code...
+    
     console.assert($is("string", ""));
     console.assert($is(String, "") === false);
     console.assert($is(String, new String("")));

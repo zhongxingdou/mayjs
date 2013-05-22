@@ -47,7 +47,7 @@
         var i = this.__variables__.indexOf(globalName);
         if(i >= 0) {
             var variables = this.__variables__;
-            this.__variables__ = variables.slice(0, i) + variables.slice(i + 1);
+            this.__variables__ = variables.slice(0, i).concat(variables.slice(i + 1));
         }
         HOST[globalName] = null;
         delete HOST[globalName];
@@ -118,7 +118,7 @@
         };
 
     $global("Mayjs", {
-        "VERSION": 0.5,
+        "VERSION": "0.5",
         "$global": $global,
         "$run": $run,
         "HOST": HOST,
@@ -606,7 +606,7 @@ Mayjs.$run(function(Mayjs) {
         }
 
         if(module.onIncluded) {
-            module.onIncluded.call(obj, option.context);
+            module.onIncluded.call(obj, option.context || obj);
         }
     }
 
@@ -827,6 +827,11 @@ Mayjs.$run(function(Mayjs) {
 
             while(proto) {
                 wrappers = wrappers.concat(this.findWrappersByType(proto));
+                if(meta.has(proto, "interfaces")) {
+                    meta.get(proto, "interfaces").forEach(function(interface_) {
+                        wrappers = wrappers.concat($.findWrappersByType(interface_));
+                    });
+                }
 
                 oldProto = proto;
 
@@ -858,7 +863,7 @@ Mayjs.$run(function(Mayjs) {
             if(objType == "object" || objType == "function") { //reference type
                 wrappers = wrappers.concat($.findWrappersByPrototype(obj["__proto__"] || obj.constructor.prototype));
                 if(meta.has(obj, "interfaces")) {
-                    Maysj.meta.get(obj, "interfaces").forEach(function(interface_) {
+                    meta.get(obj, "interfaces").forEach(function(interface_) {
                         addTypeWrappers(interface_);
                     });
                 }
@@ -919,8 +924,8 @@ Mayjs.$run(function(Mayjs) {
                 typeWrappers = {"type": type, modules: [wrapper]};
                 map.push(typeWrappers);
             }else{
-                if(typeWrappers.modules.filter(function(wrapper){return wrapper.module == module;}).length === 0) {
-                    typeWrappers.modules.push(wrapper);
+                if(typeWrappers[0].modules.filter(function(wrapper){return wrapper.module == module;}).length === 0) {
+                    typeWrappers[0].modules.push(wrapper);
                 }
             }
 
@@ -1063,7 +1068,9 @@ Mayjs.$run(function(Mayjs) {
         $run: Mayjs.$run,
         $obj: Mayjs.$obj,
         $is: Mayjs.$is,
-        $implement: Mayjs.$implement
+        $implement: Mayjs.$implement,
+        $support: Mayjs.$support,
+        $dsl: Mayjs.$dsl
     };
     
     Mayjs.DSL = Mayjs.$dsl(Mayjs.dsl);
@@ -1085,20 +1092,10 @@ Mayjs.$run(function(Mayjs) {
         clone: util.clone,
         merge: util.merge,
         mix: util.mix,
-        dsl: Mayjs.$dsl,
         meta: Mayjs.meta.get,
         setMeta: Mayjs.meta.set,
         hasMeta: Mayjs.meta.has,
         forEach: util.forEach,
-        support: function(obj, interface_) {
-            return Mayjs.$support(interface_, obj);
-        },
-        implement: function(obj, interface_) {
-            return Mayjs.$implement(interface_, obj);
-        },
-        is: function(obj, type) {
-            return Mayjs.$is(type, obj);
-        },
         include: function(obj, module, option) {
             return Mayjs.$include(module, obj, option);
         },

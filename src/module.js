@@ -38,7 +38,7 @@ Mayjs.$run(function(Mayjs) {
 
         var needMethodize = option.methodize;
 
-        util.forEach(module, function(k, v){
+        util.eachOwn(module, function(k, v){
             if("onIncluded" != k) {
                 var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
                 if(needMethodize && typeof v == "function") {

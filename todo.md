@@ -3,3 +3,4 @@
 * 给Mayjs.Base增加this.property()
 * 支持property 事件
 * 支持事件
+* set member func param_type meta when implement protocol 

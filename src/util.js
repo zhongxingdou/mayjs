@@ -1,8 +1,26 @@
 Mayjs.$run(function(Mayjs) {
     Mayjs.util = {
-        forEach: function(obj, fn){
+        has: function(obj, property){
+            return (obj && obj.hasOwnProperty(property) && typeof obj[property] != "function") || false;
+        },
+        can: function(obj, func){
+            return (obj && obj[func] && typeof obj[func] == "function") || false;
+        },
+        isPrivate: function(name){
+            return (/^_/).test(name);
+        },
+        eachProp: function(obj, fn, eachPrivates){
+            var isPrivate = Mayjs.util.isPrivate;
             for(var p in obj){
-                if(obj.hasOwnProperty(p) && !(/^_/.test(p))){
+                if(obj.hasOwnProperty(p) && (eachPrivates || !isPrivate(p)) && typeof obj[p] != "function"){
+                    if(fn(p, obj[p]) === false)break;
+                }
+            }
+        },
+        eachOwn: function(obj, fn, eachPrivates){
+            var isPrivate = Mayjs.util.isPrivate;
+            for(var p in obj){
+                if(obj.hasOwnProperty(p) && (eachPrivates || !isPrivate(p))){
                     if(fn(p, obj[p]) === false)break;
                 }
             }

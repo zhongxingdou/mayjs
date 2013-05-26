@@ -21,7 +21,7 @@ Mayjs.$run(function(Mayjs) {
                 }
             } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
                 paramTypes.forEach(function(item){
-                    util.forEach(item, function(paramName, paramType){
+                    util.eachOwn(item, function(paramName, paramType){
                         meta.push({"name": paramName, "type": paramType });
                         return false;
                     });

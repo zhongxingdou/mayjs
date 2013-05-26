@@ -42,11 +42,14 @@ Mayjs.$run(function(Mayjs) {
         meta: Mayjs.meta.get,
         setMeta: Mayjs.meta.set,
         hasMeta: Mayjs.meta.has,
-        forEach: util.forEach,
+        eachOwn: util.eachOwn,
+        eachProp: util.eachProp,
         include: function(obj, module, option) {
             return Mayjs.$include(module, obj, option);
         },
-        overwrite: util.overwrite
+        overwrite: util.overwrite,
+        has: util.has,
+        can: util.can
     });
 
     Mayjs.init = function(option) {

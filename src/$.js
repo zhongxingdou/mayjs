@@ -1,29 +1,34 @@
 /**
  * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
  * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
- * @require Mayjs.util
- * @require Mayjs.meta
- * @require Mayjs.base
- * @require Mayjs.module
- * @memberof Mayjs
+ * @require M.util
+ * @require M.meta
+ * @require M.Base
+ * @require M.module
+ * @require M.MObjectUtil
+ * @memberof M
  * @class
  * @param {Object} obj 对象
  * @return {Object} 对象的代理
  */
 
-Mayjs.$run(function(Mayjs) {
-    var util = Mayjs.util;
-    var meta = Mayjs.meta;
+Mayjs.$run(function(M) {
+    var toObject = M.util.toObject;
+
+    var merge = M.MObjectUtil.merge;
+    var mix = M.MObjectUtil.mix;
+    
+    var meta = M.meta;
 
     function $(obj) {
-        obj = util.toObject(obj);
+        obj = toObject(obj);
         var wrappers = arguments.callee.findWrappersByObj(obj);
         if(wrappers.length === 0) return obj;
 
         var proxy = {};
         
         wrappers.forEach(function(wrapper) {
-            Mayjs.$include(wrapper.module, proxy, util.merge({
+            M.$include(wrapper.module, proxy, merge({
                 "context": obj
             }, wrapper.includeOption));
         });
@@ -33,11 +38,11 @@ Mayjs.$run(function(Mayjs) {
 
     meta.set($, "map", []);
 
-    util.mix($, {
+    mix($, {
 
         /**
          * 从字典中查找prototype|interface_|value type的注册扩展模块
-         * @memberof Mayjs.$
+         * @memberof M.$
          * @param {Object|Interface|String} type
          * @return {Array}
          */
@@ -50,7 +55,7 @@ Mayjs.$run(function(Mayjs) {
 
         /**
          * 查找对象原型链的扩展模块
-         * @memberof Mayjs.$
+         * @memberof M.$
          * @param {Object} proto 对象的原型
          * @return {Array}
          */
@@ -80,7 +85,7 @@ Mayjs.$run(function(Mayjs) {
 
         /**
          * 查找对象的扩展模块
-         * @memberof Mayjs.$
+         * @memberof M.$
          * @param {Object|Interface|String} obj
          * @return {Array}
          */
@@ -109,7 +114,7 @@ Mayjs.$run(function(Mayjs) {
 
         /**
          * 判断一个module是否注册为指定type的wrapper
-         * @memberof Mayjs.$
+         * @memberof M.$
          * @param  {Object|Interface|String} type
          * @param  {Object} module 作为wrapper的module
          * @return {Boolean} 是否已经注册
@@ -124,7 +129,7 @@ Mayjs.$run(function(Mayjs) {
 
         /**
          * 注册一个prototype或interface_或value object的扩展模块
-         * @memberof Mayjs.$
+         * @memberof M.$
          * @param {Object} module
          * @param {Object|Interface|String} type
          * @param {Object} [includeOption]
@@ -170,23 +175,23 @@ Mayjs.$run(function(Mayjs) {
     /**
      * 给对象包含对象原型的扩展模块，并返回对象自己
      * 如果对象是值类型，会新建一个它对应的引用类型对象，包含扩展模块后返回
-     * @memberof Mayjs
+     * @memberof M
      * @param {Object} obj 对象
      * @param {Object}
      */
 
     function $$(obj) {
-        obj = util.toObject(obj);
+        obj = toObject(obj);
         var wrappers = $.findWrappersByObj(obj);
         if(wrappers.length === 0) return obj;
 
         wrappers.forEach(function(wrapper) {
-            Mayjs.$include(wrapper.module, obj, wrapper.includeOption);
+            M.$include(wrapper.module, obj, wrapper.includeOption);
         });
 
         return obj;
     }
 
-    Mayjs.$ = $;
-    Mayjs.$$ = $$;
+    M.$ = $;
+    M.$$ = $$;
 }, Mayjs);

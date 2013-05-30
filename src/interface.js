@@ -1,11 +1,17 @@
 /**
- * @require Mayjs.util
+ * @require M.util
  * @require Maysj.meta
+ * @require M.MObjectUtil
  */
 
-Mayjs.$run(function(Mayjs) {
-    var meta = Mayjs.meta;
-    var util = Mayjs.util;
+Mayjs.$run(function(M) {
+    var meta = M.meta;
+    
+    var parseArray = M.util.parseArray;
+    var parseParamNames = M.util.parseParamNames;
+
+    var eachOwn = M.MObjectUtil.eachOwn;
+    var mix = M.MObjectUtil.mix;
 
     var Interface = {};
 
@@ -21,7 +27,7 @@ Mayjs.$run(function(Mayjs) {
                 }
             } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
                 paramTypes.forEach(function(item){
-                    util.eachOwn(item, function(paramName, paramType){
+                    eachOwn(item, function(paramName, paramType){
                         meta.push({"name": paramName, "type": paramType });
                         return false;
                     });
@@ -36,15 +42,15 @@ Mayjs.$run(function(Mayjs) {
         return meta;
     }
 
-    function def(paramTypes, fn) {
-        meta.set(fn, "param_types", _parseParamTypes(paramTypes, util.parseParamNames(fn)));
+    function $def(paramTypes, fn) {
+        meta.set(fn, "param_types", _parseParamTypes(paramTypes, parseParamNames(fn)));
         return fn;
     }
 
 
     /**
      * 创建Interface的快捷方法
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} define interface define
      * @param  {Interface} base base interface
      * @return {Interface}
@@ -57,13 +63,13 @@ Mayjs.$run(function(Mayjs) {
         } else {
             interface_ = Object.create(Interface);
         }
-        util.mix(interface_, define);
+        mix(interface_, define);
         return interface_;
     }
 
     /**
      * 对象类型判断
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object|String}  type
      * @param  {Object}  o
      * @return {Boolean}
@@ -99,7 +105,7 @@ Mayjs.$run(function(Mayjs) {
 
     /**
      * 判断一个对象是否支持指定协议
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Interface} interface_
      * @param  {Object} o
      * @return {Boolean}
@@ -128,7 +134,7 @@ Mayjs.$run(function(Mayjs) {
 
     /**
      * implement a interface
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Interface} interface_
      * @param  {Object} obj
      */
@@ -162,7 +168,7 @@ Mayjs.$run(function(Mayjs) {
         if(arguments.length === 0) {
             paramTypes = meta.get(caller, "param_types");
         } else {
-            paramTypes = _parseParamTypes(util.parseArray(arguments), util.parseParamNames(caller));
+            paramTypes = _parseParamTypes(parseArray(arguments), parseParamNames(caller));
         }
         var type;
         for(var i = 0, l = args.length; i < l; i++) {
@@ -176,11 +182,11 @@ Mayjs.$run(function(Mayjs) {
         return true;
     }
 
-    Mayjs.$interface = $interface;
-    Mayjs.$implement = $implement;
-    Mayjs.$support = $support;
-    Mayjs.$is = $is;
-    Mayjs.$checkParams = $checkParams;
-    Mayjs.util.def = def;
-    Mayjs.Interface = Interface;
+    M.$interface = $interface;
+    M.$implement = $implement;
+    M.$support = $support;
+    M.$is = $is;
+    M.$checkParams = $checkParams;
+    M.$def = $def;
+    M.Interface = Interface;
 }, Mayjs);

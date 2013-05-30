@@ -1,13 +1,13 @@
 /**
  * [overload description]
- * @require Mayjs.meta
- * @require Mayjs.interface
+ * @require M.meta
+ * @require M.interface
  * @type {Object}
  */
 
-Mayjs.$run(function(Mayjs) {
-    var meta = Mayjs.meta;
-    var util = Mayjs.util;
+Mayjs.$run(function(M) {
+    var meta = M.meta;
+    var $def = M.$def;
 
     function _checkParams(fn, params) {
         var caller = fn || arguments.callee.caller;
@@ -18,7 +18,7 @@ Mayjs.$run(function(Mayjs) {
             type = paramsMeta[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
-            if(!Mayjs.$is(type, params[i])) {
+            if(!M.$is(type, params[i])) {
                 return false;
             }
         }
@@ -52,7 +52,7 @@ Mayjs.$run(function(Mayjs) {
 
     /**
      * function overload
-     * @memberof Mayjs
+     * @memberof M
      * @param {Array} paramsTypes params types
      * @param {Function} fn overload function
      * @return {Function}
@@ -75,7 +75,7 @@ Mayjs.$run(function(Mayjs) {
 
     function $overload(paramTypes, fn) {
         //存储重载的方法
-        var _overloads = [ typeof paramTypes == "function" ? paramTypes : util.def(paramsTypes, fn)];
+        var _overloads = [ typeof paramTypes == "function" ? paramTypes : $def(paramsTypes, fn)];
 
         var main = function() {
                 var params = arguments;
@@ -86,11 +86,11 @@ Mayjs.$run(function(Mayjs) {
             };
 
         main.overload = function(paramTypes, fn) {
-            _overloads.push(typeof paramTypes == "function" ? paramTypes : util.def(paramTypes, fn));
+            _overloads.push(typeof paramTypes == "function" ? paramTypes : $def(paramTypes, fn));
             return this;
         };
         return main;
     }
 
-    Mayjs.$overload = $overload;
+    M.$overload = $overload;
 }, Mayjs);

@@ -1,15 +1,15 @@
 /**
  * [base description]
- * @require Mayjs.meta
- * @require Mayjs.util
- * @require Mayjs.core
- * @require Mayjs.interface
+ * @require M.meta
+ * @require M.MObjectUtil
+ * @require M.interface
  * @type {Object}
  */
 
-Mayjs.$run(function(Mayjs) {
-    var meta = Mayjs.meta;
-    var util = Mayjs.util;
+Mayjs.$run(function(M) {
+    var meta = M.meta;
+    var trace = M.MObjectUtil.trace;
+    var mix = M.MObjectUtil.mix;
 
     function $extend(baseProto, config) {
         var proto = Object.create(baseProto);
@@ -56,24 +56,24 @@ Mayjs.$run(function(Mayjs) {
         return clazz;
     }
     /**
-     * @memberof Mayjs
+     * @memberof M
      * @type {Interface}
      */
-    var IBase = Mayjs.$interface({
+    var IBase = M.$interface({
         "initialize": [],
         "base": [],
         "__interfaces__": Array
     });
 
     /**
-     * @lends Mayjs.Base.prototype
+     * @lends M.Base.prototype
      */
     var Base = $extend(Object.prototype, {
         /**
          * initialize instance of this prototype <br>
-         * 使用Mayjs.Base.create()或Mayjs.$obj()来创建实例，
+         * 使用M.Base.create()或M.$obj()来创建实例，
          * @constructs
-         * @see Mayjs.$obj
+         * @see M.$obj
          */
         "initialize": function() {
             meta.set(this, "interfaces", []);
@@ -84,14 +84,14 @@ Mayjs.$run(function(Mayjs) {
                 if(this["__proto__"][callerName] == caller){
                     return this["__proto__"];
                 }
-                util.trace(this, "__proto__", function(proto) {
+                trace(this, "__proto__", function(proto) {
                     if(proto.hasOwnProperty(callerName) && proto[callerName] == caller){
                         callerOwner = proto;
                         return false;
                     }
                 });
             }else{
-                util.trace(this, "__proto__", function(proto) {
+                trace(this, "__proto__", function(proto) {
                     Object.keys(proto).forEach(function(p) {
                         if(proto[p] == caller) {
                             callerOwner = proto;
@@ -123,7 +123,7 @@ Mayjs.$run(function(Mayjs) {
         }
     });
 
-    Mayjs.$implement(IBase, Base.prototype);
+    M.$implement(IBase, Base.prototype);
 
     Base.extend = function(config) {
         var o = $extend(this.prototype, config);
@@ -141,14 +141,14 @@ Mayjs.$run(function(Mayjs) {
 
     function $obj(obj){
         var o = new Base();
-        util.mix(o, obj);
+        mix(o, obj);
         return o;
     }
 
 
-    Mayjs.$extend = $extend;
-    Mayjs.Base = Base;
-    Mayjs.IBase = IBase;
-    Mayjs.$class = $class;
-    Mayjs.$obj = $obj;
+    M.$extend = $extend;
+    M.Base = Base;
+    M.IBase = IBase;
+    M.$class = $class;
+    M.$obj = $obj;
 }, Mayjs);

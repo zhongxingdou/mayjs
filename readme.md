@@ -1,6 +1,11 @@
 #May.js 
 >for writing powerful and clearly JavaScript code
 
+##principle
++ 简单，但不违背清晰
++ 聚焦
++ 描述在干嘛重于描述如何干
++ 接口友好，才有时间考虑性能
 
 ##Features
 + Classes

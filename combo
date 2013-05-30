@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 cd src
-cat global.js util.js meta.js interface.js module.js base.js $.js overload.js dsl.js > ../may.js
+cat may.js objectUtil.js global.js util.js meta.js interface.js module.js base.js $.js overload.js dsl.js > ../may.js
 cd -
 gjc may.js
 # 下面三行是一条语句

@@ -1,4 +1,4 @@
-(function(HOST) {
+$global = (function(HOST) {
     /**
      * 定义一个全局变量，如果已经定义了同名全局变量，将抛出错误<br>
      * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new Mayjs.global()调用。
@@ -9,13 +9,14 @@
      */
 
     var $global = function(globalName, obj) {
-            if($global.defined(globalName)) {
+            var _global = arguments.callee;
+            if(_global.defined(globalName)) {
                 throw globalName + " defined";
             } else {
                 var o = obj || eval(globalName);
                 HOST[globalName] = o;
 
-                var variables = $global.__variables__;
+                var variables = _global.__variables__;
                 if(variables.indexOf(globalName) == -1) {
                     variables.push(globalName);
                 }
@@ -62,66 +63,10 @@
         return [].concat(this.__variables__);
     };
 
-
-    if(typeof(console) == "undefined") {
-        console = {};
-        ["info", "log", "error", "debug", "warn", "trace", "dir"].forEach(function(name) {
-            console["name"] = function() {};
-        });
-    }
-
-    var $run = function(fn) {
-            if(arguments.length == 1) {
-                return fn();
-            } else {
-                return fn.apply(this, Array.prototype.slice.call(arguments, 1));
-            }
-        };
-
-    /**
-     * 生成供eval()函数将指定变量成员声明为当前作用域内变量的代码
-     * @memberof Mayjs
-     * @param  {String} [obj=this]
-     * @return {String}
-     * @example
-     * var Calculator = {
-     *     add: function(a, b){ return a + b },
-     *     sub: function(a, b){ return a - b }
-     * }
-     *
-     * eval(dsl(Calculator));
-     *
-     * add(4, 6);
-     * sub(10, 4);
-     */
-
-    var $dsl = function(obj) {
-            obj = obj || this;
-
-            //create global tempObj
-            var tempVarName = "_temp" + Date.now();
-            eval(tempVarName + "={value: {}}");
-
-            //get tempObj and set it's value with obj
-            var temp = eval(tempVarName);
-            temp.value = obj;
-
-            //generate members declare string
-            var keys = Object.keys(obj).filter(function(k){
-                 return obj.hasOwnProperty(k) && typeof obj[k] == "function";
-            });
-
-            var members = keys.map(function(name) {
-                return name + "=" + tempVarName + ".value" + "['" + name + "']";
-            });
-            return "var " + members.join(",") + "; delete " + tempVarName;
-        };
-
-    $global("Mayjs", {
-        "VERSION": "0.5",
-        "$global": $global,
-        "$run": $run,
-        "HOST": HOST,
-        "$dsl": $dsl
-    });
+    return $global;
 })(this);
+
+if(typeof Mayjs != "undefined" && Mayjs) {
+    Mayjs.$global = $global;
+    $global = undefined;
+}

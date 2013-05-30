@@ -1,15 +1,18 @@
 /**
- * @require Mayjs.meta
- * @require Mayjs.util
- * @require Mayjs.$interface
+ * @require M.meta
+ * @require M.util
+ * @require M.MObjectUtil
+ * @require M.$interface
  */
-Mayjs.$run(function(Mayjs) {
-    var meta = Mayjs.meta;
-    var util = Mayjs.util;
+Mayjs.$run(function(M) {
+    var meta = M.meta;
+    var methodize = M.util.methodize;
+    var merge = M.MObjectUtil.merge;
+    var eachOwn = M.MObjectUtil.eachOwn;
 
     /**
      * 定义一个module
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} o
      * @return {Object}
      */
@@ -20,7 +23,7 @@ Mayjs.$run(function(Mayjs) {
 
     /**
      * include module to obj with option
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} module
      * @param  {Object} obj
      * @param  {Object} [option]
@@ -34,15 +37,15 @@ Mayjs.$run(function(Mayjs) {
             "methodizeTo": null,
             "alias": null
         };
-        option = util.merge(defauls, option);
+        option = merge(defauls, option);
 
         var needMethodize = option.methodize;
 
-        util.eachOwn(module, function(k, v){
+        eachOwn(module, function(k, v){
             if("onIncluded" != k) {
                 var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
                 if(needMethodize && typeof v == "function") {
-                    obj[name] = util.methodize(v, option.context, option.methodizeTo);
+                    obj[name] = methodize(v, option.context, option.methodizeTo);
                 } else {
                     obj[name] = v;
                 }
@@ -51,7 +54,7 @@ Mayjs.$run(function(Mayjs) {
 
         if(meta.has("interfaces")) {
             meta.get("interfaces").forEach(function(interface_) {
-                Mayjs.$implement(interface_, obj);
+                M.$implement(interface_, obj);
             });
         }
 
@@ -60,6 +63,6 @@ Mayjs.$run(function(Mayjs) {
         }
     }
 
-    Mayjs.$module = $module;
-    Mayjs.$include = $include;
+    M.$module = $module;
+    M.$include = $include;
 }, Mayjs);

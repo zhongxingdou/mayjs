@@ -1,16 +1,14 @@
-Mayjs.$run(function(Mayjs) {
+var meta = (function() {
     var _parseMetaName = function(name) {
             if(!/^__.*__$/.test(name)) {
                 name = "__" + name + "__";
             }
             return name;
-    };
+        };
 
-    Mayjs.meta = {
+    return {
         /**
          * set meta of obj
-         * @memberof Mayjs.$meta
-         * @function set
          * @param {Object} obj
          * @param {String} name meta name
          * @param {Object} value meta value
@@ -25,8 +23,6 @@ Mayjs.$run(function(Mayjs) {
 
         /**
          * get meta form obj
-         * @function get
-         * @memberof Mayjs.$meta
          * @param  {Object}  obj
          * @param  {String}  name
          */
@@ -36,7 +32,6 @@ Mayjs.$run(function(Mayjs) {
 
         /**
          * meta是否存在
-         * @memberof Mayjs.$meta
          * @param  {Object}  obj
          * @param  {String}  name
          * @return {Boolean}
@@ -45,4 +40,9 @@ Mayjs.$run(function(Mayjs) {
             return obj.hasOwnProperty(_parseMetaName(name));
         }
     };
-}, Mayjs);
+})();
+
+if(typeof Mayjs != "undefined" && Mayjs) {
+    Mayjs.meta = meta;
+    meta = undefined;
+}

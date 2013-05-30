@@ -30,7 +30,7 @@ The quickest way to start using May.js in your project, is by simply including m
 		<script src="may.js"></script>
 		<script>
 			Mayjs.$run(function(){
-				eval(Mayjs.DSL);
+				eval(Mayjs.DSL());
 				
 				var Duck = $class({
 					quack: function(){
@@ -51,7 +51,7 @@ The quickest way to start using May.js in your project, is by simply including m
 ###Classes and Interfaces
 ```javascript
 Mayjs.$run(function(){
-    eval(Mayjs.DSL);
+    eval(Mayjs.DSL());
     
     var IAnimal = $interface({
         "move": [{"distance": Number}]
@@ -102,7 +102,7 @@ Mayjs.$run(function(){
 
 ###Modules
 ```javascript
-    ...previous code...
+    //...previous code...
     
     var MRun = $module({
         onIncluded: function(animal){
@@ -120,7 +120,7 @@ Mayjs.$run(function(){
 
 ###Object wrapper
 ```javascript
-   ...previous code...
+    //...previous code...
    
     $.regist(IAnimal, MRun);
   
@@ -173,7 +173,7 @@ Mayjs.$run(function(){
 ```
 ###Global variables management
 ```javascript
-    ...previous code...
+    //...previous code...
     
     //list managed global variablers
     $global.list(); //["Mayjs"]
@@ -193,7 +193,7 @@ Mayjs.$run(function(){
 ```
 ###DSL
 ```javascript
-   ...previous code...
+   //...previous code...
    
    var calc = {
    	add: function(a, b){
@@ -212,7 +212,7 @@ Mayjs.$run(function(){
 
 ###Uniform type assert
 ```javascript
-    ...previous code...
+    //...previous code...
     
     console.assert($is("string", ""));
     console.assert($is(String, "") === false);

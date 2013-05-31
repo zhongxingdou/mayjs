@@ -112,6 +112,7 @@ Mayjs.$run(function(M) {
          */
         base: function() {
             var caller = arguments.callee.caller;
+            alert(caller); 
             var callerName = caller.name || meta.get(caller, "name");
             var callerOwner = this._callerOwner(caller, callerName);
             if(!callerName)callerName = meta.get(caller, "name"); //在this._callerOwner方法中会为caller设置name meta;

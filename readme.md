@@ -1,17 +1,16 @@
 #May.js 
->for writing powerful and clearly JavaScript code
+>for writing powerful and clear JavaScript code
 
 ##principle
-+ 简单，但不违背清晰
-+ 聚焦
-+ 描述在干嘛重于描述如何干
-+ 接口友好，才有时间考虑性能
++ 简单，但清晰(simple, but clear)
++ 聚焦(focus)
++ 在干嘛重于如何干(What to do more then how to do)
 
 ##Features
 + Classes
 + Interfaces
 + Modules 
-+ Object wrapper (wraps object like jQuery use $ to wrap document elements)
++ Object wrapper (wraps object as jQuery use $ to wrap document elements)
 + Global variables management
 + DSL (includes methods of any object into current scope)
 + Uniform type assert
@@ -122,9 +121,9 @@ Mayjs.$run(function(){
 ```javascript
     //...previous code...
    
-    $.regist(IAnimal, MRun);
+    $.regist({"wrapper": MRun, "toWrap": IAnimal});
   
-    //auto wrap animal with wrapper which module registed for IAnimal.
+    //auto wrap animal with wrapper which was registed for IAnimal.
     console.info($(poly).run());
     
     poly.hasOwnProperty("poly"); //false
@@ -135,7 +134,7 @@ Mayjs.$run(function(){
 
     
     if(poly2 == poly){
-        console.info("poly2 and poly were one and the same bird.");
+        console.info("poly2 and poly are the same bird.");
     }
   
     var Human = $class({
@@ -162,8 +161,12 @@ Mayjs.$run(function(){
         }
     });
     
-    $.regist(IAnimal, MEat, {"methodize": true});
-    
+    $.regist({
+    	"wrapper": MEat, 
+    	"toWrap": IAnimal, 
+    	"includeOption":{"methodize": true}
+    });
+       
     var lily = new Human("Lily");
     
     console.info($(lily).eat("apple"));

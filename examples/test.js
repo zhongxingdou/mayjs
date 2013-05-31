@@ -167,3 +167,11 @@ Mayjs.$run(function() {
    add(4, 3);
    sub(6, 3);
 });
+eval(Mayjs.DSL());
+var o = $obj();
+alert("O.base");
+var abc  = function(){
+o.base();
+}
+
+abc();

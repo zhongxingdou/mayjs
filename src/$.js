@@ -28,9 +28,11 @@ Mayjs.$run(function(M) {
         var proxy = {};
         
         wrappers.forEach(function(wrapper) {
-            M.$include(wrapper.module, proxy, merge({
-                "context": obj
-            }, wrapper.includeOption));
+            M.$include({
+                "module": wrapper.module,
+                "to": proxy,
+                "option": merge({"context": obj }, wrapper.includeOption)
+            });
         });
 
         return proxy;
@@ -134,7 +136,11 @@ Mayjs.$run(function(M) {
          * @param {Object|Interface|String} type
          * @param {Object} [includeOption]
          */
-        regist: function(type, module, includeOption) {
+        regist: function(opt) {
+            var module = opt.wrapper;
+            var type = opt.toWrap;
+            var includeOption = opt.includeOption;
+
             var $ = this;
             if(type != Function.prototype){// typeof Function.prototype == "function" true
                 if(typeof type == "function") {
@@ -186,7 +192,7 @@ Mayjs.$run(function(M) {
         if(wrappers.length === 0) return obj;
 
         wrappers.forEach(function(wrapper) {
-            M.$include(wrapper.module, obj, wrapper.includeOption);
+            M.$include({"module": wrapper.module, "to": obj, "option": wrapper.includeOption});
         });
 
         return obj;

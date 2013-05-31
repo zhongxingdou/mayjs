@@ -56,7 +56,11 @@ var ObjectUtil = (function() {
          */
 
         clone: function(o, deep) {
-            var cloneObj = {};
+            if(Array.prototype.isPrototypeOf(o)){
+                return o.split(0);
+            }
+
+            var cloneObj = o.constructor ? (new o.constructor(o.valueOf ? o.valueOf() : undefined)) : {};
             for(var p in o) {
                 cloneObj[p] = deep ? $clone(o[p]) : o[p];
             }
@@ -65,19 +69,6 @@ var ObjectUtil = (function() {
         delegate: function(o, fn) {
             return o[fn].bind(o);
         },
-        set: function(o, name, value) {
-            o[name] = value;
-            return o;
-        },
-        get: function(o, name) {
-            return o[name];
-        },
-        call: function(o, fn) {
-            fn = o[fn];
-            var args = util.parseArray(arguments).split(2);
-            return fn.apply(o, args);
-        },
-
         /**
          * copy members from src to o
          * @memberof Mayjs

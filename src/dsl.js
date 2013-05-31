@@ -2,8 +2,10 @@ Mayjs.$run(function(M) {
     var fn = M.util.fn;
     var enumeration = M.util.enumeration;
     var methodize = M.util.methodize;
-    var merge = M.MObjectUtil.merge;
     var parseParamNames = M.util.parseParamNames;
+
+    var merge = M.MObjectUtil.merge;
+    var mix = M.MObjectUtil.mix;
 
     /*按字母顺序排序*/
     M.dsl = {
@@ -24,12 +26,12 @@ Mayjs.$run(function(M) {
         $run: M.$run,
         $support: M.$support
     };
-    
-    M.DSL = function(){
+
+    M.DSL = function() {
         return M.$dsl(M.dsl);
     };
 
-    M.MFunctionUtil = M.$module({
+    M.MFunctionWrapper = M.$module({
         overload: function(fn, overFnparamTypes, overFn) {
             var main = M.$overload(fn);
             main.overload(overFnparamTypes, overFn);
@@ -41,26 +43,66 @@ Mayjs.$run(function(M) {
         methodize: methodize
     });
 
-    M.MObjectUtil = M.$module(M.MObjectUtil);
-    M.MObjectUtil.mix(M.MObjectUtil, {
+    var MObjectExtend = {
         meta: M.meta.get,
         setMeta: M.meta.set,
         hasMeta: M.meta.has,
         include: function(obj, module, option) {
-            return M.$include(module, obj, option);
+            return M.$include({
+                "module": module,
+                "to": obj,
+                "option": option
+            });
         },
         overwrite: M.util.overwrite
+    };
+
+    M.$include({
+        "module": MObjectExtend,
+        "to": M.Base.prototype,
+        "option": {
+            "methodize": true
+        }
     });
 
-    M.$include(M.MObjectUtil, M.Base.prototype, {
-        "methodize": true
+    M.MObjectWrapper = {
+        set: function(o, name, value) {
+            o[name] = value;
+            return o;
+        },
+        get: function(o, name) {
+            return o[name];
+        },
+        call: function(o, fn) {
+            fn = o[fn];
+            var args = util.parseArray(arguments).split(2);
+            return fn.apply(o, args);
+        }
+    };
+    
+    M.$include({
+        "module": M.MObjectUtil,
+        "to": M.MObjectWrapper
     });
 
-    M.$.regist(Object, M.MObjectUtil, {
-        "methodize": true
+    M.$include({
+        "module": MObjectExtend,
+        "to": M.MObjectWrapper
     });
 
-    M.$.regist(Function, M.MFunctionUtil, {
-        "methodize": true
+    M.$.regist({
+        "wrapper": M.MObjectWrapper,
+        "toWrap": Object,
+        "includeOption": {
+            "methodize": true
+        }
+    });
+
+    M.$.regist({
+        "wrapper": M.MFunctionWrapper,
+        "toWrap": Function,
+        "includeOption": {
+            "methodize": true
+        }
     });
 }, Mayjs);

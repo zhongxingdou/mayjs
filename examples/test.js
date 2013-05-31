@@ -1,41 +1,6 @@
 Mayjs.$run(function() {
     eval(Mayjs.DSL());
 
-    var fn = $($def(["string", "number"], function(name, age) {
-        console.info("I'm " + name + " and I'm " + age + " years old");
-    })).overload(["string"], function(name) {
-        console.info("i'm " + name);
-    });
-
-    fn.overload(["string", "string"], function(name, interest) {
-        console.info("I'm " + name + ", and i'm interesting " + interest);
-    }).overload({
-            name: "string",
-            age: "number",
-            interesting: "string"
-        }, function(opt) {
-            console.info("I'm " + opt.name + " and I'm " + opt.age + " years old, and I'm interesting " + opt.interesting);
-        }
-    );
-
-    fn("lily");
-    fn("lily", 18);
-    fn("lily", "singing");
-    fn({
-        name: "Lucy",
-        age: 22,
-        interesting: "swimming"
-    });
-
-    //test $checkParams
-    function abc(name, age){
-        console.info($checkParams("string", "number"));
-    }
-
-    abc("hal", 18);
-    abc("hal", "18");
-    console.info($(abc).paramNames());
-
     var IAnimal = $interface({
         "move": [{"distance": Number}]
     });
@@ -101,7 +66,7 @@ Mayjs.$run(function() {
     console.info(monkey.run());
 
 
-    $.regist(IAnimal, MRun);
+    $.regist({"wrapper": MRun, "toWrap": IAnimal});
   
     //auto wrap animal with wrapper which module registed for IAnimal.
     console.info($(poly).run());
@@ -140,7 +105,7 @@ Mayjs.$run(function() {
         }
     });
     
-    $.regist(IAnimal, MEat, {"methodize": true});
+    $.regist({"wrapper": MEat, "toWrap": IAnimal, "includeOption":{"methodize": true}});
     
     var lily = new Human("Lily");
     

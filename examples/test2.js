@@ -48,19 +48,20 @@ Mayjs.$run(function() {
     var types = ["string", String.prototype];
 
     types.forEach(function(type) {
-        $.regist(type, StringWrapper, {
+        $.regist({"wrapper": StringWrapper, "toWrap": type, "includeOption": {
             "methodize": true
-        });
+        }});
     });
 
     console.log($$("123Hello").toInteger(10) === 123);
 
-    $.regist(Animal, StringWrapper, {
+    $.regist({"wrapper": StringWrapper, "toWrap": Animal, "includeOption": {
         "methodize": true,
         "methodizeTo": function(obj) {
             return obj.name;
         }
-    });
+    }});
+
     hal.name = "123" + hal.name;
     console.log($(hal).toInteger() == "123");
 
@@ -72,4 +73,39 @@ Mayjs.$run(function() {
 
     $$a = $$(a);
     console.log($$a == a);
+
+    var fn = $($def(["string", "number"], function(name, age) {
+        console.info("I'm " + name + " and I'm " + age + " years old");
+    })).overload(["string"], function(name) {
+        console.info("i'm " + name);
+    });
+
+    fn.overload(["string", "string"], function(name, interest) {
+        console.info("I'm " + name + ", and i'm interesting " + interest);
+    }).overload({
+            name: "string",
+            age: "number",
+            interesting: "string"
+        }, function(opt) {
+            console.info("I'm " + opt.name + " and I'm " + opt.age + " years old, and I'm interesting " + opt.interesting);
+        }
+    );
+
+    fn("lily");
+    fn("lily", 18);
+    fn("lily", "singing");
+    fn({
+        name: "Lucy",
+        age: 22,
+        interesting: "swimming"
+    });
+
+    //test $checkParams
+    function abc(name, age){
+        console.info($checkParams("string", "number"));
+    }
+
+    abc("hal", 18);
+    abc("hal", "18");
+    console.info($(abc).paramNames());
 });

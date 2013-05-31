@@ -58,7 +58,7 @@ Mayjs.$run(function(M) {
 
     function $interface (define, base) {
         if(base) {
-            if(!Interface.isPrototypeOf(base)) throw "Parameter base is not an Interface";
+            // if(!Interface.isPrototypeOf(base)) throw "Parameter base is not an Interface";
             interface_ = Object.create(base);
         } else {
             interface_ = Object.create(Interface);
@@ -147,7 +147,7 @@ Mayjs.$run(function(M) {
         var interfaces = meta.get(obj, "interfaces");
         if(interfaces.indexOf(interface_) == -1) {
             if(!$support(interface_, obj)) {
-                throw "Not support interface";
+                throw "not supported interface";
             }
 
             //write arguments meta for methods of obj
@@ -161,7 +161,7 @@ Mayjs.$run(function(M) {
         }
     }
 
-    function $checkParams() {
+    function $check() {
         var caller = arguments.callee.caller;
         var args = caller["arguments"];
         var paramTypes;
@@ -186,7 +186,7 @@ Mayjs.$run(function(M) {
     M.$implement = $implement;
     M.$support = $support;
     M.$is = $is;
-    M.$checkParams = $checkParams;
+    M.$check = $check;
     M.$def = $def;
     M.Interface = Interface;
 }, Mayjs);

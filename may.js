@@ -56,6 +56,10 @@ var Mayjs = {"VERSION": "0.5", "HOST": this};var ObjectUtil = (function() {
          */
 
         clone: function(o, deep) {
+            if(Array.prototype.isPrototypeOf(o)){
+                return o.slice(0);
+            }
+
             var cloneObj = {};
             for(var p in o) {
                 cloneObj[p] = deep ? $clone(o[p]) : o[p];
@@ -65,19 +69,6 @@ var Mayjs = {"VERSION": "0.5", "HOST": this};var ObjectUtil = (function() {
         delegate: function(o, fn) {
             return o[fn].bind(o);
         },
-        set: function(o, name, value) {
-            o[name] = value;
-            return o;
-        },
-        get: function(o, name) {
-            return o[name];
-        },
-        call: function(o, fn) {
-            fn = o[fn];
-            var args = util.parseArray(arguments).split(2);
-            return fn.apply(o, args);
-        },
-
         /**
          * copy members from src to o
          * @memberof Mayjs
@@ -131,6 +122,9 @@ var Mayjs = {"VERSION": "0.5", "HOST": this};var ObjectUtil = (function() {
 
 if(typeof Mayjs != "undefined" && Mayjs) {
     Mayjs.MObjectUtil = ObjectUtil;
+    Mayjs.$mix = ObjectUtil.mix;
+    Mayjs.$merge = ObjectUtil.merge;
+    Mayjs.$clone = ObjectUtil.clone;
     ObjectUtil = undefined;
 }$global = (function(HOST) {
     /**
@@ -145,15 +139,11 @@ if(typeof Mayjs != "undefined" && Mayjs) {
     var $global = function(globalName, obj) {
             var _global = arguments.callee;
             if(_global.defined(globalName)) {
-                throw globalName + " defined";
+                throw globalName + " has been defined";
             } else {
                 var o = obj || eval(globalName);
                 HOST[globalName] = o;
-
-                var variables = _global.__variables__;
-                if(variables.indexOf(globalName) == -1) {
-                    variables.push(globalName);
-                }
+                _global.regist(globalName);
             }
         };
 
@@ -197,11 +187,22 @@ if(typeof Mayjs != "undefined" && Mayjs) {
         return [].concat(this.__variables__);
     };
 
+    $global.regist = function(globalName){
+        if(!this.defined(globalName)){
+            throw globalName + " is undefined";
+        }
+        var variables = this.__variables__;
+        if(variables.indexOf(globalName) == -1) {
+            variables.push(globalName);
+        }
+    };
+
     return $global;
 })(this);
 
 if(typeof Mayjs != "undefined" && Mayjs) {
     Mayjs.$global = $global;
+    Mayjs.$global.regist("Mayjs");
     $global = undefined;
 }var MayjsUtil = {
     /**
@@ -470,7 +471,7 @@ Mayjs.$run(function(M) {
 
     function $interface (define, base) {
         if(base) {
-            if(!Interface.isPrototypeOf(base)) throw "Parameter base is not an Interface";
+            // if(!Interface.isPrototypeOf(base)) throw "Parameter base is not an Interface";
             interface_ = Object.create(base);
         } else {
             interface_ = Object.create(Interface);
@@ -559,7 +560,7 @@ Mayjs.$run(function(M) {
         var interfaces = meta.get(obj, "interfaces");
         if(interfaces.indexOf(interface_) == -1) {
             if(!$support(interface_, obj)) {
-                throw "Not support interface";
+                throw "not supported interface";
             }
 
             //write arguments meta for methods of obj
@@ -573,7 +574,7 @@ Mayjs.$run(function(M) {
         }
     }
 
-    function $checkParams() {
+    function $check() {
         var caller = arguments.callee.caller;
         var args = caller["arguments"];
         var paramTypes;
@@ -598,7 +599,7 @@ Mayjs.$run(function(M) {
     M.$implement = $implement;
     M.$support = $support;
     M.$is = $is;
-    M.$checkParams = $checkParams;
+    M.$check = $check;
     M.$def = $def;
     M.Interface = Interface;
 }, Mayjs);/**
@@ -612,6 +613,8 @@ Mayjs.$run(function(M) {
     var methodize = M.util.methodize;
     var merge = M.MObjectUtil.merge;
     var eachOwn = M.MObjectUtil.eachOwn;
+    var clone = M.MObjectUtil.clone;
+    var trace = M.MObjectUtil.trace;
 
     /**
      * 定义一个module
@@ -627,20 +630,35 @@ Mayjs.$run(function(M) {
     /**
      * include module to obj with option
      * @memberof M
-     * @param  {Object} module
-     * @param  {Object} obj
-     * @param  {Object} [option]
+     * @param  {Object} opt.module
+     * @param  {Object} opt.to
+     * @param  {Object} opt.option
      * @return {Object}
      */
 
-    function $include(module, obj, option) {
+    function $include(opt) {
+        var option = opt.option;
+        var module = opt.module;
+        var obj = opt.to;
+
         var defauls = {
             "methodize": false,
             "context": null,
             "methodizeTo": null,
-            "alias": null
+            "alias": null,
+            "forceInclude": false
         };
+
         option = merge(defauls, option);
+
+        if(!meta.has(obj, "modules")){
+            meta.set(obj, "modules", []);
+        }
+
+        var includedModules = _collectIncludedModules(obj);
+        if(includedModules.indexOf(module) != -1 && !option.forceInclude){
+            return;
+        }
 
         var needMethodize = option.methodize;
 
@@ -655,16 +673,38 @@ Mayjs.$run(function(M) {
             }
         });
 
-        if(meta.has("interfaces")) {
-            meta.get("interfaces").forEach(function(interface_) {
+        if(meta.has(module, "interfaces")) {
+            meta.get(module, "interfaces").forEach(function(interface_) {
                 M.$implement(interface_, obj);
             });
         }
+
+        _registIncludedModule(obj, module, includedModules);
 
         if(module.onIncluded) {
             module.onIncluded.call(obj, option.context || obj);
         }
     }
+
+    var _collectIncludedModules = function(obj){
+        var modules = meta.get(obj, "modules");
+        trace(obj, "__proto__", function(proto){
+            modules.concat(meta.get(proto, "modules"));
+        });
+        return modules;
+    };
+
+    var _registIncludedModule = function(obj, module, includedModules){
+        var objModules = meta.get(obj, "modules");
+
+        var moduleItsModules = meta.get(module, "modules") || [];
+
+        moduleItsModules.concat([module]).forEach(function(m){
+            if(includedModules.indexOf(m) == -1){
+                objModules.push(m);
+            }
+        });
+    };
 
     M.$module = $module;
     M.$include = $include;
@@ -732,7 +772,8 @@ Mayjs.$run(function(M) {
     var IBase = M.$interface({
         "initialize": [],
         "base": [],
-        "__interfaces__": Array
+        "__interfaces__": Array,
+        "__modules__": Array
     });
 
     /**
@@ -747,6 +788,7 @@ Mayjs.$run(function(M) {
          */
         "initialize": function() {
             meta.set(this, "interfaces", []);
+            meta.set(this, "modules", []);
         },
         _callerOwner: function(caller, callerName) {
             var callerOwner = null;
@@ -851,9 +893,11 @@ Mayjs.$run(function(M) {
         var proxy = {};
         
         wrappers.forEach(function(wrapper) {
-            M.$include(wrapper.module, proxy, merge({
-                "context": obj
-            }, wrapper.includeOption));
+            M.$include({
+                "module": wrapper.module,
+                "to": proxy,
+                "option": merge({"context": obj }, wrapper.includeOption)
+            });
         });
 
         return proxy;
@@ -957,7 +1001,11 @@ Mayjs.$run(function(M) {
          * @param {Object|Interface|String} type
          * @param {Object} [includeOption]
          */
-        regist: function(type, module, includeOption) {
+        regist: function(opt) {
+            var module = opt.wrapper;
+            var type = opt.toWrap;
+            var includeOption = opt.includeOption;
+
             var $ = this;
             if(type != Function.prototype){// typeof Function.prototype == "function" true
                 if(typeof type == "function") {
@@ -1009,7 +1057,7 @@ Mayjs.$run(function(M) {
         if(wrappers.length === 0) return obj;
 
         wrappers.forEach(function(wrapper) {
-            M.$include(wrapper.module, obj, wrapper.includeOption);
+            M.$include({"module": wrapper.module, "to": obj, "option": wrapper.includeOption});
         });
 
         return obj;
@@ -1116,15 +1164,18 @@ Mayjs.$run(function(M) {
     var fn = M.util.fn;
     var enumeration = M.util.enumeration;
     var methodize = M.util.methodize;
-    var merge = M.MObjectUtil.merge;
     var parseParamNames = M.util.parseParamNames;
+
+    var merge = M.MObjectUtil.merge;
+    var mix = M.MObjectUtil.mix;
 
     /*按字母顺序排序*/
     M.dsl = {
         $: M.$,
         $$: M.$$,
-        $checkParams: M.$checkParams,
+        $check: M.$check,
         $class: M.$class,
+        $clone: M.$clone,
         $dsl: M.$dsl,
         $def: M.$def,
         $enum: enumeration,
@@ -1133,17 +1184,19 @@ Mayjs.$run(function(M) {
         $implement: M.$implement,
         $interface: M.$interface,
         $is: M.$is,
+        $merge: merge,
+        $mix: mix,
         $module: M.$module,
         $obj: M.$obj,
         $run: M.$run,
         $support: M.$support
     };
-    
-    M.DSL = function(){
+
+    M.DSL = function() {
         return M.$dsl(M.dsl);
     };
 
-    M.MFunctionUtil = M.$module({
+    M.MFunctionWrapper = M.$module({
         overload: function(fn, overFnparamTypes, overFn) {
             var main = M.$overload(fn);
             main.overload(overFnparamTypes, overFn);
@@ -1155,26 +1208,74 @@ Mayjs.$run(function(M) {
         methodize: methodize
     });
 
-    M.MObjectUtil = M.$module(M.MObjectUtil);
-    M.MObjectUtil.mix(M.MObjectUtil, {
+    var MObjectExtend = {
         meta: M.meta.get,
         setMeta: M.meta.set,
         hasMeta: M.meta.has,
         include: function(obj, module, option) {
-            return M.$include(module, obj, option);
+            return M.$include({
+                "module": module,
+                "to": obj,
+                "option": option
+            });
         },
         overwrite: M.util.overwrite
+    };
+
+    M.$include({
+        "module": MObjectExtend,
+        "to": M.Base.prototype,
+        "option": {
+            "methodize": true
+        }
     });
 
-    M.$include(M.MObjectUtil, M.Base.prototype, {
-        "methodize": true
+    M.$include({
+        "module": M.MObjectUtil,
+        "to": M.Base.prototype,
+        "option": {
+            "methodize": true
+        }
     });
 
-    M.$.regist(Object, M.MObjectUtil, {
-        "methodize": true
+    M.MObjectWrapper = {
+        set: function(o, name, value) {
+            o[name] = value;
+            return o;
+        },
+        get: function(o, name) {
+            return o[name];
+        },
+        call: function(o, fn) {
+            fn = o[fn];
+            var args = util.parseArray(arguments).split(2);
+            return fn.apply(o, args);
+        }
+    };
+    
+    M.$include({
+        "module": M.MObjectUtil,
+        "to": M.MObjectWrapper
     });
 
-    M.$.regist(Function, M.MFunctionUtil, {
-        "methodize": true
+    M.$include({
+        "module": MObjectExtend,
+        "to": M.MObjectWrapper
+    });
+
+    M.$.regist({
+        "wrapper": M.MObjectWrapper,
+        "toWrap": Object,
+        "includeOption": {
+            "methodize": true
+        }
+    });
+
+    M.$.regist({
+        "wrapper": M.MFunctionWrapper,
+        "toWrap": Function,
+        "includeOption": {
+            "methodize": true
+        }
     });
 }, Mayjs);

@@ -11,8 +11,9 @@ Mayjs.$run(function(M) {
     M.dsl = {
         $: M.$,
         $$: M.$$,
-        $checkParams: M.$checkParams,
+        $check: M.$check,
         $class: M.$class,
+        $clone: M.$clone,
         $dsl: M.$dsl,
         $def: M.$def,
         $enum: enumeration,
@@ -21,6 +22,8 @@ Mayjs.$run(function(M) {
         $implement: M.$implement,
         $interface: M.$interface,
         $is: M.$is,
+        $merge: merge,
+        $mix: mix,
         $module: M.$module,
         $obj: M.$obj,
         $run: M.$run,
@@ -59,6 +62,14 @@ Mayjs.$run(function(M) {
 
     M.$include({
         "module": MObjectExtend,
+        "to": M.Base.prototype,
+        "option": {
+            "methodize": true
+        }
+    });
+
+    M.$include({
+        "module": M.MObjectUtil,
         "to": M.Base.prototype,
         "option": {
             "methodize": true

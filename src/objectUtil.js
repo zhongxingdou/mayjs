@@ -57,10 +57,10 @@ var ObjectUtil = (function() {
 
         clone: function(o, deep) {
             if(Array.prototype.isPrototypeOf(o)){
-                return o.split(0);
+                return o.slice(0);
             }
 
-            var cloneObj = o.constructor ? (new o.constructor(o.valueOf ? o.valueOf() : undefined)) : {};
+            var cloneObj = {};
             for(var p in o) {
                 cloneObj[p] = deep ? $clone(o[p]) : o[p];
             }
@@ -122,5 +122,8 @@ var ObjectUtil = (function() {
 
 if(typeof Mayjs != "undefined" && Mayjs) {
     Mayjs.MObjectUtil = ObjectUtil;
+    Mayjs.$mix = ObjectUtil.mix;
+    Mayjs.$merge = ObjectUtil.merge;
+    Mayjs.$clone = ObjectUtil.clone;
     ObjectUtil = undefined;
 }

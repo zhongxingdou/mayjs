@@ -10,6 +10,7 @@ Mayjs.$run(function(M) {
     var merge = M.MObjectUtil.merge;
     var eachOwn = M.MObjectUtil.eachOwn;
     var clone = M.MObjectUtil.clone;
+    var trace = M.MObjectUtil.trace;
 
     /**
      * 定义一个module
@@ -46,8 +47,12 @@ Mayjs.$run(function(M) {
 
         option = merge(defauls, option);
 
-        var includedModules = meta.get(obj, "modules");
-        if(includedModules && includedModules.indexOf(module) != -1 && !option.forceInclude){
+        if(!meta.has(obj, "modules")){
+            meta.set(obj, "modules", []);
+        }
+
+        var includedModules = _collectIncludedModules(obj);
+        if(includedModules.indexOf(module) != -1 && !option.forceInclude){
             return;
         }
 
@@ -70,23 +75,29 @@ Mayjs.$run(function(M) {
             });
         }
 
-        _registIncludedModule(obj, module);
+        _registIncludedModule(obj, module, includedModules);
 
         if(module.onIncluded) {
             module.onIncluded.call(obj, option.context || obj);
         }
     }
 
-    var _registIncludedModule = function(obj, module){
-        if(!meta.has(obj, "modules")){
-            meta.set(obj, "modules", []);
-        }
-        var itsModules = meta.get(module, "modules") || [];
+    var _collectIncludedModules = function(obj){
+        var modules = meta.get(obj, "modules");
+        trace(obj, "__proto__", function(proto){
+            modules.concat(meta.get(proto, "modules"));
+        });
+        return modules;
+    };
 
-        var ms = meta.get(obj, "modules");
-        itsModules.concat([module]).forEach(function(m){
-            if(ms.indexOf(m) == -1){
-                ms.push(m);
+    var _registIncludedModule = function(obj, module, includedModules){
+        var objModules = meta.get(obj, "modules");
+
+        var moduleItsModules = meta.get(module, "modules") || [];
+
+        moduleItsModules.concat([module]).forEach(function(m){
+            if(includedModules.indexOf(m) == -1){
+                objModules.push(m);
             }
         });
     };

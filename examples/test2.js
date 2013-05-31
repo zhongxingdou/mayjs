@@ -100,9 +100,9 @@ Mayjs.$run(function() {
         interesting: "swimming"
     });
 
-    //test $checkParams
+    //test $check
     function abc(name, age){
-        console.info($checkParams("string", "number"));
+        console.info($check("string", "number"));
     }
 
     abc("hal", 18);

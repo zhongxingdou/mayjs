@@ -11,15 +11,11 @@ $global = (function(HOST) {
     var $global = function(globalName, obj) {
             var _global = arguments.callee;
             if(_global.defined(globalName)) {
-                throw globalName + " defined";
+                throw globalName + " has been defined";
             } else {
                 var o = obj || eval(globalName);
                 HOST[globalName] = o;
-
-                var variables = _global.__variables__;
-                if(variables.indexOf(globalName) == -1) {
-                    variables.push(globalName);
-                }
+                _global.regist(globalName);
             }
         };
 
@@ -63,10 +59,21 @@ $global = (function(HOST) {
         return [].concat(this.__variables__);
     };
 
+    $global.regist = function(globalName){
+        if(!this.defined(globalName)){
+            throw globalName + " is undefined";
+        }
+        var variables = this.__variables__;
+        if(variables.indexOf(globalName) == -1) {
+            variables.push(globalName);
+        }
+    };
+
     return $global;
 })(this);
 
 if(typeof Mayjs != "undefined" && Mayjs) {
     Mayjs.$global = $global;
+    Mayjs.$global.regist("Mayjs");
     $global = undefined;
 }

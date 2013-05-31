@@ -62,7 +62,8 @@ Mayjs.$run(function(M) {
     var IBase = M.$interface({
         "initialize": [],
         "base": [],
-        "__interfaces__": Array
+        "__interfaces__": Array,
+        "__modules__": Array
     });
 
     /**
@@ -77,6 +78,7 @@ Mayjs.$run(function(M) {
          */
         "initialize": function() {
             meta.set(this, "interfaces", []);
+            meta.set(this, "modules", []);
         },
         _callerOwner: function(caller, callerName) {
             var callerOwner = null;

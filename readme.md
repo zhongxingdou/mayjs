@@ -134,7 +134,7 @@ Mayjs.$run(function(){
 
     
     if(poly2 == poly){
-        console.info("poly2 and poly are the same bird.");
+        console.info("poly2 and poly is the same bird.");
     }
   
     var Human = $class({

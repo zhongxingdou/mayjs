@@ -1,4 +1,5 @@
-var Mayjs = {"VERSION": "0.5", "HOST": this};var ObjectUtil = (function() {
+var Mayjs = {"VERSION": "0.5", "HOST": this};
+if(typeof module !== "undefined") module.exports = Mayjs;var ObjectUtil = (function() {
     var _isPrivate = function(name) {
             return(/^_/).test(name);
         };
@@ -153,10 +154,16 @@ if(typeof Mayjs != "undefined" && Mayjs) {
      * @param  {String} globalName variable name
      * @return {Boolean}
      */
-    $global.defined = function(globalName) {
-        return HOST.hasOwnProperty ? HOST.hasOwnProperty(globalName) : typeof HOST[globalName] !== "undefined";
-    };
-
+    if(typeof(exports) != "undefined"){
+        $global.defined = function(globalName) {
+            return typeof(eval(globalName)) != "undefined";
+        };
+    }else{
+        $global.defined = function(globalName) {
+            return HOST.hasOwnProperty ? HOST.hasOwnProperty(globalName) : typeof HOST[globalName] !== "undefined";
+        };
+    }
+    
     Object.defineProperty($global, "__variables__", {
         value: [],
         writable: true
@@ -319,13 +326,13 @@ if(typeof Mayjs != "undefined" && Mayjs) {
      *     sub: function(a, b){ return a - b }
      * }
      *
-     * eval(dsl(Calculator));
+     * eval($var(Calculator));
      *
      * add(4, 6);
      * sub(10, 4);
      */
 
-    dsl: function(obj) {
+    $var: function(obj, names) {
         obj = obj || this;
 
         //create global tempObj
@@ -336,12 +343,18 @@ if(typeof Mayjs != "undefined" && Mayjs) {
         var temp = eval(tempVarName);
         temp.value = obj;
 
-        //generate members declare string
-        var keys = Object.keys(obj).filter(function(k) {
-            return obj.hasOwnProperty(k) && typeof obj[k] == "function";
-        });
+        if(typeof names == "string" && names !== ""){
+            names = names.split(" ").map(function(n){ return n.trim(); });
+        }else if(!names){
+            names = Object.keys(obj);
+        }
 
-        var members = keys.map(function(name) {
+        //generate members declare string
+        // var keys = Object.keys(obj).filter(function(k) {
+            // return obj.hasOwnProperty(k) && typeof obj[k] == "function";
+        // });
+
+        var members = names.map(function(name) {
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
         return "var " + members.join(",") + "; delete " + tempVarName;
@@ -360,7 +373,7 @@ if(typeof Mayjs != "undefined" && Mayjs) {
 if(typeof Mayjs != "undefined" && Mayjs) {
     Mayjs.util = MayjsUtil;
     Mayjs.$run = MayjsUtil.run;
-    Mayjs.$dsl = MayjsUtil.dsl;
+    Mayjs.$var = MayjsUtil.$var;
     Mayjs.$fn = MayjsUtil.fn;
     Mayjs.$enum = MayjsUtil.enumeration;
     MayjsUtil = undefined;
@@ -724,7 +737,7 @@ Mayjs.$run(function(M) {
     function $extend(baseProto, config) {
         var proto = Object.create(baseProto);
         var clazz;
-        if(!Object["__proto__"]) {
+        if(!Object["__proto__"]) {//for IE browser
             meta.set(proto, "proto", baseProto, true);
             clazz = function() {
                 this["__proto__"] = proto;
@@ -1176,7 +1189,7 @@ Mayjs.$run(function(M) {
         $check: M.$check,
         $class: M.$class,
         $clone: M.$clone,
-        $dsl: M.$dsl,
+        $var: M.$var,
         $def: M.$def,
         $enum: enumeration,
         $fn: fn,
@@ -1193,7 +1206,7 @@ Mayjs.$run(function(M) {
     };
 
     M.DSL = function() {
-        return M.$dsl(M.dsl);
+        return M.$var(M.dsl);
     };
 
     M.MFunctionWrapper = M.$module({

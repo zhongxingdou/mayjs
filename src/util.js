@@ -113,13 +113,13 @@ var MayjsUtil = {
      *     sub: function(a, b){ return a - b }
      * }
      *
-     * eval(dsl(Calculator));
+     * eval($var(Calculator));
      *
      * add(4, 6);
      * sub(10, 4);
      */
 
-    dsl: function(obj) {
+    $var: function(obj, names) {
         obj = obj || this;
 
         //create global tempObj
@@ -130,12 +130,18 @@ var MayjsUtil = {
         var temp = eval(tempVarName);
         temp.value = obj;
 
-        //generate members declare string
-        var keys = Object.keys(obj).filter(function(k) {
-            return obj.hasOwnProperty(k) && typeof obj[k] == "function";
-        });
+        if(typeof names == "string" && names !== ""){
+            names = names.split(" ").map(function(n){ return n.trim(); });
+        }else if(!names){
+            names = Object.keys(obj);
+        }
 
-        var members = keys.map(function(name) {
+        //generate members declare string
+        // var keys = Object.keys(obj).filter(function(k) {
+            // return obj.hasOwnProperty(k) && typeof obj[k] == "function";
+        // });
+
+        var members = names.map(function(name) {
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
         return "var " + members.join(",") + "; delete " + tempVarName;
@@ -154,7 +160,7 @@ var MayjsUtil = {
 if(typeof Mayjs != "undefined" && Mayjs) {
     Mayjs.util = MayjsUtil;
     Mayjs.$run = MayjsUtil.run;
-    Mayjs.$dsl = MayjsUtil.dsl;
+    Mayjs.$var = MayjsUtil.$var;
     Mayjs.$fn = MayjsUtil.fn;
     Mayjs.$enum = MayjsUtil.enumeration;
     MayjsUtil = undefined;

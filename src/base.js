@@ -14,7 +14,7 @@ Mayjs.$run(function(M) {
     function $extend(baseProto, config) {
         var proto = Object.create(baseProto);
         var clazz;
-        if(!Object["__proto__"]) {
+        if(!Object["__proto__"]) {//for IE browser
             meta.set(proto, "proto", baseProto, true);
             clazz = function() {
                 this["__proto__"] = proto;
@@ -112,7 +112,6 @@ Mayjs.$run(function(M) {
          */
         base: function() {
             var caller = arguments.callee.caller;
-            alert(caller); 
             var callerName = caller.name || meta.get(caller, "name");
             var callerOwner = this._callerOwner(caller, callerName);
             if(!callerName)callerName = meta.get(caller, "name"); //在this._callerOwner方法中会为caller设置name meta;

@@ -162,7 +162,7 @@ Mayjs.$run(function() {
         }
     };
    
-   eval($dsl(calc));
+   eval($var(calc));
    
    add(4, 3);
    sub(6, 3);

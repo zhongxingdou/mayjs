@@ -14,7 +14,7 @@ Mayjs.$run(function(M) {
         $check: M.$check,
         $class: M.$class,
         $clone: M.$clone,
-        $dsl: M.$dsl,
+        $var: M.$var,
         $def: M.$def,
         $enum: enumeration,
         $fn: fn,
@@ -31,7 +31,7 @@ Mayjs.$run(function(M) {
     };
 
     M.DSL = function() {
-        return M.$dsl(M.dsl);
+        return M.$var(M.dsl);
     };
 
     M.MFunctionWrapper = M.$module({

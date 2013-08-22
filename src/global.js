@@ -25,10 +25,16 @@ $global = (function(HOST) {
      * @param  {String} globalName variable name
      * @return {Boolean}
      */
-    $global.defined = function(globalName) {
-        return HOST.hasOwnProperty ? HOST.hasOwnProperty(globalName) : typeof HOST[globalName] !== "undefined";
-    };
-
+    if(typeof(exports) != "undefined"){
+        $global.defined = function(globalName) {
+            return typeof(eval(globalName)) != "undefined";
+        };
+    }else{
+        $global.defined = function(globalName) {
+            return HOST.hasOwnProperty ? HOST.hasOwnProperty(globalName) : typeof HOST[globalName] !== "undefined";
+        };
+    }
+    
     Object.defineProperty($global, "__variables__", {
         value: [],
         writable: true

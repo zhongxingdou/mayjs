@@ -1,28 +1,41 @@
-var MObjectUtil = {
-    _isPrivate: function(name) {
-        return(/^_/).test(name);
+Mayjs.MObjectUtil = {
+    isPrivate: function(name) {
+        return(/^__/).test(name);
     },
+
+    isProtected: function(name) {
+        return(/^_[^_]*/).test(name);
+    },
+
+    isPublic: function(name) {
+        return !Mayjs.MObjectUtil.isProtected(name) && !Mayjs.MObjectUtil.isPrivate(name);
+    },
+
     has: function(o, property) {
         return(o && o.hasOwnProperty(property) && typeof o[property] != "function") || false;
     },
+
     can: function(o, fn) {
         return(o && o[fn] && typeof o[fn] == "function") || false;
     },
+
     eachKey: function(o, fn) {
         for(var p in o) {
             if(fn(o[p]) === false) break;
         }
     },
-    eachProp: function(o, fn, eachPrivates) {
-        for(var p in o) {
-            if(o.hasOwnProperty(p) && (eachPrivates || !MObjectUtil._isPrivate(p)) && typeof o[p] != "function") {
-                if(fn(p, o[p]) === false) break;
+
+    eachProp: function(o, fn) {
+        Mayjs.MObjectUtil.eachOwn(o, function(p, op){
+            if(typeof op != "function"){
+                return fn(p, op);
             }
-        }
+        });
     },
-    eachOwn: function(o, fn, eachPrivates) {
+
+    eachOwn: function(o, fn) {
         for(var p in o) {
-            if(o.hasOwnProperty(p) && (eachPrivates || !MObjectUtil._isPrivate(p))) {
+            if(o.hasOwnProperty(p) && Mayjs.MObjectUtil.isPublic(p)) {
                 if(fn(p, o[p]) === false) break;
             }
         }
@@ -109,14 +122,14 @@ var MObjectUtil = {
      * @return {Object} merge result
      */
 
-    merge: function(o, a/*,b,c,...n*/) {
+    merge: function(o, a /*,b,c,...n*/ ) {
         var obj = {},
             curr = null,
             p;
 
         for(var i = 0, l = arguments.length; i < l; i++) {
             curr = arguments[i];
-            if(!curr)continue;
+            if(!curr) continue;
             for(p in curr) {
                 obj[p] = curr[p];
             }
@@ -125,8 +138,3 @@ var MObjectUtil = {
         return obj;
     }
 };
-
-if(typeof Mayjs != "undefined" && Mayjs) {
-    Mayjs.MObjectUtil = MObjectUtil;
-    MObjectUtil = undefined;
-}

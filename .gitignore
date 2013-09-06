@@ -12,3 +12,7 @@ node_modules
 may-inone-min.js
 
 may-inone.js
+
+may.min.js
+
+test/*.js

@@ -2,11 +2,16 @@
   "name": "mayjs",
   "version": "0.0.1",
   "devDependencies": {
-    "mocha": "~1.12.1",
     "grunt": "~0.4.1",
+    "mocha": "~1.12.1",
+    "should": "~1.2.2",
+    "grunt-cafe-mocha": "~0.1.8",
     "grunt-contrib-jshint": "~0.6.4",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-uglify": "~0.2.4",
-    "grunt-contrib-watch": "~0.5.3"
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-coffee-jshint": "~0.1.1",
+    "grunt-livereload": "~0.1.3"
   }
 }

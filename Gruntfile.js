@@ -18,7 +18,7 @@ module.exports = function(grunt) {
       js: {
         src: [
           'src/may.js', 
-          'src/objectUtil.js',
+          'src/MObjectUtil.js',
           'src/global.js',
           'src/util.js',
           'src/meta.js',

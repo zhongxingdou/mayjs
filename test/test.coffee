@@ -10,5 +10,17 @@ describe 'Array', ->
 describe 'Mayjs', ->
     describe '#$interface()', ->
         it 'return a interface object', ->
-            $interface().should.not.equal null
+            IAnimal = $interface move: [distance: Number ]
+            IAnimal.should.not.equal(null)
 
+            Animal = $class
+                initialize: ->
+                    _name = name || "";
+                    this.getName = ->
+                        return  "Animal: " + _name;
+                move: (distance) ->
+                    return this.getName() + " moved " + distance + " step."
+
+            $implement IAnimal, Animal.prototype
+
+            $support(IAnimal, Animal.prototype).should.be.true

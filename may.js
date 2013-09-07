@@ -28,8 +28,8 @@ Mayjs.MObjectUtil = {
     },
 
     eachProp: function(o, fn) {
-        Mayjs.MObjectUtil.eachOwn(o, function(p, op){
-            if(typeof op != "function"){
+        Mayjs.MObjectUtil.eachOwn(o, function(p, op) {
+            if(typeof op != "function") {
                 return fn(p, op);
             }
         });
@@ -69,6 +69,10 @@ Mayjs.MObjectUtil = {
      */
 
     clone: function(o, deep) {
+        if(Array.prototype.isPrototypeOf(o)) {
+            return o.slice(0);
+        }
+
         var cloneObj = {};
         for(var p in o) {
             cloneObj[p] = deep ? $clone(o[p]) : o[p];
@@ -78,19 +82,6 @@ Mayjs.MObjectUtil = {
     delegate: function(o, fn) {
         return o[fn].bind(o);
     },
-    set: function(o, name, value) {
-        o[name] = value;
-        return o;
-    },
-    get: function(o, name) {
-        return o[name];
-    },
-    call: function(o, fn) {
-        fn = o[fn];
-        var args = util.parseArray(arguments).split(2);
-        return fn.apply(o, args);
-    },
-
     /**
      * copy members from src to o
      * @memberof Mayjs
@@ -139,7 +130,11 @@ Mayjs.MObjectUtil = {
 
         return obj;
     }
-};
+}
+
+Mayjs.$mix = Mayjs.MObjectUtil.mix;
+Mayjs.$merge =Mayjs.MObjectUtil.merge;
+Mayjs.$clone = Mayjs.MObjectUtil.clone;
 $global = (function(HOST) {
     /**
      * 定义一个全局变量，如果已经定义了同名全局变量，将抛出错误<br>

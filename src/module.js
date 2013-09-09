@@ -10,7 +10,7 @@ Mayjs.$run(function(M) {
     var merge = M.MObjectUtil.merge;
     var eachOwn = M.MObjectUtil.eachOwn;
     var clone = M.MObjectUtil.clone;
-    var trace = M.MObjectUtil.trace;
+    var traverseChain = M.MObjectUtil.traverseChain;
 
     /**
      * 定义一个module
@@ -84,7 +84,7 @@ Mayjs.$run(function(M) {
 
     var _collectIncludedModules = function(obj){
         var modules = meta.get(obj, "modules");
-        trace(obj, "__proto__", function(proto){
+        traverseChain(obj, "__proto__", function(proto){
             modules.concat(meta.get(proto, "modules"));
         });
         return modules;

@@ -4,14 +4,14 @@ Mayjs.MObjectUtil = {
     },
 
     isProtected: function(name) {
-        return(/^_[^_]*/).test(name);
+        return(/^_(?!_)/).test(name);
     },
 
     isPublic: function(name) {
         return !Mayjs.MObjectUtil.isProtected(name) && !Mayjs.MObjectUtil.isPrivate(name);
     },
 
-    has: function(o, property) {
+    have: function(o, property) {
         return(o && o.hasOwnProperty(property) && typeof o[property] != "function") || false;
     },
 
@@ -19,9 +19,17 @@ Mayjs.MObjectUtil = {
         return(o && o[fn] && typeof o[fn] == "function") || false;
     },
 
-    eachKey: function(o, fn) {
+    eachAll: function(o, fn) {
         for(var p in o) {
-            if(fn(o[p]) === false) break;
+            if(fn(p, o[p]) === false) break;
+        }
+    },
+
+    eachOwn: function(o, fn) {
+        for(var p in o) {
+            if(o.hasOwnProperty(p) && Mayjs.MObjectUtil.isPublic(p)) {
+                if(fn(p, o[p]) === false) break;
+            }
         }
     },
 
@@ -32,14 +40,7 @@ Mayjs.MObjectUtil = {
             }
         });
     },
-
-    eachOwn: function(o, fn) {
-        for(var p in o) {
-            if(o.hasOwnProperty(p) && Mayjs.MObjectUtil.isPublic(p)) {
-                if(fn(p, o[p]) === false) break;
-            }
-        }
-    },
+ 
     /**
      * 根据指定属性来追溯
      * @memberof Mayjs
@@ -49,11 +50,11 @@ Mayjs.MObjectUtil = {
      * @return Boolean 全部处理完则返回true，中途结果返回false
      */
 
-    trace: function(o, prop, fn) {
-        var a = o;
-        while(a) {
-            if(fn(a) === false) return false;
-            a = a[prop];
+    traverseChain: function(o, prop, fn) {
+        var v = o[prop];
+        while(v) {
+            if(fn(v) === false) return false;
+            v = v[prop];
         }
         return true;
     },
@@ -67,19 +68,48 @@ Mayjs.MObjectUtil = {
      */
 
     clone: function(o, deep) {
-        if(Array.prototype.isPrototypeOf(o)) {
-            return o.slice(0);
+        if(!o)return o;
+
+        if(['object','function'].indexOf(typeof(o)) == -1){ //value type
+            return o;
+        }
+
+        if(typeof o.clone == "function"){
+            return o.clone(deep);
         }
 
         var cloneObj = {};
-        for(var p in o) {
-            cloneObj[p] = deep ? $clone(o[p]) : o[p];
+        var className = Object.prototype.toString.call(o).slice(8, -1);
+        if(className === 'Array'){
+            cloneObj = [];
+            if(deep){
+                for(var i=0,l=o.length; i<l; i++){
+                    cloneObj.push(arguments.callee(o[i], deep));
+                }
+            }else{
+                cloneObj = o.slice(0);
+            }
+        }else if(className !== 'Object'){
+            cloneObj = new o.constructor(o.valueOf());
+        }
+
+        if(deep){
+            for(var p in o) {
+                var op = o[p];
+                if(Object.prototype.isPrototypeOf(op)){
+                    cloneObj[p] = arguments.callee(op, deep);
+                }else{
+                    cloneObj[p] = op;
+                }
+            }
+        }else{
+            for(var p in o) {
+                cloneObj[p] = o[p];
+            }
         }
         return cloneObj;
     },
-    delegate: function(o, fn) {
-        return o[fn].bind(o);
-    },
+
     /**
      * copy members from src to o
      * @memberof Mayjs
@@ -88,11 +118,10 @@ Mayjs.MObjectUtil = {
      * @param  {String[]} [whitelist=null] 不想被覆盖的成员
      * @return {Object}
      */
-
     mix: function(o, src, whitelist) {
         if(!src) return o;
         var p;
-        if(whitelist && whitelist.length > 0) {
+        if(whitelist) {
             for(p in src) {
                 if(whitelist.indexOf(p) == -1) {
                     o[p] = src[p];
@@ -105,6 +134,7 @@ Mayjs.MObjectUtil = {
         }
         return o;
     },
+
     /**
      * merge o to a to b ... n
      * @memberof Mayjs
@@ -112,7 +142,6 @@ Mayjs.MObjectUtil = {
      * @param {Object} a
      * @return {Object} merge result
      */
-
     merge: function(o, a /*,b,c,...n*/ ) {
         var obj = {},
             curr = null,

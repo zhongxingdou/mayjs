@@ -8,7 +8,7 @@
 
 Mayjs.$run(function(M) {
     var meta = M.meta;
-    var trace = M.MObjectUtil.trace;
+    var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
 
     function $extend(baseProto, config) {
@@ -86,14 +86,14 @@ Mayjs.$run(function(M) {
                 if(this["__proto__"][callerName] == caller){
                     return this["__proto__"];
                 }
-                trace(this, "__proto__", function(proto) {
+                traverseChain(this, "__proto__", function(proto) {
                     if(proto.hasOwnProperty(callerName) && proto[callerName] == caller){
                         callerOwner = proto;
                         return false;
                     }
                 });
             }else{
-                trace(this, "__proto__", function(proto) {
+                traverseChain(this, "__proto__", function(proto) {
                     Object.keys(proto).forEach(function(p) {
                         if(proto[p] == caller) {
                             callerOwner = proto;

@@ -4,8 +4,9 @@
  * @require M.interface
  * @type {Object}
  */
+eval(Mayjs.DSL());
 
-Mayjs.$run(function(M) {
+$run(function(M) {
     var meta = M.meta;
     var $def = M.$def;
 
@@ -92,5 +93,5 @@ Mayjs.$run(function(M) {
         return main;
     }
 
-    M.$overload = $overload;
+    $global("$overload", $overload);
 }, Mayjs);

@@ -6,7 +6,9 @@
  * @type {Object}
  */
 
-Mayjs.$run(function(M) {
+eval(Mayjs.DSL());
+
+$run(function(M) {
     var meta = M.meta;
     var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
@@ -148,9 +150,9 @@ Mayjs.$run(function(M) {
     }
 
 
-    M.$extend = $extend;
+    $global("$extend", $extend);
     M.Base = Base;
     M.IBase = IBase;
-    M.$class = $class;
-    M.$obj = $obj;
+    $global("$class", $class);
+    $global("$obj", $obj);
 }, Mayjs);

@@ -8,13 +8,14 @@ Mayjs.$run(function(M) {
     var mix = M.MObjectUtil.mix;
 
     /*按字母顺序排序*/
+    /*
     M.dsl = {
         $: M.$,
         $$: M.$$,
         $check: M.$check,
         $class: M.$class,
         $clone: M.$clone,
-        $var: M.$var,
+        $importMembers: M.$importMembers,
         $def: M.$def,
         $enum: enumeration,
         $fn: fn,
@@ -29,11 +30,14 @@ Mayjs.$run(function(M) {
         $run: M.$run,
         $support: M.$support
     };
+    */
 
-    M.DSL = function() {
-        return M.$var(M.dsl);
+    /*M.DSL = function() {
+        return M.$importMembers(M.dsl);
     };
+    */
 
+    /*
     M.MFunctionWrapper = M.$module({
         overload: function(fn, overFnparamTypes, overFn) {
             var main = M.$overload(fn);
@@ -45,11 +49,12 @@ Mayjs.$run(function(M) {
         },
         methodize: methodize
     });
+    */
 
     var MObjectExtend = {
         meta: M.meta.get,
         setMeta: M.meta.set,
-        hasMeta: M.meta.has,
+        hasMeta: M.meta.defined,
         include: function(obj, module, option) {
             return M.$include({
                 "module": module,
@@ -76,6 +81,7 @@ Mayjs.$run(function(M) {
         }
     });
 
+/*
     M.MObjectWrapper = {
         set: function(o, name, value) {
             o[name] = value;
@@ -90,6 +96,7 @@ Mayjs.$run(function(M) {
             return fn.apply(o, args);
         }
     };
+    */
     
     M.$include({
         "module": M.MObjectUtil,

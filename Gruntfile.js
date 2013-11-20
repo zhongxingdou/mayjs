@@ -17,17 +17,16 @@ module.exports = function(grunt) {
     concat: {
       js: {
         src: [
-          'src/may.js', 
-          'src/MObjectUtil.js',
-          'src/global.js',
+          'src/boot.js',
           'src/util.js',
-          'src/meta.js',
-          'src/interface.js',
-          'src/module.js',
-          'src/base.js',
-          'src/$.js',
-          'src/overload.js',
-          'src/dsl.js'
+          'src/MObjectUtil.js',
+          // 'src/interface.js'
+          // 'src/module.js',
+          // 'src/base.js',
+          // 'src/$.js',
+          // 'src/overload.js',
+          // 'src/dsl.js'
+          // 'src/may.js',
          ],
         dest: 'may.js'
       }
@@ -44,7 +43,7 @@ module.exports = function(grunt) {
     cafemocha: {
       src: 'test/**/*.js',
       options: {
-        require: ["should"],
+        require: ["should","sinon"],
         reporter: 'spec',
         ui: 'bdd',
         compilers: {

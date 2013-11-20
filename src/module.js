@@ -1,11 +1,11 @@
 /**
- * @require M.meta
  * @require M.util
  * @require M.MObjectUtil
- * @require M.$interface
  */
-Mayjs.$run(function(M) {
-    var meta = M.meta;
+
+eval(Mayjs.DSL());
+
+$run(function(M) {
     var methodize = M.util.methodize;
     var merge = M.MObjectUtil.merge;
     var eachOwn = M.MObjectUtil.eachOwn;
@@ -47,8 +47,8 @@ Mayjs.$run(function(M) {
 
         option = merge(defauls, option);
 
-        if(!meta.has(obj, "modules")){
-            meta.set(obj, "modules", []);
+        if(!obj.__modules__){
+            obj.__modules__ = [];
         }
 
         var includedModules = _collectIncludedModules(obj);
@@ -69,8 +69,8 @@ Mayjs.$run(function(M) {
             }
         });
 
-        if(meta.has(module, "interfaces")) {
-            meta.get(module, "interfaces").forEach(function(interface_) {
+        if(module.__interfaces__)) {
+            module.__interfaces__.forEach(function(interface_) {
                 M.$implement(interface_, obj);
             });
         }
@@ -83,17 +83,17 @@ Mayjs.$run(function(M) {
     }
 
     var _collectIncludedModules = function(obj){
-        var modules = meta.get(obj, "modules");
+        var modules = obj.__modules__;
         traverseChain(obj, "__proto__", function(proto){
-            modules.concat(meta.get(proto, "modules"));
+            modules.concat(proto.__modules__);
         });
         return modules;
     };
 
     var _registIncludedModule = function(obj, module, includedModules){
-        var objModules = meta.get(obj, "modules");
+        var objModules = obj.__modules__;
 
-        var moduleItsModules = meta.get(module, "modules") || [];
+        var moduleItsModules = module.__modules__ || [];
 
         moduleItsModules.concat([module]).forEach(function(m){
             if(includedModules.indexOf(m) == -1){
@@ -102,6 +102,6 @@ Mayjs.$run(function(M) {
         });
     };
 
-    M.$module = $module;
-    M.$include = $include;
+    $global("$module", $module);
+    $global("$include", $include);
 }, Mayjs);

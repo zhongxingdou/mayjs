@@ -8,7 +8,7 @@ Mayjs.MObjectUtil = {
     },
 
     isPublic: function(name) {
-        return !Mayjs.MObjectUtil.isProtected(name) && !Mayjs.MObjectUtil.isPrivate(name);
+        return !this.isProtected(name) && !this.isPrivate(name);
     },
 
     have: function(o, property) {
@@ -27,20 +27,20 @@ Mayjs.MObjectUtil = {
 
     eachOwn: function(o, fn) {
         for(var p in o) {
-            if(o.hasOwnProperty(p) && Mayjs.MObjectUtil.isPublic(p)) {
+            if(o.hasOwnProperty(p) && this.isPublic(p)) {
                 if(fn(p, o[p]) === false) break;
             }
         }
     },
 
     eachProp: function(o, fn) {
-        Mayjs.MObjectUtil.eachOwn(o, function(p, op) {
+        this.eachOwn(o, function(p, op) {
             if(typeof op != "function") {
                 return fn(p, op);
             }
         });
     },
- 
+
     /**
      * 根据指定属性来追溯
      * @memberof Mayjs
@@ -68,41 +68,41 @@ Mayjs.MObjectUtil = {
      */
 
     clone: function(o, deep) {
-        if(!o)return o;
+        if(!o) return o;
 
-        if(['object','function'].indexOf(typeof(o)) == -1){ //value type
+        if(['object', 'function'].indexOf(typeof(o)) == -1) { //value type
             return o;
         }
 
-        if(typeof o.clone == "function"){
+        if(typeof o.clone == "function") {
             return o.clone(deep);
         }
 
         var cloneObj = {};
         var className = Object.prototype.toString.call(o).slice(8, -1);
-        if(className === 'Array'){
+        if(className === 'Array') {
             cloneObj = [];
-            if(deep){
-                for(var i=0,l=o.length; i<l; i++){
+            if(deep) {
+                for(var i = 0, l = o.length; i < l; i++) {
                     cloneObj.push(arguments.callee(o[i], deep));
                 }
-            }else{
+            } else {
                 cloneObj = o.slice(0);
             }
-        }else if(className !== 'Object'){
+        } else if(className !== 'Object') {
             cloneObj = new o.constructor(o.valueOf());
         }
 
-        if(deep){
+        if(deep) {
             for(var p in o) {
                 var op = o[p];
-                if(Object.prototype.isPrototypeOf(op)){
+                if(Object.prototype.isPrototypeOf(op)) {
                     cloneObj[p] = arguments.callee(op, deep);
-                }else{
+                } else {
                     cloneObj[p] = op;
                 }
             }
-        }else{
+        } else {
             for(var p in o) {
                 cloneObj[p] = o[p];
             }
@@ -158,7 +158,3 @@ Mayjs.MObjectUtil = {
         return obj;
     }
 }
-
-Mayjs.$mix = Mayjs.MObjectUtil.mix;
-Mayjs.$merge =Mayjs.MObjectUtil.merge;
-Mayjs.$clone = Mayjs.MObjectUtil.clone;

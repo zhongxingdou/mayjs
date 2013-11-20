@@ -1,10 +1,9 @@
-Mayjs = require '../may'
 
-describe 'util', ->
-    util = Mayjs.MObjectUtil
+describe 'MObjectUtil', ->
+    util = require('../may.js').MObjectUtil
     describe '#isPrivate()', ->
         it 'should assert a name whether it can be a private method name', ->
-            isPrivate = util.isPrivate
+            isPrivate = util.isPrivate.bind util
             isPrivate('__fn').should.be.true
             isPrivate('__').should.be.true
 
@@ -16,7 +15,7 @@ describe 'util', ->
 
     describe '#isProtected()', ->
         it 'should assert a name whether it can be a protected method name', ->
-            isProtected = util.isProtected
+            isProtected = util.isProtected.bind util
             isProtected('_fn').should.be.true
             isProtected('_').should.be.true
 
@@ -27,7 +26,7 @@ describe 'util', ->
 
     describe '#isPublic()', ->
         it 'should assert a name whether it can be a public method name', ->
-            isPublic = util.isPublic
+            isPublic = util.isPublic.bind util
             isPublic('fn').should.be.true
             isPublic('fn__').should.be.true
             isPublic('fn_').should.be.true
@@ -96,7 +95,7 @@ describe 'util', ->
             obj = new clazz
             obj.ownFn = ->
 
-            eachOwn = util.eachOwn
+            eachOwn = util.eachOwn.bind util
             keys = []
             eachOwn obj, (k, v) ->
                 keys.push k
@@ -115,7 +114,7 @@ describe 'util', ->
             obj.ownFn = ->
             obj.ownP = {}
 
-            eachProp = util.eachProp
+            eachProp = util.eachProp.bind util
             keys = []
             eachProp obj, (k, v) ->
                 keys.push k

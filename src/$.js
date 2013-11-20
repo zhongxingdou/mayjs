@@ -11,8 +11,9 @@
  * @param {Object} obj 对象
  * @return {Object} 对象的代理
  */
+eval(Mayjs.DSL());
 
-Mayjs.$run(function(M) {
+$run(function(M) {
     var toObject = M.util.toObject;
 
     var merge = M.MObjectUtil.merge;
@@ -67,7 +68,7 @@ Mayjs.$run(function(M) {
 
             while(proto) {
                 wrappers = wrappers.concat(this.findWrappersByType(proto));
-                if(meta.has(proto, "interfaces")) {
+                if(meta.defined(proto, "interfaces")) {
                     meta.get(proto, "interfaces").forEach(function(interface_) {
                         wrappers = wrappers.concat($.findWrappersByType(interface_));
                     });
@@ -102,7 +103,7 @@ Mayjs.$run(function(M) {
             var objType = typeof obj;
             if(objType == "object" || objType == "function") { //reference type
                 wrappers = wrappers.concat($.findWrappersByPrototype(obj["__proto__"] || obj.constructor.prototype));
-                if(meta.has(obj, "interfaces")) {
+                if(meta.defined(obj, "interfaces")) {
                     meta.get(obj, "interfaces").forEach(function(interface_) {
                         addTypeWrappers(interface_);
                     });
@@ -198,6 +199,6 @@ Mayjs.$run(function(M) {
         return obj;
     }
 
-    M.$ = $;
-    M.$$ = $$;
+    $global("$", $);
+    $global("$$", $$);
 }, Mayjs);

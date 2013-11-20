@@ -1,19 +1,10 @@
 /**
- * @require M.util
- * @require Maysj.meta
- * @require M.MObjectUtil
+ * @require util.js
+ * @require global.js
  */
 
-Mayjs.$run(function(M) {
-    var meta = M.meta;
-    
-    var parseArray = M.util.parseArray;
-    var parseParamNames = M.util.parseParamNames;
-
-    var eachOwn = M.MObjectUtil.eachOwn;
-    var mix = M.MObjectUtil.mix;
-
-    var Interface = {};
+(function() {
+    var parseParamNames = util.parseParamNames;
 
     function _parseParamTypes(paramTypes, paramNames) {
         var meta = [];
@@ -27,10 +18,11 @@ Mayjs.$run(function(M) {
                 }
             } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
                 paramTypes.forEach(function(item){
-                    eachOwn(item, function(paramName, paramType){
+                    for(var paramName in item){
+                        var paramType = item[paramType];
                         meta.push({"name": paramName, "type": paramType });
-                        return false;
-                    });
+                        break;
+                    }
                 });
             }
         } else { //在$def中定义的option,即$def({param1: Type1, param2: Type2}, function(param1, param2){});
@@ -43,7 +35,7 @@ Mayjs.$run(function(M) {
     }
 
     function $def(paramTypes, fn) {
-        meta.set(fn, "param_types", _parseParamTypes(paramTypes, parseParamNames(fn)));
+        fn.__param_types__ = _parseParamTypes(paramTypes, parseParamNames(fn));
         return fn;
     }
 
@@ -63,7 +55,11 @@ Mayjs.$run(function(M) {
         } else {
             interface_ = Object.create(Interface);
         }
-        mix(interface_, define);
+
+        for(var p in define){
+            interface_[p] = define[p];
+        }
+
         return interface_;
     }
 
@@ -112,7 +108,7 @@ Mayjs.$run(function(M) {
      */
 
     function $support(interface_, o) {
-        if(meta.has(o, "interfaces") && meta.get(o, "interfaces").indexOf(interface_) != -1) {
+        if(o.__interfaces__ && o.__interfaces__.indexOf(interface_) != -1) {
             return true;
         }
 
@@ -140,11 +136,7 @@ Mayjs.$run(function(M) {
      */
 
     function $implement(interface_, obj) {
-        if(!meta.has(obj, "interfaces")) {
-            meta.set(obj, "interfaces", []);
-        }
-
-        var interfaces = meta.get(obj, "interfaces");
+        var interfaces = obj.__interfaces__ || obj.__interfaces__ = [];
         if(interfaces.indexOf(interface_) == -1) {
             if(!$support(interface_, obj)) {
                 throw "not supported interface";
@@ -153,7 +145,7 @@ Mayjs.$run(function(M) {
             //write arguments meta for methods of obj
             Object.keys(interface_).forEach(function(p) {
                 if($is(Array, interface_[p])) {
-                    meta.set(obj[p], "param_types", _parseParamTypes(interface_[p]));
+                    obj[p].__param_types__ = _parseParamTypes(interface_[p]);
                 }
             });
 
@@ -166,9 +158,9 @@ Mayjs.$run(function(M) {
         var args = caller["arguments"];
         var paramTypes;
         if(arguments.length === 0) {
-            paramTypes = meta.get(caller, "param_types");
+            paramTypes = caller.__param_types__;
         } else {
-            paramTypes = _parseParamTypes(parseArray(arguments), parseParamNames(caller));
+            paramTypes = _parseParamTypes(Array.prototype.slice.call(arguments), parseParamNames(caller));
         }
         var type;
         for(var i = 0, l = args.length; i < l; i++) {
@@ -182,11 +174,10 @@ Mayjs.$run(function(M) {
         return true;
     }
 
-    M.$interface = $interface;
-    M.$implement = $implement;
-    M.$support = $support;
-    M.$is = $is;
-    M.$check = $check;
-    M.$def = $def;
-    M.Interface = Interface;
-}, Mayjs);
+    $global("$interface", $interface);
+    $global("$implement", $implement);
+    $global("$support", $support);
+    $global("$is", $is);
+    $global("$check", $check);
+    $global("$def", $def);
+})();

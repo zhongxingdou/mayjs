@@ -1,4 +1,4 @@
-var MayjsUtil = {
+Mayjs.util = {
     /**
      * 将一个值对象转换成引用对象
      * @memberof Mayjs
@@ -6,11 +6,17 @@ var MayjsUtil = {
      * @return {Object}
      */
     toObject: function(value) {
-        var type = typeof value;
         var obj = value;
-        if(["object", "function"].indexOf(type) == -1) {
-            var Type = eval(type.charAt(0).toUpperCase() + type.slice(1));
-            obj = new Type(value);
+        switch(typeof value){
+            case 'string':
+                obj = new String(value);
+                break;
+            case 'number':
+                obj = new Number(value);
+                break;
+            case 'boolean':
+                obj = new Boolean(value);
+                break;
         }
         return obj;
     },
@@ -18,7 +24,7 @@ var MayjsUtil = {
     parseParamNames: function(fn) {
         var m = fn.toString().match(/.*?\((.*)?\)/);
         if(m && m[1]) {
-            return m[1].split(",");
+            return m[1].split(",").map(function(i){ return i.trim();});
         }
         return [];
     },
@@ -76,27 +82,33 @@ var MayjsUtil = {
 
 
     /**
-     * 将普通函数包装成一个方法，函数的第一个参数指向this
+     * 将一个纯函数包装成指定对象的一个方法，并在此时设定纯函数的第一参数
      * @memberof Mayjs
-     * @param  {Function} fn pure function
-     * @param  {Object}   [context=this] 第一个参数绑定到的对象
-     * @param  {Function} [methodizeTo] 从context获取绑定对象的方法
+     * @param  {Function} fn 纯函数
+     * @param  {Object}   [firstParam=this] fn的第一个参数，如果没有getFirstParam的话
+     * @param  {Function} [getFirstParam] 使用此函数获取fn的第一个参数，调用此函数时将把firstParam传递给它
      * @return {Function}
      */
 
-    methodize: function(fn, context, methodizeTo) {
+    methodize: function(fn, firstParam, getFirstParam) {
         var slice = Array.prototype.slice;
         return function() {
-            var obj = context || this;
-            var args = [methodizeTo ? methodizeTo(obj) : obj].concat(slice.call(arguments, 0));
+            var obj = firstParam || this;
+            var args = [getFirstParam ? getFirstParam(obj) : obj].concat(slice.call(arguments, 0));
             return fn.apply(null, args);
         };
     },
 
+    /**
+     * overwrite对象的方法，新方法将调用指定的overwriter并把原方法当作第一个参数传递给它
+     * @param  {Object} obj 被覆盖的对象
+     * @param  {string} funcName   对象被覆盖的方法名
+     * @param  {Function} overwriter 实际替代原方法的函数
+     */
     overwrite: function(obj, funcName, overwriter) {
         var _baseFn = obj[funcName].bind(obj);
         obj[funcName] = function() {
-            var args = [_baseFn].concat(Mayjs.util.parseArray(arguments));
+            var args = [_baseFn].concat(Array.prototype.slice.call(arguments, 0));
             return overwriter.apply(obj, args);
         };
     },
@@ -104,6 +116,7 @@ var MayjsUtil = {
 
     /**
      * 生成供eval()函数将指定变量成员声明为当前作用域内变量的代码
+     * 导入后会导致对象的方法调用时this变化
      * @memberof Mayjs
      * @param  {String} [obj=this]
      * @return {String}
@@ -113,13 +126,13 @@ var MayjsUtil = {
      *     sub: function(a, b){ return a - b }
      * }
      *
-     * eval($var(Calculator));
+     * eval(localize(Calculator));
      *
      * add(4, 6);
      * sub(10, 4);
      */
 
-    $var: function(obj, names) {
+    localize: function(obj, names) {
         obj = obj || this;
 
         //create global tempObj
@@ -147,6 +160,11 @@ var MayjsUtil = {
         return "var " + members.join(",") + "; delete " + tempVarName;
     },
 
+    /**
+     * 运行一个方法，一个快捷的使用闭包来避免全局变量的方法
+     * @param  {Function} fn [description]
+     * @return {[type]}      [description]
+     */
     run: function(fn) {
         if(arguments.length == 1) {
             return fn();
@@ -154,14 +172,4 @@ var MayjsUtil = {
             return fn.apply(this, Array.prototype.slice.call(arguments, 1));
         }
     }
-
-};
-
-if(typeof Mayjs != "undefined" && Mayjs) {
-    Mayjs.util = MayjsUtil;
-    Mayjs.$run = MayjsUtil.run;
-    Mayjs.$var = MayjsUtil.$var;
-    Mayjs.$fn = MayjsUtil.fn;
-    Mayjs.$enum = MayjsUtil.enumeration;
-    MayjsUtil = undefined;
 }

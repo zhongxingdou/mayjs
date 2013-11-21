@@ -1,76 +1,17 @@
 /**
- * @require util.js
- * @require global.js
+ * interface 
  */
 
-(function() {
-    var parseParamNames = util.parseParamNames;
-
-    function _parseParamTypes(paramTypes, paramNames) {
-        var meta = [];
-        if($is(Array, paramTypes)) {
-            if(paramNames) { //$def声明时带了方法定义，参数类型声明中无参数名项，参数名列表从方法定义中获取
-                for(var i = 0, l=paramNames.length; i < l; i++) {
-                    meta.push({
-                        "name": paramNames[i],
-                        "type": paramTypes[i]
-                    });
-                }
-            } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
-                paramTypes.forEach(function(item){
-                    for(var paramName in item){
-                        var paramType = item[paramType];
-                        meta.push({"name": paramName, "type": paramType });
-                        break;
-                    }
-                });
-            }
-        } else { //在$def中定义的option,即$def({param1: Type1, param2: Type2}, function(param1, param2){});
-            meta.push({
-                "name": paramNames[0],
-                "type": $interface(paramTypes)
-            });
-        }
-        return meta;
-    }
-
-    function $def(paramTypes, fn) {
-        fn.__param_types__ = _parseParamTypes(paramTypes, parseParamNames(fn));
-        return fn;
-    }
-
-
-    /**
-     * 创建Interface的快捷方法
-     * @memberof M
-     * @param  {Object} define interface define
-     * @param  {Interface} base base interface
-     * @return {Interface}
-     */
-
-    function $interface (define, base) {
-        if(base) {
-            // if(!Interface.isPrototypeOf(base)) throw "Parameter base is not an Interface";
-            interface_ = Object.create(base);
-        } else {
-            interface_ = Object.create(Interface);
-        }
-
-        for(var p in define){
-            interface_[p] = define[p];
-        }
-
-        return interface_;
-    }
+Mayjs.util.run(function(M){
+    var Interface = {};
 
     /**
      * 对象类型判断
      * @memberof M
-     * @param  {Object|String}  type
-     * @param  {Object}  o
+     * @argu  {Object|String}  type
+     * @argu  {Object}  o
      * @return {Boolean}
      */
-
     function $is(type, o) {
         if(type === null) return o === null;
         if(type === undefined) return o === undefined;
@@ -99,11 +40,76 @@
         return result;
     }
 
+    function parseArguNames(fn) {
+        var m = fn.toString().match(/.*?\((.*)?\)/);
+        if(m && m[1]) {
+            return m[1].split(",").map(function(i){ return i.trim();});
+        }
+        return [];
+    }
+
+    function _parseArguTypes(arguTypes, arguNames) {
+        var meta = [];
+        if($is(Array, arguTypes)) {
+            if(arguNames) { //$func声明时带了方法定义，参数类型声明中无参数名项，参数名列表从方法定义中获取
+                for(var i = 0, l=arguNames.length; i < l; i++) {
+                    meta.push({
+                        "name": arguNames[i],
+                        "type": arguTypes[i]
+                    });
+                }
+            } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
+                arguTypes.forEach(function(item){
+                    for(var arguName in item){
+                        var arguType = item[arguType];
+                        meta.push({"name": arguName, "type": arguType });
+                        break;
+                    }
+                });
+            }
+        } else { //在$func中定义的option,即$func({argu1: Type1, argu2: Type2}, function(argu1, argu2){});
+            meta.push({
+                "name": arguNames[0],
+                "type": $interface(arguTypes)
+            });
+        }
+        return meta;
+    }
+
+    function $func(arguTypes, fn) {
+        fn.__argu_types__ = _parseArguTypes(arguTypes, parseArguNames(fn));
+        return fn;
+    }
+
+
+    /**
+     * 创建Interface的快捷方法
+     * @memberof M
+     * @argu  {Object} define interface define
+     * @argu  {Interface} base base interface
+     * @return {Interface}
+     */
+
+    function $interface (define, base) {
+        if(base) {
+            // if(!Interface.isPrototypeOf(base)) throw "Parameter base is not an Interface";
+            interface_ = Object.create(base);
+        } else {
+            interface_ = Object.create(Interface);
+        }
+
+        for(var p in define){
+            interface_[p] = define[p];
+        }
+
+        return interface_;
+    }
+
     /**
      * 判断一个对象是否支持指定协议
      * @memberof M
-     * @param  {Interface} interface_
-     * @param  {Object} o
+     * @argu  {Interface} interface_
+     * @argu  {Object} o
      * @return {Boolean}
      */
 
@@ -131,8 +137,8 @@
     /**
      * implement a interface
      * @memberof M
-     * @param  {Interface} interface_
-     * @param  {Object} obj
+     * @argu  {Interface} interface_
+     * @argu  {Object} obj
      */
 
     function $implement(interface_, obj) {
@@ -145,7 +151,7 @@
             //write arguments meta for methods of obj
             Object.keys(interface_).forEach(function(p) {
                 if($is(Array, interface_[p])) {
-                    obj[p].__param_types__ = _parseParamTypes(interface_[p]);
+                    obj[p].__argu_types__ = _parseArguTypes(interface_[p]);
                 }
             });
 
@@ -153,18 +159,18 @@
         }
     }
 
-    function $check() {
+    function $checkArgu() {
         var caller = arguments.callee.caller;
         var args = caller["arguments"];
-        var paramTypes;
+        var arguTypes;
         if(arguments.length === 0) {
-            paramTypes = caller.__param_types__;
+            arguTypes = caller.__argu_types__;
         } else {
-            paramTypes = _parseParamTypes(Array.prototype.slice.call(arguments), parseParamNames(caller));
+            arguTypes = _parseArguTypes(Array.prototype.slice.call(arguments), parseArguNames(caller));
         }
         var type;
         for(var i = 0, l = args.length; i < l; i++) {
-            type = paramTypes[i].type;
+            type = arguTypes[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
             if(!$is(type, args[i])) {
@@ -174,10 +180,13 @@
         return true;
     }
 
-    $global("$interface", $interface);
-    $global("$implement", $implement);
-    $global("$support", $support);
-    $global("$is", $is);
-    $global("$check", $check);
-    $global("$def", $def);
-})();
+    M.parseArguNames = parseArguNames;
+    M.Interface = Interface;
+
+    M.$interface = $interface;
+    M.$support = $support;
+    M.$implement = $implement;
+    M.$is = $is;
+    M.$checkArgu = $checkArgu;
+    M.$func = $func;
+}, Mayjs);

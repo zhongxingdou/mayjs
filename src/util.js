@@ -21,14 +21,6 @@ Mayjs.util = {
         return obj;
     },
 
-    parseParamNames: function(fn) {
-        var m = fn.toString().match(/.*?\((.*)?\)/);
-        if(m && m[1]) {
-            return m[1].split(",").map(function(i){ return i.trim();});
-        }
-        return [];
-    },
-
     /**
      * 调用方法自身
      * @memberof Mayjs

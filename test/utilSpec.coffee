@@ -16,15 +16,6 @@ describe 'Mayjs.util', ->
             (typeof(util.toObject(true)) == 'object').should.be.true
             Boolean.prototype.isPrototypeOf(util.toObject(true)).should.be.true
 
-    describe '#parseParamNames', ->
-        it 'should parse function parameter names', ->
-            fn = (p1, p2, p3) ->
-            names = util.parseParamNames(fn)
-            names.should.have.property('length', 3)
-            names.should.include('p1')
-            names.should.include('p2')
-            names.should.include('p3')
-
     describe '#fn()', ->
         it 'should call function which present fn()', ->
             i = 0

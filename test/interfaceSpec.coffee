@@ -98,4 +98,22 @@ describe 'interface.js', ->
             types[0].type.should.eql arguType[0]
             types[1].type.should.eql arguType[1]
 
+    describe "#$interface(define, base)", ->
+        it "should return a new object that prototype is Interface", ->
+            a = M.$interface({})
+            assert M.Interface.isPrototypeOf a
+
+        it "should return a new object that prototype is given base", ->
+            base = M.$interface()
+            define = 
+                t1 : String
+                t2 : Number
+
+            a = M.$interface(define, base)
+
+            assert base.isPrototypeOf a
+            a.should.have.property "t1", define.t1
+            a.should.have.property "t2", define.t2
+
+
 

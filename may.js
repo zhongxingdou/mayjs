@@ -451,6 +451,7 @@ Mayjs.util.run(function(M){
         }
 
         for(var k in interface_) {
+            //ignore meta member that likes __proto__
             if(/^__.*__$/.test(k))continue;
             
             if($is(Array, interface_[k])) {

@@ -143,10 +143,10 @@ Mayjs.util.run(function(M){
      */
 
     function $implement(interface_, obj) {
-        var interfaces = obj.__interfaces__ || obj.__interfaces__ = [];
+        var interfaces = obj.__interfaces__ || (obj.__interfaces__ = []);
         if(interfaces.indexOf(interface_) == -1) {
             if(!$support(interface_, obj)) {
-                throw "not supported interface";
+                throw "interface not supported";
             }
 
             //write arguments meta for methods of obj
@@ -170,10 +170,11 @@ Mayjs.util.run(function(M){
             arguTypes = _parseArguTypes(Array.prototype.slice.call(arguments), parseArguNames(caller));
         }
         var type;
-        for(var i = 0, l = args.length; i < l; i++) {
+
+        for(var i = 0, l = arguTypes.length; i < l; i++) {
             type = arguTypes[i].type;
-            //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
-            if(type === null) return true;
+            //将方法的参数声明为undefined类型，表明其可为任何值，所以总是验证通过
+            if(type === undefined) return true;
             if(!$is(type, args[i])) {
                 return false;
             }

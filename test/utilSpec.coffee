@@ -105,8 +105,8 @@ describe 'Mayjs.util', ->
 
     describe '#localize(obj, memberFnNames)', ->
         obj = 
-            fn1: sinon.spy(),
-            fn2: sinon.spy()
+            fn1: ->
+            fn2: ->
 
         eval(util.localize(obj))
 

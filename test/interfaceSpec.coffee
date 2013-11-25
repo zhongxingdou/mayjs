@@ -115,5 +115,94 @@ describe 'interface.js', ->
             a.should.have.property "t1", define.t1
             a.should.have.property "t2", define.t2
 
+    describe "#$support(protocol, object)", ->
+        o = 
+            name: "jim"
+            age: 18
+            sayHello: ->
+
+        IMan = M.$interface(
+                name: "string"
+                age: "number"
+                sayHello: "function"
+            )
+
+        it "should return true when object supported protocol", ->
+            assert M.$support(IMan, o)
+
+        it "should return true when the count of object members more than the interface's", ->
+            o.score = 90
+            assert M.$support(IMan, o)
+
+        it "should return false when the count of object members less than the interface's", ->
+            IMan.height = "number"
+            M.$support(IMan, o).should.be.false
+
+        it "should return true when the protocol included in object.__interfaces__", ->
+            a = 
+                __interfaces__: [IMan]
+
+            assert M.$support(IMan, a)
+
+        it "should be same to function define when the protocol method member defined be Array format", ->
+            IA = M.$interface(
+                    sayHello: ["string"]
+                )
+
+            a = { sayHello: -> }
+
+            assert M.$support(IA, a)
+
+        it "should be same to Interface when the protocol be a pure object", ->
+            IA = { sayHello: "function"}
+
+            a = { sayHello: -> }
+
+            assert M.$support(IA, a)
+
+    describe "$implement(protocol, object)", ->
+        it "should add protocol to object.__interfaces__ if the object supported that", ->
+            o = {}
+            IA = {}
+
+            M.$implement(IA, o)
+
+            o.__interfaces__.should.include IA
+
+        it "should throw error when the object not supported protocol", ->
+            o = {}
+
+            IA = {m: String}
+
+            assert.throws(-> 
+                M.$implement(IA, o)
+            )
+            
+    describe "$checkArgu(Type1, Type2)", ->
+        fn = (name, age) ->
+            return M.$checkArgu("string", "number")
+
+        it "should return true when the arguments valid", ->
+            fn("jim", 18).should.be.true
+
+        it "should return false when the arguments invalid", ->
+            fn("jim", "18").should.be.false
+
+        it "should pass by any value when the check type is defined be undefined", ->
+            fn2 = (name, age) ->
+                return M.$checkArgu("string", undefined, "number")
+
+            fn2("jim", "xx", 18).should.be.true
+            fn2("jim", null, 19).should.be.true
+
+
+
+
+
+
+
+
+
+
 
 

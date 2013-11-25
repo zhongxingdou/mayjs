@@ -20,9 +20,9 @@ module.exports = function(grunt) {
           'src/boot.js',
           'src/util.js',
           'src/MObjectUtil.js',
-          'src/interface.js'
-          // 'src/module.js',
-          // 'src/base.js',
+          'src/interface.js',
+          'src/module.js',
+          'src/base.js'
           // 'src/$.js',
           // 'src/overload.js',
           // 'src/dsl.js'

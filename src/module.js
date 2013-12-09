@@ -50,7 +50,7 @@ Mayjs.util.run(function(M) {
         var needMethodize = option.methodize;
 
         M.MObjectUtil.eachOwn(module, function(k, v){
-            if("onIncluded" != k) {
+            if("onIncluded" != k && !k.match(/^__.*__$/)) {
                 //var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
                 if(needMethodize && typeof v == "function") {
                     obj[k] = M.util.methodize(v, option.context, option.methodizeTo);

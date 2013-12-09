@@ -160,12 +160,12 @@ describe 'interface.js', ->
 
             assert M.$support(IA, a)
 
-    describe "$implement(protocol, object)", ->
+    describe "$implement(object, protocol)", ->
         it "should add protocol to object.__interfaces__ if the object supported that", ->
             o = {}
             IA = {}
 
-            M.$implement(IA, o)
+            M.$implement(o, IA)
 
             o.__interfaces__.should.include IA
 
@@ -175,7 +175,7 @@ describe 'interface.js', ->
             IA = {m: String}
 
             assert.throws(-> 
-                M.$implement(IA, o)
+                M.$implement(o, IA)
             )
             
     describe "$checkArgu(Type1, Type2)", ->

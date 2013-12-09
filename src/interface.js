@@ -142,7 +142,7 @@ Mayjs.util.run(function(M){
      * @argu  {Object} obj
      */
 
-    function $implement(interface_, obj) {
+    function $implement(obj, interface_) {
         var interfaces = obj.__interfaces__ || (obj.__interfaces__ = []);
         if(interfaces.indexOf(interface_) == -1) {
             if(!$support(interface_, obj)) {

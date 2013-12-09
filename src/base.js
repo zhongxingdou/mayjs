@@ -142,7 +142,7 @@ Mayjs.util.run(function(M) {
         "__interfaces__": Array
     });
 
-    M.$implement(IBase, BaseObj);
+    M.$implement(BaseObj, IBase);
 
 
 

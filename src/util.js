@@ -87,7 +87,7 @@ Mayjs.util = {
         return function() {
             var obj = firstParam || this;
             var args = [getFirstParam ? getFirstParam(obj) : obj].concat(slice.call(arguments, 0));
-            return fn.apply(null, args);
+            return fn.apply(this, args);
         };
     },
 

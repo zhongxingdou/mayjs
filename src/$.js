@@ -11,9 +11,7 @@
  * @param {Object} obj 对象
  * @return {Object} 对象的代理
  */
-eval(Mayjs.DSL());
-
-$run(function(M) {
+Mayjs.util.run(function(M){
     var toObject = M.util.toObject;
 
     var merge = M.MObjectUtil.merge;

@@ -637,22 +637,22 @@ Mayjs.util.run(function(M) {
     var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
 
-    var BaseProto = {
+
+
+    var BaseObj = {
+        __interfaces__: [],
         initialize: function(){
-            this.__interfaces__ = [];
         },
-        extend: function(subProtoDefine){
-            var subProto = Object.create(this);
-            this.initialize.call(subProto);
+        extend: function(objDefine){
+            var obj = Object.create(this);
 
             if(!Object["__proto__"]) {//for IE browser
-                subProto["__proto__"] = this;
+                obj["__proto__"] = this;
             }
 
-            //merge config to proto
-            for(var name in subProtoDefine){
-                var member = subProtoDefine[name]; 
-                subProto[name] = member;
+            for(var name in objDefine){
+                var member = objDefine[name]; 
+                obj[name] = member;
 
                 //add __name__ to method
                 if(typeof(member) == "function"){
@@ -660,13 +660,14 @@ Mayjs.util.run(function(M) {
                 }
             }
 
-            return subProto;
+            this.initialize.call(obj);
+            return obj;
         },
         base: function(){
             var caller = arguments.callee.caller;
             var callerName = caller.name || caller.__name__;
-            var callerOwner = this.getCallerOwner(caller, callerName);
-            if(!callerName)callerName = caller.__name__; //在this._callerOwner方法中会为caller设置name meta;
+            var callerOwner = this.__getCallerOwner(caller, callerName);
+            if(!callerName)callerName = caller.__name__; //在this._getCallerOwner方法中会为caller设置name meta;
 
             var base = callerOwner ? callerOwner.__proto__ : null;
             var fn = base ? base[callerName] : null;
@@ -675,12 +676,15 @@ Mayjs.util.run(function(M) {
                 return fn.apply(this, arguments);
             }
         },
-        getCallerOwner: function(caller, callerName){
+        __getCallerOwner: function(caller, callerName){
             var callerOwner = null;
             if(callerName){
+                if(this.hasOwnProperty(callerName) && this[callerName] === caller)return this;
+
                 if(this["__proto__"][callerName] == caller){
                     return this["__proto__"];
                 }
+
                 traverseChain(this, "__proto__", function(proto) {
                     if(proto.hasOwnProperty(callerName) && proto[callerName] == caller){
                         callerOwner = proto;
@@ -688,6 +692,15 @@ Mayjs.util.run(function(M) {
                     }
                 });
             }else{
+                for(var p in this){
+                    if(this[p] === caller){
+                        callerOwner = this;
+                        caller.__name__ = p;
+                        break;
+                    }
+                }
+                if(callerOwner)return callerOwner;
+
                 traverseChain(this, "__proto__", function(proto) {
                     Object.keys(proto).forEach(function(p) {
                         if(proto[p] == caller) {
@@ -702,81 +715,51 @@ Mayjs.util.run(function(M) {
         }
     }
 
-    var BaseClassProto = BaseProto.extend({
-        extend: function(subClassProtoDefine){
-            var subProto = this.base(subClassProtoDefine);
 
-            var jsConstructor;
+
+    var BaseClass = function(){
+    }
+
+    BaseClass.prototype = BaseObj.extend({
+        extendClass : function(classDefine){
+            var proto = this.prototype.extend(classDefine);
+
+            var klass;
             if(!Object["__proto__"]) {//for IE browser
-                jsConstructor = function(){
+                klass = function(){
                     this["__proto__"] = proto;
-                    var initialize = arguments.callee.prototype.initialize;
-                    if(initialize) {
-                        initialize.apply(this, arguments);
+                    if(proto.hasOwnProperty("initialize")){
+                        proto.initialize.apply(this, arguments);
                     }
                 }
             }else{
-                jsConstructor = function(){
-                    var initialize = arguments.callee.prototype.initialize;
-                    if(initialize) {
-                        initialize.apply(this, arguments);
+                klass = function(){
+                    if(proto.hasOwnProperty("initialize")){
+                        proto.initialize.apply(this, arguments);
                     }
                 }
             }
 
-            jsConstructor.prototype = subProto;
-            jsConstructor.extend = arguments.callee.bind(subProto);
+            klass.prototype = proto;
+            klass.extend = BaseClass.extend;
 
-            return jsConstructor;
+            return klass;
+        }
+    });
+
+    BaseClass.extend = function(classDefine){
+       return this.prototype.extendClass.apply(this, arguments); 
+    }
+
+    BaseClass = BaseClass.extend({
+        initialize: function(){
+            this.__interfaces__ = [];
+            this.base(); //call BaseObj.initialize
         }
     })
 
-    function $extend(baseProto, config) {
-        var proto = Object.create(baseProto);
-        var clazz;
-        if(!Object["__proto__"]) {//for IE browser
-            //meta.set(proto, "proto", baseProto, true);
-            proto.__proto__ = baseProto;
-            clazz = function() {
-                this["__proto__"] = proto;
-                var initialize = clazz.prototype.initialize;
-                if(initialize) {
-                    initialize.apply(this, arguments);
-                }
-            };
-        }else{//for standard browser
-            clazz = function() {
-                var initialize = clazz.prototype.initialize;
-                if(initialize) {
-                    initialize.apply(this, arguments);
-                }
-            };
-        }
 
-        if(!clazz.extend) {
-            var fn = arguments.callee;
-            clazz.extend = function(config) {
-                return fn(this.prototype, config);
-            };
-        }
 
-        //merge config to proto
-        for(var p in config){
-            var ap = config[p];
-
-            //add __name__ to method
-            if(typeof(ap) == "function"){
-                ap.__name__ = p;
-            }
-            proto[p] = ap;
-        }
-
-        proto.__interfaces__ = [];
-
-        clazz.prototype = proto;
-
-        return clazz;
-    }
     /**
      * @memberof M
      * @type {Interface}
@@ -785,97 +768,227 @@ Mayjs.util.run(function(M) {
         "initialize": [],
         "base": [],
         "__interfaces__": Array
-        //"__modules__": Array
     });
 
-    /**
-     * @lends M.Base.prototype
-     */
-    var Base = $extend(Object.prototype, {
-        /**
-         * initialize instance of this prototype <br>
-         * 使用M.Base.create()或M.$obj()来创建实例，
-         * @constructs
-         * @see M.$obj
-         */
-        "initialize": function() {
-            this.__interfaces__ = [];
-            //meta.set(this, "modules", []);
-        },
-        _callerOwner: function(caller, callerName) {
-            var callerOwner = null;
-            if(callerName){
-                if(this["__proto__"][callerName] == caller){
-                    return this["__proto__"];
-                }
-                traverseChain(this, "__proto__", function(proto) {
-                    if(proto.hasOwnProperty(callerName) && proto[callerName] == caller){
-                        callerOwner = proto;
-                        return false;
-                    }
-                });
-            }else{
-                traverseChain(this, "__proto__", function(proto) {
-                    Object.keys(proto).forEach(function(p) {
-                        if(proto[p] == caller) {
-                            callerOwner = proto;
-                            caller.__name__ = p;
-                            return false;
-                        }
-                    });
-                });
-            }
-            return callerOwner;
-        },
+    M.$implement(IBase, BaseObj);
 
-        /**
-         * 类似C#的base()和Java的super()，获取调用此方法的方法名，在对象的base prototype中调用这个方法
-         * @return {Object}
-         */
-        base: function() {
-            var caller = arguments.callee.caller;
-            var callerName = caller.name || caller.__name__;
-            var callerOwner = this._callerOwner(caller, callerName);
-            if(!callerName)callerName = caller.__name__; //在this._callerOwner方法中会为caller设置name meta;
 
-            var base = callerOwner ? callerOwner.__proto__ : null;
-            var fn = base ? base[callerName] : null;
 
-            if(typeof fn == "function") {
-                return fn.apply(this, arguments);
-            }
-        }
-    });
-
-    M.$implement(IBase, Base.prototype);
-
-    Base.extend = function(config) {
-        var o = $extend(this.prototype, config);
-        if(!config.initialize) {
-            o.prototype.initialize = function() {
-                this.base();
-            };
-        }
-        return o;
-    };
-
-    function $class(proto){
-        //return Base.extend(proto);
-        return BaseClassProto.extend(proto);
+    function $class(prototype){
+        return BaseClass.extend(prototype);
     }
 
     function $obj(obj){
-        var o = new Base();
-        mix(o, obj);
-        return o;
+        return BaseObj.extend(obj);
     }
 
 
-    M.$extend = $extend;
-    M.Base = Base;
+
     M.IBase = IBase;
+    M.BaseObj = BaseObj;
+    M.BaseClass = BaseClass;
     M.$class = $class;
     M.$obj = $obj;
-    M.BaseProto = BaseProto;
-    M.BaseClassProto = BaseClassProto;
+}, Mayjs);
+/**
+ * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
+ * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
+ * @require M.util
+ * @require M.meta
+ * @require M.Base
+ * @require M.module
+ * @require M.MObjectUtil
+ * @memberof M
+ * @class
+ * @param {Object} obj 对象
+ * @return {Object} 对象的代理
+ */
+Mayjs.util.run(function(M){
+    var toObject = M.util.toObject;
+
+    var merge = M.MObjectUtil.merge;
+    var mix = M.MObjectUtil.mix;
+    
+    var meta = M.meta;
+
+    function $(obj) {
+        obj = toObject(obj);
+        var wrappers = arguments.callee.findWrappersByObj(obj);
+        if(wrappers.length === 0) return obj;
+
+        var proxy = {};
+        
+        wrappers.forEach(function(wrapper) {
+            M.$include({
+                "module": wrapper.module,
+                "to": proxy,
+                "option": merge({"context": obj }, wrapper.includeOption)
+            });
+        });
+
+        return proxy;
+    }
+
+    meta.set($, "map", []);
+
+    mix($, {
+
+        /**
+         * 从字典中查找prototype|interface_|value type的注册扩展模块
+         * @memberof M.$
+         * @param {Object|Interface|String} type
+         * @return {Array}
+         */
+        findWrappersByType: function(type) {
+            var ms = meta.get($, "map").filter(function(item){
+                return item.type == type;
+            });
+            return ms.length === 0 ? [] : ms[0].modules;
+        },
+
+        /**
+         * 查找对象原型链的扩展模块
+         * @memberof M.$
+         * @param {Object} proto 对象的原型
+         * @return {Array}
+         */
+        findWrappersByPrototype: function(proto) {
+            var wrappers = [];
+            var oldProto;
+
+            while(proto) {
+                wrappers = wrappers.concat(this.findWrappersByType(proto));
+                if(meta.defined(proto, "interfaces")) {
+                    meta.get(proto, "interfaces").forEach(function(interface_) {
+                        wrappers = wrappers.concat($.findWrappersByType(interface_));
+                    });
+                }
+
+                oldProto = proto;
+
+                proto = oldProto["__proto__"] || (oldProto.constructor ? oldProto.constructor.prototype : null);
+
+                if(proto == oldProto) {
+                    break;
+                }
+            }
+
+            return wrappers;
+        },
+
+        /**
+         * 查找对象的扩展模块
+         * @memberof M.$
+         * @param {Object|Interface|String} obj
+         * @return {Array}
+         */
+        findWrappersByObj: function(obj) {
+            if(obj === null) return [];
+
+            var wrappers = [];
+            var addTypeWrappers = function(type) {
+                    wrappers = wrappers.concat($.findWrappersByType(type));
+                };
+
+            var objType = typeof obj;
+            if(objType == "object" || objType == "function") { //reference type
+                wrappers = wrappers.concat($.findWrappersByPrototype(obj["__proto__"] || obj.constructor.prototype));
+                if(meta.defined(obj, "interfaces")) {
+                    meta.get(obj, "interfaces").forEach(function(interface_) {
+                        addTypeWrappers(interface_);
+                    });
+                }
+            } else { //value type
+                addTypeWrappers(objType);
+            }
+
+            return wrappers;
+        },
+
+        /**
+         * 判断一个module是否注册为指定type的wrapper
+         * @memberof M.$
+         * @param  {Object|Interface|String} type
+         * @param  {Object} module 作为wrapper的module
+         * @return {Boolean} 是否已经注册
+         */
+        exists: function(type, module) {
+            return meta.get($, "map").filter(function(item){
+                return item.type == type;
+            }).filter(function(wrapper){
+                return wrapper.module == module;
+            }).length > 0;
+        },
+
+        /**
+         * 注册一个prototype或interface_或value object的扩展模块
+         * @memberof M.$
+         * @param {Object} module
+         * @param {Object|Interface|String} type
+         * @param {Object} [includeOption]
+         */
+        regist: function(opt) {
+            var module = opt.wrapper;
+            var type = opt.toWrap;
+            var includeOption = opt.includeOption;
+
+            var $ = this;
+            if(type != Function.prototype){// typeof Function.prototype == "function" true
+                if(typeof type == "function") {
+                    type = type.prototype;
+                }
+
+                if(type != Function.prototype){
+                    if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
+                }
+            }
+
+            if(typeof module != "object") return;
+
+            var map = meta.get($, "map");
+            var typeWrappers = map.filter(function(item){
+                return item.type == type;
+            });
+
+            var wrapper = {
+                "module": module,
+                "includeOption": includeOption
+            };
+
+            if(typeWrappers.length === 0) {
+                typeWrappers = {"type": type, modules: [wrapper]};
+                map.push(typeWrappers);
+            }else{
+                if(typeWrappers[0].modules.filter(function(wrapper){return wrapper.module == module;}).length === 0) {
+                    typeWrappers[0].modules.push(wrapper);
+                }
+            }
+
+            return this;
+        }
+    });
+
+
+    /**
+     * 给对象包含对象原型的扩展模块，并返回对象自己
+     * 如果对象是值类型，会新建一个它对应的引用类型对象，包含扩展模块后返回
+     * @memberof M
+     * @param {Object} obj 对象
+     * @param {Object}
+     */
+
+    function $$(obj) {
+        obj = toObject(obj);
+        var wrappers = $.findWrappersByObj(obj);
+        if(wrappers.length === 0) return obj;
+
+        wrappers.forEach(function(wrapper) {
+            M.$include({"module": wrapper.module, "to": obj, "option": wrapper.includeOption});
+        });
+
+        return obj;
+    }
+
+    $global("$", $);
+    $global("$$", $$);
 }, Mayjs);

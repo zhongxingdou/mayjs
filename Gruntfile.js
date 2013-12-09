@@ -22,11 +22,8 @@ module.exports = function(grunt) {
           'src/MObjectUtil.js',
           'src/interface.js',
           'src/module.js',
-          'src/base.js'
-          // 'src/$.js',
-          // 'src/overload.js',
-          // 'src/dsl.js'
-          // 'src/may.js',
+          'src/base.js',
+          'src/$.js'
          ],
         dest: 'may.js'
       }
@@ -42,6 +39,7 @@ module.exports = function(grunt) {
     },
     cafemocha: {
       src: 'test/**/*.js',
+      // src: 'test/baseSpec.js',
       options: {
         require: ["should","sinon"],
         reporter: 'spec',

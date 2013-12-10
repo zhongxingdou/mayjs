@@ -52,7 +52,6 @@ describe "overload.js", ->
   it "使用interface作为参数类型声明", ->
     spy1 = sinon.spy()
     fn1 = $func [
-        M.$interface
           name: "string",
           age: "number"
       ], (option) ->

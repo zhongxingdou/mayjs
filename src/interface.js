@@ -21,11 +21,14 @@ Mayjs.util.run(function(M){
         case "string":
             result = typeof(o) == type;
             break;
-        case "object":
+        case "object": 
             if(Interface.isPrototypeOf(type)) {
                 result = $support(type, o);
-            } else {
+            } else { //先看它是不是原型，如果不是，则假定它为接口声明，但并不是接口对象的实例
                 result = type.isPrototypeOf(o);
+                if(!result){
+                    result = $support(type, o);
+                }
             }
             break;
         case "function":

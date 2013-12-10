@@ -353,11 +353,14 @@ Mayjs.util.run(function(M){
         case "string":
             result = typeof(o) == type;
             break;
-        case "object":
+        case "object": 
             if(Interface.isPrototypeOf(type)) {
                 result = $support(type, o);
-            } else {
+            } else { //先看它是不是原型，如果不是，则假定它为接口声明，但并不是接口对象的实例
                 result = type.isPrototypeOf(o);
+                if(!result){
+                    result = $support(type, o);
+                }
             }
             break;
         case "function":
@@ -921,14 +924,15 @@ Mayjs.util.run(function(M) {
          * @return {Array}
          */
         __findWrappersByPrototype: function(proto) {
+            var self = this;
             var wrappers = [];
             var oldProto;
 
             while(proto) {
-                wrappers = wrappers.concat(this.__findWrappersByType(proto));
+                wrappers = wrappers.concat(self.__findWrappersByType(proto));
                 if(proto.hasOwnProperty("__interfaces__")){
                     proto.__interfaces__.forEach(function(interface_) {
-                        wrappers = wrappers.concat(this.__findWrappersByType(interface_));
+                        wrappers = wrappers.concat(self.__findWrappersByType(interface_));
                     });
                 }
 
@@ -1083,27 +1087,31 @@ Mayjs.util.run(function(M){
 
     M.$overload = $overload;
 }, Mayjs);
-Mayjs.DSL = function() {
-    var M = Mayjs;
+Mayjs.util.run(function(M) {
     M._ = M.$();
-    return M.util.dsl({
-        $checkArgu: M.$checkArgu,
-        $class: M.$class,
-        $clone: M.MObjectUtil.clone,
-        $func: M.$func,
-        $enum: M.util.enumeration,
-        $fn: M.util.fn,
-        $include: M.$include,
-        $implement: M.$implement,
-        $interface: M.$interface,
-        $is: M.$is,
-        $merge: M.MObjectUtil.merge,
-        $mix: M.MObjectUtil.mix,
-        $module: M.$module,
-        $obj: M.$obj,
-        $run: M.util.run,
-        $support: M.$support,
-        $overload: M.$overload,
-        _: M._
-    });
-}
+    M.$run = M.util.run;
+
+    M.DSL = function() {
+        return M.util.dsl({
+            $checkArgu: M.$checkArgu,
+            $class: M.$class,
+            $clone: M.MObjectUtil.clone,
+            $func: M.$func,
+            $enum: M.util.enumeration,
+            $fn: M.util.fn,
+            $include: M.$include,
+            $implement: M.$implement,
+            $interface: M.$interface,
+            $is: M.$is,
+            $merge: M.MObjectUtil.merge,
+            $mix: M.MObjectUtil.mix,
+            $module: M.$module,
+            $obj: M.$obj,
+            $run: M.util.run,
+            $support: M.$support,
+            $overload: M.$overload,
+            _: M._
+        });
+    }
+
+}, Mayjs);

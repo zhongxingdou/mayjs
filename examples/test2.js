@@ -1,5 +1,5 @@
-Mayjs.$run(function() {
-    eval(Mayjs.DSL());
+Mayjs.$run(function(M) {
+    eval(M.DSL());
 
     Animal = $class({
         myname: "Animal",
@@ -38,29 +38,31 @@ Mayjs.$run(function() {
     console.info(hal.whoAmI());
 
 
+    eval(M.$().DSL());
+
     StringWrapper = $module({
         "onIncluded": function() {},
         "toInteger": function(string, radix) {
             return parseInt(string, radix);
-        }
+        },
+        __this__: ["string", String.prototype],
+        __option__: {methodize: true}
     });
 
-    var types = ["string", String.prototype];
-
-    types.forEach(function(type) {
-        $.regist({"wrapper": StringWrapper, "toWrap": type, "includeOption": {
-            "methodize": true
-        }});
-    });
+    $use(StringWrapper);
 
     console.log($$("123Hello").toInteger(10) === 123);
 
-    $.regist({"wrapper": StringWrapper, "toWrap": Animal, "includeOption": {
-        "methodize": true,
-        "methodizeTo": function(obj) {
+    wrapper2 = $clone(StringWrapper);
+    wrapper2.__this__ = [Animal];
+    wrapper2.__option__ = {
+        methodize: true,
+        methodizeTo: function(obj) {
             return obj.name;
         }
-    }});
+    }
+
+    $use(wrapper2);
 
     hal.name = "123" + hal.name;
     console.log($(hal).toInteger() == "123");
@@ -74,7 +76,7 @@ Mayjs.$run(function() {
     $$a = $$(a);
     console.log($$a == a);
 
-    var fn = $($def(["string", "number"], function(name, age) {
+    var fn = $overload($func(["string", "number"], function(name, age) {
         console.info("I'm " + name + " and I'm " + age + " years old");
     })).overload(["string"], function(name) {
         console.info("i'm " + name);
@@ -102,10 +104,10 @@ Mayjs.$run(function() {
 
     //test $check
     function abc(name, age){
-        console.info($check("string", "number"));
+        console.info($checkArgu("string", "number"));
     }
 
     abc("hal", 18);
     abc("hal", "18");
-    console.info($(abc).paramNames());
-});
+    console.info(M.parseArguNames(abc));
+}, Mayjs);

@@ -129,14 +129,15 @@ Mayjs.util.run(function(M) {
          * @return {Array}
          */
         __findWrappersByPrototype: function(proto) {
+            var self = this;
             var wrappers = [];
             var oldProto;
 
             while(proto) {
-                wrappers = wrappers.concat(this.__findWrappersByType(proto));
+                wrappers = wrappers.concat(self.__findWrappersByType(proto));
                 if(proto.hasOwnProperty("__interfaces__")){
                     proto.__interfaces__.forEach(function(interface_) {
-                        wrappers = wrappers.concat(this.__findWrappersByType(interface_));
+                        wrappers = wrappers.concat(self.__findWrappersByType(interface_));
                     });
                 }
 

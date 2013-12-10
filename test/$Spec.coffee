@@ -6,14 +6,14 @@ describe '$.js', ->
     M = require("../may.js")
 
     describe "$()", ->
-        $ = M.$()
+        eval(M.$().DSL())
 
         it "包装值类型", ->
             m = 
                 wrap: ->
-                __this__: Number
+                __this__: [Number]
 
-            $.use m
+            $use m
 
             $8 = $(8)
 
@@ -23,14 +23,69 @@ describe '$.js', ->
         it "包装引用类型", ->
             m = 
                 wrap: ->
-                __this__: Array
+                __this__: [Array]
 
-            $.use m
+            $use m
 
             a = []
             $a = $(a)
 
             $a.should.have.property "wrap", m.wrap
+
+        it "should wrap a object if its prototype wrapper registed", ->
+            m = 
+                wrap: ->
+                __this__: [Array.prototype]
+
+            $use m
+
+            $a = $([])
+            $a.should.have.property "wrap", m.wrap
+
+        it "should wrap a object if its __interfaces__ wrapper registed", ->
+            IA = {}
+            IB = {}
+
+            a = 
+                __interfaces__: [IA]
+            b = 
+                __interfaces__: [IB]
+
+            m = 
+                wrap: ->
+                __this__: [IA,IB]
+
+            $use m
+
+            $a = $(a)
+            $b = $(b)
+            $a.should.have.property "wrap", m.wrap
+            $b.should.have.property "wrap", m.wrap
+
+        it "should not wrap the object which wrapper module not registed", ->
+            m = 
+                wrap: ->
+                __this__: [Array]
+
+            $use m
+
+            $a = $({})
+
+            $a.should.not.have.property "wrap"
+
+        it "should wrap all of objects if that wrapper module registed", ->
+            m = 
+                wrap: ->
+                __this__: [Array, Number]
+
+            $use m
+
+            $a = $([])
+            $n = $(8)
+
+            $a.should.have.property "wrap", m.wrap
+            $n.should.have.property "wrap", m.wrap
+
 
         it "每个M.$()都将产生新的实例", ->
             $1 = M.$()
@@ -38,32 +93,31 @@ describe '$.js', ->
 
             m1 = 
                 wrap: ->
-                __this__: Object
+                __this__: [Object]
             m2 = 
                 wrap: ->
-                __this__: Object
+                __this__: [Object]
 
             $1.use m1
             $2.use m2
 
             obj = {}
-            $o1 = $1(obj)
-            $o2 = $2(obj)
+            $o1 = $1.$(obj)
+            $o2 = $2.$(obj)
 
             $o1.should.have.property "wrap", m1.wrap
             $o2.should.have.property "wrap", m2.wrap
 
 
     describe "$$()", ->
-        $ = M.$()
-        $$ = $.$$
+        eval(M.$().DSL())
 
         it "should wrap value type object", ->
             m = 
                 wrap: ->
-                __this__: Number
+                __this__: [Number]
 
-            $.use m
+            $use m
 
             $8 = $$(8)
 
@@ -73,17 +127,17 @@ describe '$.js', ->
         it "should wrap reference type object", ->
             m = 
                 wrap: ->
-                __this__: Array
+                __this__: [Array]
 
-            $.use m
+            $use m
 
             a = []
             $$(a)
 
             a.should.have.property "wrap", m.wrap
 
-    describe "$(m, {methodize: true})", ->
-        $ = M.$()
+    describe "$() with methodize", ->
+        eval(M.$().DSL())
 
         it "should wrap method by methodize", ->
             spy = sinon.spy()
@@ -94,9 +148,11 @@ describe '$.js', ->
                 wrapA: ->
                     this.spy()
 
-                __this__: Object
+                __this__: [Object]
+                __option__:
+                    methodize: true
 
-            $.use m, {methodize: true}
+            $use m
 
             a = 
                 name: "name"

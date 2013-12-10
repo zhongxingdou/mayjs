@@ -128,7 +128,7 @@ Mayjs.util = {
      * sub(10, 4);
      */
 
-    localize: function(obj, names) {
+    dsl: function(obj, names) {
         obj = obj || this;
 
         //create global tempObj
@@ -556,7 +556,7 @@ Mayjs.util.run(function(M) {
         var defauls = {
             "methodize": false,
             "context": null, //methodize的参数
-            "methodizeTo": null, //methodize的参数
+            "methodizeTo": null //methodize的参数
             //"alias": null 
             //"forceInclude": false
         };
@@ -807,10 +807,14 @@ Mayjs.util.run(function(M) {
     var Wrapper = M.$class({
         initialize: function() {
             this.__map__ = [];
-
-            this.$ = this.$.bind(this);
-            this.$.$$ = this.$$.bind(this);
-            this.$.use = this.use.bind(this);
+            this.__DSL__ = {
+                $: this.$.bind(this),
+                $$: this.$$.bind(this),
+                $use: this.use.bind(this)
+            }
+        },
+        DSL: function(){
+            return M.util.dsl(this.__DSL__);
         },
         __wrap: function(obj, proxy, option){
             obj = toObject(obj);
@@ -851,46 +855,49 @@ Mayjs.util.run(function(M) {
          * @param {Object|Interface|String} type
          * @param {Object} [includeOption]
          */
-        use: function(module, includeOption) {
-            var type = module.__this__;
+        use: function(module) {
+            var types = module.__this__;
+            for(var i=0,l=types.length; i<l; i++){
+                var type = types[i];
+                var includeOption = module.__option__;
 
-            var $ = this;
-            if(type != Function.prototype) { // typeof Function.prototype == "function" true
-                if(typeof type == "function") {
-                    type = type.prototype;
+                var $ = this;
+                if(type != Function.prototype) { // typeof Function.prototype == "function" true
+                    if(typeof type == "function") {
+                        type = type.prototype;
+                    }
+
+                    if(type != Function.prototype) {
+                        if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
+                    }
                 }
 
-                if(type != Function.prototype) {
-                    if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
-                }
-            }
+                if(typeof module != "object") return;
 
-            if(typeof module != "object") return;
+                var map = this.__map__;
+                var typeWrappers = map.filter(function(item) {
+                    return item.type == type;
+                });
 
-            var map = this.__map__;
-            var typeWrappers = map.filter(function(item) {
-                return item.type == type;
-            });
-
-            var wrapper = {
-                "module": module,
-                "includeOption": includeOption
-            };
-
-            if(typeWrappers.length === 0) {
-                typeWrappers = {
-                    "type": type,
-                    modules: [wrapper]
+                var wrapper = {
+                    "module": module,
+                    "includeOption": includeOption
                 };
-                map.push(typeWrappers);
-            } else {
-                if(typeWrappers[0].modules.filter(function(wrapper) {
-                    return wrapper.module == module;
-                }).length === 0) {
-                    typeWrappers[0].modules.push(wrapper);
+
+                if(typeWrappers.length === 0) {
+                    typeWrappers = {
+                        "type": type,
+                        modules: [wrapper]
+                    };
+                    map.push(typeWrappers);
+                } else {
+                    if(typeWrappers[0].modules.filter(function(wrapper) {
+                        return wrapper.module == module;
+                    }).length === 0) {
+                        typeWrappers[0].modules.push(wrapper);
+                    }
                 }
             }
-
             return this;
         },
 
@@ -947,8 +954,9 @@ Mayjs.util.run(function(M) {
             if(obj === null) return [];
 
             var wrappers = [];
+            var self = this;
             var addTypeWrappers = function(type) {
-                    wrappers = wrappers.concat(this.__findWrappersByType(type));
+                    wrappers = wrappers.concat(self.__findWrappersByType(type));
                 };
 
             var objType = typeof obj;
@@ -959,9 +967,9 @@ Mayjs.util.run(function(M) {
                         addTypeWrappers(interface_);
                     });
                 }
-            } else { //value type
-                addTypeWrappers(objType);
-            }
+            } //else { //value type
+               // addTypeWrappers(objType);
+            //}
 
             return wrappers;
         }
@@ -971,6 +979,131 @@ Mayjs.util.run(function(M) {
 
     M.Wrapper = Wrapper;
     M.$ = function(){
-        return (new this.Wrapper()).$;
+        return new this.Wrapper();
     }
 }, Mayjs);
+/**
+ * [overload description]
+ * @require M.meta
+ * @require M.interface
+ * @type {Object}
+ */
+
+Mayjs.util.run(function(M){
+    var $func = M.$func;
+
+    function _checkParams(fn, params) {
+        var caller = fn || arguments.callee.caller;
+        var paramsMeta = caller.__argu_types__;
+        params = params || caller["arguments"];
+        var type;
+        for(var i = 0, l = params.length; i < l; i++) {
+            type = paramsMeta[i].type;
+            //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
+            if(type === null) return true;
+            if(!M.$is(type, params[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function dispatch(overloads, params) {
+        var l = params.length;
+
+        var paramTypes = function(fn) {
+                return fn.__argu_types__;
+            };
+
+        var matches = overloads.filter(function(fn) {
+            return paramTypes(fn).length >= l;
+        });
+        
+        if(matches.length == 1 && _checkParams(matches[0], params)){
+            return matches[0];
+        }else if(matches.length == 0){
+            return null;
+        }
+
+        //这个可以移入overload中，没有必要每次排序
+        var orderedMatches = matches.sort(function(fn1, fn2) {
+            return paramTypes(fn1).length - paramTypes(fn2).length;
+        });
+
+        var fn;
+        while((fn = orderedMatches.shift())) {
+            if(_checkParams(fn, params)) {
+                return fn;
+            }
+        }
+    }
+
+
+    /**
+     * function overload
+     * @memberof M
+     * @param {Array} paramsTypes params types
+     * @param {Function} fn overload function
+     * @return {Function}
+     * @example
+     *   fn = $overload(["string","number"], function(name, age){
+     *       return "I'm "+name+ " and I'm " + age + " years old";
+     *   }).$overload(["string"], function(name){
+     *       return "i'm " + name;
+     *   });
+     *
+     *   fn.$overload(["string", "string"], function(name, interest){
+     *       return "I'm " + name + ", and i'm interesting "+ interest;
+     *   });
+     *
+     *   fn("lily");
+     *   fn("lily", 18);
+     *   fn("lily", "singing");
+     */
+
+
+    function $overload(paramTypes, fn) {
+        //存储重载的方法
+        var _overloads = [ typeof paramTypes == "function" ? paramTypes : $func(paramsTypes, fn)];
+
+        var main = function() {
+                var params = arguments;
+                var fn = dispatch(_overloads, params);
+                if(fn) {
+                    return fn.apply(this, params);
+                }
+            };
+
+        main.overload = function(paramTypes, fn) {
+            _overloads.push(typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn));
+            return this;
+        };
+        return main;
+    }
+
+    M.$overload = $overload;
+}, Mayjs);
+Mayjs.DSL = function() {
+    var M = Mayjs;
+    M._ = M.$();
+    return M.util.dsl({
+        $checkArgu: M.$checkArgu,
+        $class: M.$class,
+        $clone: M.MObjectUtil.clone,
+        $func: M.$func,
+        $enum: M.util.enumeration,
+        $fn: M.util.fn,
+        $include: M.$include,
+        $implement: M.$implement,
+        $interface: M.$interface,
+        $is: M.$is,
+        $merge: M.MObjectUtil.merge,
+        $mix: M.MObjectUtil.mix,
+        $module: M.$module,
+        $obj: M.$obj,
+        $run: M.util.run,
+        $support: M.$support,
+        $overload: M.$overload,
+        _: M._
+    });
+}

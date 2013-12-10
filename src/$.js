@@ -15,10 +15,14 @@ Mayjs.util.run(function(M) {
     var Wrapper = M.$class({
         initialize: function() {
             this.__map__ = [];
-
-            this.$ = this.$.bind(this);
-            this.$.$$ = this.$$.bind(this);
-            this.$.use = this.use.bind(this);
+            this.__DSL__ = {
+                $: this.$.bind(this),
+                $$: this.$$.bind(this),
+                $use: this.use.bind(this)
+            }
+        },
+        DSL: function(){
+            return M.util.dsl(this.__DSL__);
         },
         __wrap: function(obj, proxy, option){
             obj = toObject(obj);
@@ -59,46 +63,49 @@ Mayjs.util.run(function(M) {
          * @param {Object|Interface|String} type
          * @param {Object} [includeOption]
          */
-        use: function(module, includeOption) {
-            var type = module.__this__;
+        use: function(module) {
+            var types = module.__this__;
+            for(var i=0,l=types.length; i<l; i++){
+                var type = types[i];
+                var includeOption = module.__option__;
 
-            var $ = this;
-            if(type != Function.prototype) { // typeof Function.prototype == "function" true
-                if(typeof type == "function") {
-                    type = type.prototype;
+                var $ = this;
+                if(type != Function.prototype) { // typeof Function.prototype == "function" true
+                    if(typeof type == "function") {
+                        type = type.prototype;
+                    }
+
+                    if(type != Function.prototype) {
+                        if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
+                    }
                 }
 
-                if(type != Function.prototype) {
-                    if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
-                }
-            }
+                if(typeof module != "object") return;
 
-            if(typeof module != "object") return;
+                var map = this.__map__;
+                var typeWrappers = map.filter(function(item) {
+                    return item.type == type;
+                });
 
-            var map = this.__map__;
-            var typeWrappers = map.filter(function(item) {
-                return item.type == type;
-            });
-
-            var wrapper = {
-                "module": module,
-                "includeOption": includeOption
-            };
-
-            if(typeWrappers.length === 0) {
-                typeWrappers = {
-                    "type": type,
-                    modules: [wrapper]
+                var wrapper = {
+                    "module": module,
+                    "includeOption": includeOption
                 };
-                map.push(typeWrappers);
-            } else {
-                if(typeWrappers[0].modules.filter(function(wrapper) {
-                    return wrapper.module == module;
-                }).length === 0) {
-                    typeWrappers[0].modules.push(wrapper);
+
+                if(typeWrappers.length === 0) {
+                    typeWrappers = {
+                        "type": type,
+                        modules: [wrapper]
+                    };
+                    map.push(typeWrappers);
+                } else {
+                    if(typeWrappers[0].modules.filter(function(wrapper) {
+                        return wrapper.module == module;
+                    }).length === 0) {
+                        typeWrappers[0].modules.push(wrapper);
+                    }
                 }
             }
-
             return this;
         },
 
@@ -155,8 +162,9 @@ Mayjs.util.run(function(M) {
             if(obj === null) return [];
 
             var wrappers = [];
+            var self = this;
             var addTypeWrappers = function(type) {
-                    wrappers = wrappers.concat(this.__findWrappersByType(type));
+                    wrappers = wrappers.concat(self.__findWrappersByType(type));
                 };
 
             var objType = typeof obj;
@@ -167,9 +175,9 @@ Mayjs.util.run(function(M) {
                         addTypeWrappers(interface_);
                     });
                 }
-            } else { //value type
-                addTypeWrappers(objType);
-            }
+            } //else { //value type
+               // addTypeWrappers(objType);
+            //}
 
             return wrappers;
         }
@@ -179,6 +187,6 @@ Mayjs.util.run(function(M) {
 
     M.Wrapper = Wrapper;
     M.$ = function(){
-        return (new this.Wrapper()).$;
+        return new this.Wrapper();
     }
 }, Mayjs);

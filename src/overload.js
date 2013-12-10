@@ -4,15 +4,13 @@
  * @require M.interface
  * @type {Object}
  */
-eval(Mayjs.DSL());
 
-$run(function(M) {
-    var meta = M.meta;
-    var $def = M.$def;
+Mayjs.util.run(function(M){
+    var $func = M.$func;
 
     function _checkParams(fn, params) {
         var caller = fn || arguments.callee.caller;
-        var paramsMeta = meta.get(caller, "param_types");
+        var paramsMeta = caller.__argu_types__;
         params = params || caller["arguments"];
         var type;
         for(var i = 0, l = params.length; i < l; i++) {
@@ -30,14 +28,20 @@ $run(function(M) {
         var l = params.length;
 
         var paramTypes = function(fn) {
-                return meta.get(fn, "param_types");
+                return fn.__argu_types__;
             };
 
         var matches = overloads.filter(function(fn) {
             return paramTypes(fn).length >= l;
         });
-        if(matches.length <= 1) return matches[0];
+        
+        if(matches.length == 1 && _checkParams(matches[0], params)){
+            return matches[0];
+        }else if(matches.length == 0){
+            return null;
+        }
 
+        //这个可以移入overload中，没有必要每次排序
         var orderedMatches = matches.sort(function(fn1, fn2) {
             return paramTypes(fn1).length - paramTypes(fn2).length;
         });
@@ -76,7 +80,7 @@ $run(function(M) {
 
     function $overload(paramTypes, fn) {
         //存储重载的方法
-        var _overloads = [ typeof paramTypes == "function" ? paramTypes : $def(paramsTypes, fn)];
+        var _overloads = [ typeof paramTypes == "function" ? paramTypes : $func(paramsTypes, fn)];
 
         var main = function() {
                 var params = arguments;
@@ -87,11 +91,11 @@ $run(function(M) {
             };
 
         main.overload = function(paramTypes, fn) {
-            _overloads.push(typeof paramTypes == "function" ? paramTypes : $def(paramTypes, fn));
+            _overloads.push(typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn));
             return this;
         };
         return main;
     }
 
-    $global("$overload", $overload);
+    M.$overload = $overload;
 }, Mayjs);

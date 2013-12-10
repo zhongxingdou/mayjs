@@ -23,7 +23,9 @@ module.exports = function(grunt) {
           'src/interface.js',
           'src/module.js',
           'src/base.js',
-          'src/$.js'
+          'src/$.js',
+          'src/overload.js',
+          'src/dsl.js'
          ],
         dest: 'may.js'
       }
@@ -39,7 +41,6 @@ module.exports = function(grunt) {
     },
     cafemocha: {
       src: 'test/**/*.js',
-      // src: 'test/baseSpec.js',
       options: {
         require: ["should","sinon"],
         reporter: 'spec',
@@ -48,6 +49,12 @@ module.exports = function(grunt) {
           coffee: ["coffee-script"]
         },
         globals: 'config'
+      }
+    },
+    jscoverage: {
+      options: {
+        inputDirectory: 'src',
+        outputDirectory: 'src-cov'
       }
     },
     watch: {
@@ -68,6 +75,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks("grunt-jscoverage");
 
   grunt.registerTask('default', ['coffee', 'concat:js', 'cafemocha']);
 };

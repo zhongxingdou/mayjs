@@ -29,7 +29,7 @@ Mayjs.util.run(function(M) {
         var defauls = {
             "methodize": false,
             "context": null, //methodize的参数
-            "methodizeTo": null, //methodize的参数
+            "methodizeTo": null //methodize的参数
             //"alias": null 
             //"forceInclude": false
         };

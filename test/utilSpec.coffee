@@ -103,12 +103,12 @@ describe 'Mayjs.util', ->
             assert fn.called
             assert.equal fn.calledThis, obj
 
-    describe '#localize(obj, memberFnNames)', ->
+    describe '#dsl(obj, memberFnNames)', ->
         obj = 
             fn1: ->
             fn2: ->
 
-        eval(util.localize(obj))
+        eval(util.dsl(obj))
 
         it "should localiz members of given object", ->
             obj.fn1.should.eql(fn1)

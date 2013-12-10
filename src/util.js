@@ -124,7 +124,7 @@ Mayjs.util = {
      * sub(10, 4);
      */
 
-    localize: function(obj, names) {
+    dsl: function(obj, names) {
         obj = obj || this;
 
         //create global tempObj

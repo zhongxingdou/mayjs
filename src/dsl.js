@@ -1,8 +1,8 @@
 Mayjs.util.run(function(M) {
     M._ = M.$();
-    M.$run = M.util.run;
+    M.run = M.util.run;
 
-    M.DSL = function() {
+    M.importDSL = function() {
         return M.util.dsl({
             $checkArgu: M.$checkArgu,
             $class: M.$class,
@@ -24,5 +24,4 @@ Mayjs.util.run(function(M) {
             _: M._
         });
     }
-
 }, Mayjs);

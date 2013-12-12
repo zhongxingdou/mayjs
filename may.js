@@ -644,7 +644,7 @@ Mayjs.util.run(function(M) {
 
     var BaseObj = {
         __interfaces__: [],
-        initialize: function(){
+        initialize: function(){ 
         },
         extend: function(objDefine){
             var obj = Object.create(this);
@@ -719,49 +719,54 @@ Mayjs.util.run(function(M) {
     }
 
 
-
-    var BaseClass = function(){
-    }
-
-    BaseClass.prototype = BaseObj.extend({
-        extendClass : function(classDefine){
-            var proto = this.prototype.extend(classDefine);
-
-            var klass;
-            if(!Object["__proto__"]) {//for IE browser
-                klass = function(){
-                    this["__proto__"] = proto;
-                    if(proto.hasOwnProperty("initialize")){
-                        proto.initialize.apply(this, arguments);
-                    }
-                }
-            }else{
-                klass = function(){
-                    if(proto.hasOwnProperty("initialize")){
-                        proto.initialize.apply(this, arguments);
-                    }
-                }
-            }
-
-            klass.prototype = proto;
-            klass.extend = BaseClass.extend;
-
-            return klass;
-        }
-    });
-
-    BaseClass.extend = function(classDefine){
-       return this.prototype.extendClass.apply(this, arguments); 
-    }
-
-    BaseClass = BaseClass.extend({
+    function Klass(){}
+    Klass.prototype = BaseObj.extend({
         initialize: function(){
             this.__interfaces__ = [];
             this.base(); //call BaseObj.initialize
+        }       
+    });
+    Klass.extend = function(classDefine){
+        var proto = this.prototype.extend(classDefine);
+
+        if(!proto.hasOwnProperty("initialize")){
+            proto.initialize = function(){
+                this.base.apply(this, arguments);
+            }
         }
-    })
 
+        var clazz;
+        if(!Object["__proto__"]) {//for IE browser
+            clazz = function(){
+                if(!proto.isPrototypeOf(this)){
+                    return new (arguments.callee);
+                }
+                this.constructor = clazz;
+                this["__proto__"] = proto;
+                proto.initialize.apply(this, arguments);
+            }
+        }else{
+            clazz = function(){
+                if(!proto.isPrototypeOf(this)){
+                    return new (arguments.callee);
+                }
+                this.constructor = clazz;
+                proto.initialize.apply(this, arguments);
+            }
+        }
 
+        clazz.prototype = proto;
+        var excludes = ["prototype"];
+        for(var p in Klass){
+            if(excludes.indexOf(p) == -1){
+                clazz[p] = this[p];
+            }
+        }
+
+        return clazz;
+    }
+
+    var BaseClass = Klass.extend({})
 
     /**
      * @memberof M
@@ -1089,9 +1094,9 @@ Mayjs.util.run(function(M){
 }, Mayjs);
 Mayjs.util.run(function(M) {
     M._ = M.$();
-    M.$run = M.util.run;
+    M.run = M.util.run;
 
-    M.DSL = function() {
+    M.importDSL = function() {
         return M.util.dsl({
             $checkArgu: M.$checkArgu,
             $class: M.$class,
@@ -1113,5 +1118,4 @@ Mayjs.util.run(function(M) {
             _: M._
         });
     }
-
 }, Mayjs);

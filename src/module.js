@@ -16,6 +16,17 @@ Mayjs.util.run(function(M) {
         return o;
     }
 
+    var IModuleMeta = {
+        context: null,
+        methdize: null,
+        methdizeTo: null,
+        receiverType: Array
+    }
+
+    var IModule = {
+        "[__meta__]": IModuleMeta
+    }
+
     /**
      * include module to obj with option
      * @memberof M

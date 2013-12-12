@@ -101,7 +101,7 @@ Mayjs.util = {
         var _baseFn = obj[funcName].bind(obj);
         obj[funcName] = function() {
             var args = [_baseFn].concat(Array.prototype.slice.call(arguments, 0));
-            return overwriter.apply(obj, args);
+            return overwriter.apply(this, args);
         };
     },
 

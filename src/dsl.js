@@ -21,6 +21,7 @@ Mayjs.util.run(function(M) {
             $run: M.util.run,
             $support: M.$support,
             $overload: M.$overload,
+            $overwrite: M.util.overwrite,
             _: M._
         });
     }

@@ -121,16 +121,31 @@ Mayjs.util.run(function(M){
             return true;
         }
 
+        var ignoreRegExp = /^\[(.*?)\]$/;
+        var metaRegExp = /^__.*__$/;
         for(var k in interface_) {
+            var objK, typeK;
+
+            var realKey = k.match(ignoreRegExp);
+            if(realKey){
+                k = realKey[1];
+                objK = o[k];
+                typeK = interface_[k];
+                if(objK == null)continue;
+            }else{
+                objK = o[k];
+                typeK = interface_[k];
+            }
+
             //ignore meta member that likes __proto__
-            if(/^__.*__$/.test(k))continue;
+            if(metaRegExp.test(k))continue;
             
-            if($is(Array, interface_[k])) {
-                if(!$is("function", o[k])) {
+            if($is(Array, typeK)) {
+                if(!$is("function", objK)) {
                     return false;
                 }
             } else {
-                if(!$is(interface_[k], o[k])) {
+                if(!$is(typeK, objK)) {
                     return false;
                 }
             }

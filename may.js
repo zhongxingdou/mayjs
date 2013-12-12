@@ -105,7 +105,7 @@ Mayjs.util = {
         var _baseFn = obj[funcName].bind(obj);
         obj[funcName] = function() {
             var args = [_baseFn].concat(Array.prototype.slice.call(arguments, 0));
-            return overwriter.apply(obj, args);
+            return overwriter.apply(this, args);
         };
     },
 
@@ -453,16 +453,31 @@ Mayjs.util.run(function(M){
             return true;
         }
 
+        var ignoreRegExp = /^\[(.*?)\]$/;
+        var metaRegExp = /^__.*__$/;
         for(var k in interface_) {
+            var objK, typeK;
+
+            var realKey = k.match(ignoreRegExp);
+            if(realKey){
+                k = realKey[1];
+                objK = o[k];
+                typeK = interface_[k];
+                if(objK == null)continue;
+            }else{
+                objK = o[k];
+                typeK = interface_[k];
+            }
+
             //ignore meta member that likes __proto__
-            if(/^__.*__$/.test(k))continue;
+            if(metaRegExp.test(k))continue;
             
-            if($is(Array, interface_[k])) {
-                if(!$is("function", o[k])) {
+            if($is(Array, typeK)) {
+                if(!$is("function", objK)) {
                     return false;
                 }
             } else {
-                if(!$is(interface_[k], o[k])) {
+                if(!$is(typeK, objK)) {
                     return false;
                 }
             }
@@ -544,6 +559,17 @@ Mayjs.util.run(function(M) {
 
     function $module(o) {
         return o;
+    }
+
+    var IModuleMeta = {
+        context: null,
+        methdize: null,
+        methdizeTo: null,
+        receiverType: Array
+    }
+
+    var IModule = {
+        "[__meta__]": IModuleMeta
     }
 
     /**
@@ -1115,6 +1141,7 @@ Mayjs.util.run(function(M) {
             $run: M.util.run,
             $support: M.$support,
             $overload: M.$overload,
+            $overwrite: M.util.overwrite,
             _: M._
         });
     }

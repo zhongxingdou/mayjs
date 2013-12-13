@@ -11,7 +11,7 @@ describe '$.js', ->
         it "包装值类型", ->
             m = 
                 wrap: ->
-                __this__: [Number]
+                __supports__: [Number]
 
             $use m
 
@@ -23,7 +23,7 @@ describe '$.js', ->
         it "包装引用类型", ->
             m = 
                 wrap: ->
-                __this__: [Array]
+                __supports__: [Array]
 
             $use m
 
@@ -35,7 +35,7 @@ describe '$.js', ->
         it "should wrap a object if its prototype wrapper registed", ->
             m = 
                 wrap: ->
-                __this__: [Array.prototype]
+                __supports__: [Array.prototype]
 
             $use m
 
@@ -53,7 +53,7 @@ describe '$.js', ->
 
             m = 
                 wrap: ->
-                __this__: [IA,IB]
+                __supports__: [IA,IB]
 
             $use m
 
@@ -65,7 +65,7 @@ describe '$.js', ->
         it "should not wrap the object which wrapper module not registed", ->
             m = 
                 wrap: ->
-                __this__: [Array]
+                __supports__: [Array]
 
             $use m
 
@@ -76,7 +76,7 @@ describe '$.js', ->
         it "should wrap all of objects if that wrapper module registed", ->
             m = 
                 wrap: ->
-                __this__: [Array, Number]
+                __supports__: [Array, Number]
 
             $use m
 
@@ -93,10 +93,10 @@ describe '$.js', ->
 
             m1 = 
                 wrap: ->
-                __this__: [Object]
+                __supports__: [Object]
             m2 = 
                 wrap: ->
-                __this__: [Object]
+                __supports__: [Object]
 
             $1.use m1
             $2.use m2
@@ -115,7 +115,7 @@ describe '$.js', ->
         it "should wrap value type object", ->
             m = 
                 wrap: ->
-                __this__: [Number]
+                __supports__: [Number]
 
             $use m
 
@@ -127,7 +127,7 @@ describe '$.js', ->
         it "should wrap reference type object", ->
             m = 
                 wrap: ->
-                __this__: [Array]
+                __supports__: [Array]
 
             $use m
 
@@ -148,7 +148,7 @@ describe '$.js', ->
                 wrapA: ->
                     this.spy()
 
-                __this__: [Object]
+                __supports__: [Object]
                 __option__:
                     methodize: true
 

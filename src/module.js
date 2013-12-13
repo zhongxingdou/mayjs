@@ -16,15 +16,15 @@ Mayjs.util.run(function(M) {
         return o;
     }
 
-    var IModuleMeta = {
-        context: null,
-        methdize: null,
-        methdizeTo: null,
-        receiverType: Array
+    var IIncludeOption = {
+        "[context]": Object,
+        "[methdize]": Boolean,
+        "[methdizeTo]": [Object]
     }
 
     var IModule = {
-        "[__meta__]": IModuleMeta
+        "[__option__]": IIncludeOption,
+        "[__supports__]": Array
     }
 
     /**
@@ -41,11 +41,9 @@ Mayjs.util.run(function(M) {
             "methodize": false,
             "context": null, //methodize的参数
             "methodizeTo": null //methodize的参数
-            //"alias": null 
-            //"forceInclude": false
         };
 
-        option = M.MObjectUtil.merge(defauls, option);
+        option = M.MObjectUtil.merge(defauls, module.__option__, option);
 
         /*if(!obj.__modules__){
             obj.__modules__ = [];

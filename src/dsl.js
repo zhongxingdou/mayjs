@@ -1,6 +1,9 @@
 Mayjs.util.run(function(M) {
     M._ = M.$();
-    M.run = M.util.run;
+    M.run = function(fn){
+        var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
+        return M.util.run.apply(this, args);
+    }
 
     M.importDSL = function() {
         return M.util.dsl({
@@ -22,6 +25,7 @@ Mayjs.util.run(function(M) {
             $support: M.$support,
             $overload: M.$overload,
             $overwrite: M.util.overwrite,
+            $methodize: M.util.methodize,
             _: M._
         });
     }

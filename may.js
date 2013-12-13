@@ -561,15 +561,15 @@ Mayjs.util.run(function(M) {
         return o;
     }
 
-    var IModuleMeta = {
-        context: null,
-        methdize: null,
-        methdizeTo: null,
-        receiverType: Array
+    var IIncludeOption = {
+        "[context]": Object,
+        "[methdize]": Boolean,
+        "[methdizeTo]": [Object]
     }
 
     var IModule = {
-        "[__meta__]": IModuleMeta
+        "[__option__]": IIncludeOption,
+        "[__supports__]": Array
     }
 
     /**
@@ -586,11 +586,9 @@ Mayjs.util.run(function(M) {
             "methodize": false,
             "context": null, //methodize的参数
             "methodizeTo": null //methodize的参数
-            //"alias": null 
-            //"forceInclude": false
         };
 
-        option = M.MObjectUtil.merge(defauls, option);
+        option = M.MObjectUtil.merge(defauls, module.__option__, option);
 
         /*if(!obj.__modules__){
             obj.__modules__ = [];
@@ -890,10 +888,10 @@ Mayjs.util.run(function(M) {
          * @param {Object} [includeOption]
          */
         use: function(module) {
-            var types = module.__this__;
+            var includeOption = module.__option__ || {};
+            var types = module.__supports__;
             for(var i=0,l=types.length; i<l; i++){
                 var type = types[i];
-                var includeOption = module.__option__;
 
                 var $ = this;
                 if(type != Function.prototype) { // typeof Function.prototype == "function" true
@@ -1120,7 +1118,10 @@ Mayjs.util.run(function(M){
 }, Mayjs);
 Mayjs.util.run(function(M) {
     M._ = M.$();
-    M.run = M.util.run;
+    M.run = function(fn){
+        var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
+        return M.util.run.apply(this, args);
+    }
 
     M.importDSL = function() {
         return M.util.dsl({
@@ -1142,6 +1143,7 @@ Mayjs.util.run(function(M) {
             $support: M.$support,
             $overload: M.$overload,
             $overwrite: M.util.overwrite,
+            $methodize: M.util.methodize,
             _: M._
         });
     }

@@ -64,10 +64,10 @@ Mayjs.util.run(function(M) {
          * @param {Object} [includeOption]
          */
         use: function(module) {
-            var types = module.__this__;
+            var includeOption = module.__option__ || {};
+            var types = module.__supports__;
             for(var i=0,l=types.length; i<l; i++){
                 var type = types[i];
-                var includeOption = module.__option__;
 
                 var $ = this;
                 if(type != Function.prototype) { // typeof Function.prototype == "function" true

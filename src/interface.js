@@ -10,14 +10,28 @@ Mayjs.util.run(function(M){
      * @memberof M
      * @argu  {Object|String}  type
      * @argu  {Object}  o
+     * @argu  {Boolean} exactly 
      * @return {Boolean}
      */
-    function $is(type, o) {
-        if(type === null) return o === null;
-        if(type === undefined) return o === undefined;
+    function $is(type, o, exactly) {
+        var t = typeof type;
+        if(exactly){
+            if(type === null) return o === null;
+            if(type === undefined) return o === undefined;
+        }else{
+            if(type == null) return o == null;
+            if(type == "undefined") return o == undefined;
 
+            if(t == "string" && ["string","boolean","number"].indexOf(type) != -1){
+                if(typeof(o) == type)return true;
+
+                type = eval(type[0].toUpperCase() + type.slice(1));
+                return type.prototype.isPrototypeOf(o);
+            }
+        }
+        
         var result = false;
-        switch(typeof type) {
+        switch(t) {
         case "string":
             result = typeof(o) == type;
             break;
@@ -64,8 +78,9 @@ Mayjs.util.run(function(M){
             } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
                 arguTypes.forEach(function(item){
                     for(var arguName in item){
-                        var arguType = item[arguType];
-                        meta.push({"name": arguName, "type": arguType });
+                        if(arguName != "returns"){
+                            meta.push({"name": arguName, "type": item[arguName] });
+                        }
                         break;
                     }
                 });

@@ -3,164 +3,160 @@ sinon = require 'sinon'
 assert = require 'assert'
 
 describe '$.js', ->
-    M = require("../may.js")
+    Mayjs = require("../may.js")
 
-    describe "$()", ->
-        eval(M.$().DSL())
+    Mayjs.run (M) ->
+        eval(M.importDSL())
 
-        it "包装值类型", ->
-            m = 
-                wrap: ->
-                __supports__: [Number]
+        describe "$()", ->
 
-            $use m
+            it "包装值类型", ->
+                m = 
+                    wrap: ->
+                    __supports__: [Number]
 
-            $8 = $(8)
+                $use m
 
-            $8.should.have.property "wrap", m.wrap
+                $8 = $(8)
 
-
-        it "包装引用类型", ->
-            m = 
-                wrap: ->
-                __supports__: [Array]
-
-            $use m
-
-            a = []
-            $a = $(a)
-
-            $a.should.have.property "wrap", m.wrap
-
-        it "should wrap a object if its prototype wrapper registed", ->
-            m = 
-                wrap: ->
-                __supports__: [Array.prototype]
-
-            $use m
-
-            $a = $([])
-            $a.should.have.property "wrap", m.wrap
-
-        it "should wrap a object if its __interfaces__ wrapper registed", ->
-            IA = {}
-            IB = {}
-
-            a = 
-                __interfaces__: [IA]
-            b = 
-                __interfaces__: [IB]
-
-            m = 
-                wrap: ->
-                __supports__: [IA,IB]
-
-            $use m
-
-            $a = $(a)
-            $b = $(b)
-            $a.should.have.property "wrap", m.wrap
-            $b.should.have.property "wrap", m.wrap
-
-        it "should not wrap the object which wrapper module not registed", ->
-            m = 
-                wrap: ->
-                __supports__: [Array]
-
-            $use m
-
-            $a = $({})
-
-            $a.should.not.have.property "wrap"
-
-        it "should wrap all of objects if that wrapper module registed", ->
-            m = 
-                wrap: ->
-                __supports__: [Array, Number]
-
-            $use m
-
-            $a = $([])
-            $n = $(8)
-
-            $a.should.have.property "wrap", m.wrap
-            $n.should.have.property "wrap", m.wrap
+                $8.should.have.property "wrap", m.wrap
 
 
-        it "每个M.$()都将产生新的实例", ->
-            $1 = M.$()
-            $2 = M.$()
+            it "包装引用类型", ->
+                m = 
+                    wrap: ->
+                    __supports__: [Array]
 
-            m1 = 
-                wrap: ->
-                __supports__: [Object]
-            m2 = 
-                wrap: ->
-                __supports__: [Object]
+                $use m
 
-            $1.use m1
-            $2.use m2
+                a = []
+                $a = $(a)
 
-            obj = {}
-            $o1 = $1.$(obj)
-            $o2 = $2.$(obj)
+                $a.should.have.property "wrap", m.wrap
 
-            $o1.should.have.property "wrap", m1.wrap
-            $o2.should.have.property "wrap", m2.wrap
+            it "should wrap a object if its prototype wrapper registed", ->
+                m = 
+                    wrap: ->
+                    __supports__: [Array.prototype]
 
+                $use m
 
-    describe "$$()", ->
-        eval(M.$().DSL())
+                $a = $([])
+                $a.should.have.property "wrap", m.wrap
 
-        it "should wrap value type object", ->
-            m = 
-                wrap: ->
-                __supports__: [Number]
+            it "should wrap a object if its __interfaces__ wrapper registed", ->
+                IA = {}
+                IB = {}
 
-            $use m
+                a = 
+                    __interfaces__: [IA]
+                b = 
+                    __interfaces__: [IB]
 
-            $8 = $$(8)
+                m = 
+                    wrap: ->
+                    __supports__: [IA,IB]
 
-            assert $8.hasOwnProperty "wrap"
-            assert $8.wrap == m.wrap
+                $use m
 
-        it "should wrap reference type object", ->
-            m = 
-                wrap: ->
-                __supports__: [Array]
+                $a = $(a)
+                $b = $(b)
+                $a.should.have.property "wrap", m.wrap
+                $b.should.have.property "wrap", m.wrap
 
-            $use m
+            it "should not wrap the object which wrapper module not registed", ->
+                m = 
+                    wrap: ->
+                    __supports__: [Array]
 
-            a = []
-            $$(a)
+                $use m
 
-            a.should.have.property "wrap", m.wrap
+                $a = $({})
 
-    describe "$() with methodize", ->
-        eval(M.$().DSL())
+                $a.should.not.have.property "wrap"
 
-        it "should wrap method by methodize", ->
-            spy = sinon.spy()
-            m = 
-                wrap: (self) ->
-                    self
-                spy: spy
-                wrapA: ->
-                    this.spy()
+            it "should wrap all of objects if that wrapper module registed", ->
+                m = 
+                    wrap: ->
+                    __supports__: [Array, Number]
 
-                __supports__: [Object]
-                __option__:
-                    methodize: true
+                $use m
 
-            $use m
+                $a = $([])
+                $n = $(8)
 
-            a = 
-                name: "name"
-
-            $a = $(a)
-
-            $a.wrap().should.eql a
-            $a.wrapA()
-            assert spy.called
+                $a.should.have.property "wrap", m.wrap
+                $n.should.have.property "wrap", m.wrap
 
 
+            it "每个M.$()都将产生新的实例", ->
+                $1 = $wrapper()
+                $2 = $wrapper()
+
+                m1 = 
+                    wrap: ->
+                    __supports__: [Object]
+                m2 = 
+                    wrap: ->
+                    __supports__: [Object]
+
+                $1.$use m1
+                $2.$use m2
+
+                obj = {}
+                $o1 = $1.$(obj)
+                $o2 = $2.$(obj)
+
+                $o1.should.have.property "wrap", m1.wrap
+                $o2.should.have.property "wrap", m2.wrap
+
+
+        describe "$$()", ->
+            it "should wrap value type object", ->
+                m = 
+                    wrap: ->
+                    __supports__: [Number]
+
+                $use m
+
+                $8 = $$(8)
+
+                assert $8.hasOwnProperty "wrap"
+                assert $8.wrap == m.wrap
+
+            it "should wrap reference type object", ->
+                m = 
+                    wrap: ->
+                    __supports__: [Array]
+
+                $use m
+
+                a = []
+                $$(a)
+
+                a.should.have.property "wrap", m.wrap
+
+        describe "$() with methodize", ->
+            it "should wrap method by methodize", ->
+                spy = sinon.spy()
+                m = 
+                    wrap: (self) ->
+                        self
+                    spy: spy
+                    wrapA: ->
+                        this.spy()
+
+                    __supports__: [Object]
+                    __option__:
+                        methodize: true
+
+                $use m
+
+                a = 
+                    name: "name"
+
+                $a = $(a)
+
+                $a.wrap().should.eql a
+                $a.wrapA()
+                assert spy.called

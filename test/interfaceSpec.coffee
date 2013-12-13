@@ -23,6 +23,9 @@ describe 'interface.js', ->
         it "$is()检验值类型", ->
             assert $is('string', '')
             assert $is('string', 'abc')
+            
+            assert $is("string", new String(), "exactly") == false
+            assert $is(String, "", "exactly") == false
 
             assert $is('number', 0)
             assert $is('number', 8)
@@ -54,7 +57,8 @@ describe 'interface.js', ->
 
             assert $is(null, null)
 
-            $is(null, undefined).should.be.false
+            $is(null, undefined).should.be.true
+            $is(null, undefined, "exactly").should.be.false
             $is(null, 8).should.be.false
             $is(null, {}).should.be.false
 
@@ -62,7 +66,8 @@ describe 'interface.js', ->
             assert $is('undefined', undefined)
             assert $is(undefined, undefined)
 
-            $is('undefined', null).should.be.false
+            $is('undefined', null).should.be.true
+            $is('undefined', null, "exactly").should.be.false
 
             a = {};
             assert $is('undefined', a.b)

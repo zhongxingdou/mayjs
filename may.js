@@ -342,14 +342,28 @@ Mayjs.util.run(function(M){
      * @memberof M
      * @argu  {Object|String}  type
      * @argu  {Object}  o
+     * @argu  {Boolean} exactly 
      * @return {Boolean}
      */
-    function $is(type, o) {
-        if(type === null) return o === null;
-        if(type === undefined) return o === undefined;
+    function $is(type, o, exactly) {
+        var t = typeof type;
+        if(exactly){
+            if(type === null) return o === null;
+            if(type === undefined) return o === undefined;
+        }else{
+            if(type == null) return o == null;
+            if(type == "undefined") return o == undefined;
 
+            if(t == "string" && ["string","boolean","number"].indexOf(type) != -1){
+                if(typeof(o) == type)return true;
+
+                type = eval(type[0].toUpperCase() + type.slice(1));
+                return type.prototype.isPrototypeOf(o);
+            }
+        }
+        
         var result = false;
-        switch(typeof type) {
+        switch(t) {
         case "string":
             result = typeof(o) == type;
             break;
@@ -396,8 +410,9 @@ Mayjs.util.run(function(M){
             } else { //在$interface中声明成员方法的参数类型时，需要指定对映参数名，故无须提供参数名列表
                 arguTypes.forEach(function(item){
                     for(var arguName in item){
-                        var arguType = item[arguType];
-                        meta.push({"name": arguName, "type": arguType });
+                        if(arguName != "returns"){
+                            meta.push({"name": arguName, "type": item[arguName] });
+                        }
                         break;
                     }
                 });
@@ -590,17 +605,6 @@ Mayjs.util.run(function(M) {
 
         option = M.MObjectUtil.merge(defauls, module.__option__, option);
 
-        /*if(!obj.__modules__){
-            obj.__modules__ = [];
-        }
-
-        不判断是否已经包含了
-        var includedModules = _collectIncludedModules(obj);
-        if(includedModules.indexOf(module) != -1 && !option.forceInclude){
-            return;
-        }
-        */
-
         var needMethodize = option.methodize;
 
         M.MObjectUtil.eachOwn(module, function(k, v){
@@ -621,34 +625,10 @@ Mayjs.util.run(function(M) {
             });
         }
 
-        //_registIncludedModule(obj, module, includedModules);
-
         if(module.onIncluded) {
             module.onIncluded.call(obj, option.context || obj);
         }
     }
-
-    /*
-    var _collectIncludedModules = function(obj){
-        var modules = obj.__modules__;
-        traverseChain(obj, "__proto__", function(proto){
-            modules.concat(proto.__modules__);
-        });
-        return modules;
-    };
-
-    var _registIncludedModule = function(obj, module, includedModules){
-        var objModules = obj.__modules__;
-
-        var moduleItsModules = module.__modules__ || [];
-
-        moduleItsModules.concat([module]).forEach(function(m){
-            if(includedModules.indexOf(m) == -1){
-                objModules.push(m);
-            }
-        });
-    };
-    */
 
     M.$module = $module;
     M.$include = $include;
@@ -779,6 +759,7 @@ Mayjs.util.run(function(M) {
             }
         }
 
+        proto.constructor = this;
         clazz.prototype = proto;
         var excludes = ["prototype"];
         for(var p in Klass){
@@ -1009,11 +990,11 @@ Mayjs.util.run(function(M) {
     });
 
 
+    M.$wrapper = function () {
+        return new Wrapper().__DSL__;
+    }
 
     M.Wrapper = Wrapper;
-    M.$ = function(){
-        return new this.Wrapper();
-    }
 }, Mayjs);
 /**
  * [overload description]
@@ -1117,34 +1098,47 @@ Mayjs.util.run(function(M){
     M.$overload = $overload;
 }, Mayjs);
 Mayjs.util.run(function(M) {
-    M._ = M.$();
     M.run = function(fn){
+        var wrapper = M.$wrapper();
+        M.MObjectUtil.mix(M.DSL, wrapper);
+
         var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
-        return M.util.run.apply(this, args);
+        try{
+            var result = M.util.run.apply(this, args);
+        }catch(e){
+            throw e;
+        }finally{
+            Object.keys(wrapper).forEach(function(k){
+                delete M.DSL[k];
+            });
+        }
+        return result;
+    }
+
+    M.DSL = {
+        $checkArgu: M.$checkArgu,
+        $class: M.$class,
+        $clone: M.MObjectUtil.clone,
+        $func: M.$func,
+        $enum: M.util.enumeration,
+        $fn: M.util.fn,
+        $include: M.$include,
+        $implement: M.$implement,
+        $interface: M.$interface,
+        $is: M.$is,
+        $merge: M.MObjectUtil.merge,
+        $mix: M.MObjectUtil.mix,
+        $module: M.$module,
+        $obj: M.$obj,
+        $run: M.util.run,
+        $support: M.$support,
+        $overload: M.$overload,
+        $overwrite: M.util.overwrite,
+        $methodize: M.util.methodize,
+        $wrapper: M.$wrapper
     }
 
     M.importDSL = function() {
-        return M.util.dsl({
-            $checkArgu: M.$checkArgu,
-            $class: M.$class,
-            $clone: M.MObjectUtil.clone,
-            $func: M.$func,
-            $enum: M.util.enumeration,
-            $fn: M.util.fn,
-            $include: M.$include,
-            $implement: M.$implement,
-            $interface: M.$interface,
-            $is: M.$is,
-            $merge: M.MObjectUtil.merge,
-            $mix: M.MObjectUtil.mix,
-            $module: M.$module,
-            $obj: M.$obj,
-            $run: M.util.run,
-            $support: M.$support,
-            $overload: M.$overload,
-            $overwrite: M.util.overwrite,
-            $methodize: M.util.methodize,
-            _: M._
-        });
+        return M.util.dsl(M.DSL);
     }
 }, Mayjs);

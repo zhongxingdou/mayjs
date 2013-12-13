@@ -124,6 +124,7 @@ Mayjs.util.run(function(M) {
             }
         }
 
+        proto.constructor = this;
         clazz.prototype = proto;
         var excludes = ["prototype"];
         for(var p in Klass){

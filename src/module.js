@@ -45,17 +45,6 @@ Mayjs.util.run(function(M) {
 
         option = M.MObjectUtil.merge(defauls, module.__option__, option);
 
-        /*if(!obj.__modules__){
-            obj.__modules__ = [];
-        }
-
-        不判断是否已经包含了
-        var includedModules = _collectIncludedModules(obj);
-        if(includedModules.indexOf(module) != -1 && !option.forceInclude){
-            return;
-        }
-        */
-
         var needMethodize = option.methodize;
 
         M.MObjectUtil.eachOwn(module, function(k, v){
@@ -76,34 +65,10 @@ Mayjs.util.run(function(M) {
             });
         }
 
-        //_registIncludedModule(obj, module, includedModules);
-
         if(module.onIncluded) {
             module.onIncluded.call(obj, option.context || obj);
         }
     }
-
-    /*
-    var _collectIncludedModules = function(obj){
-        var modules = obj.__modules__;
-        traverseChain(obj, "__proto__", function(proto){
-            modules.concat(proto.__modules__);
-        });
-        return modules;
-    };
-
-    var _registIncludedModule = function(obj, module, includedModules){
-        var objModules = obj.__modules__;
-
-        var moduleItsModules = module.__modules__ || [];
-
-        moduleItsModules.concat([module]).forEach(function(m){
-            if(includedModules.indexOf(m) == -1){
-                objModules.push(m);
-            }
-        });
-    };
-    */
 
     M.$module = $module;
     M.$include = $include;

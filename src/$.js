@@ -185,9 +185,9 @@ Mayjs.util.run(function(M) {
     });
 
 
+    M.$wrapper = function () {
+        return new Wrapper().__DSL__;
+    }
 
     M.Wrapper = Wrapper;
-    M.$ = function(){
-        return new this.Wrapper();
-    }
 }, Mayjs);

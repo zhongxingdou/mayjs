@@ -5,10 +5,10 @@ assert = require 'assert'
 describe 'module.js', ->
     M = require("../may.js")
 
-    describe '$module(obj)', ->
+    describe '$part(obj)', ->
         it "should return given object self", ->
             obj = {}
-            M.$module(obj).should.eql obj
+            M.$part(obj).should.eql obj
 
     describe '$include(obj, module, option)', ->
         it "should merge module to obj", ->
@@ -25,6 +25,7 @@ describe 'module.js', ->
         it "should merge methodized method to obj when option.methodize be true", ->
             sayHello =  (man) ->
                     "hello " + man.name
+                    
             m = 
                 sayHello: sayHello
 

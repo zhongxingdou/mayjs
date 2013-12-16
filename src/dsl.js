@@ -29,7 +29,7 @@ Mayjs.util.run(function(M) {
         $is: M.$is,
         $merge: M.MObjectUtil.merge,
         $mix: M.MObjectUtil.mix,
-        $module: M.$module,
+        $part: M.$part,
         $obj: M.$obj,
         $run: M.util.run,
         $support: M.$support,

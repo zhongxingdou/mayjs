@@ -22,11 +22,15 @@ Mayjs.util.run(function(M){
             if(type == null) return o == null;
             if(type == "undefined") return o == undefined;
 
-            if(t == "string" && ["string","boolean","number"].indexOf(type) != -1){
-                if(typeof(o) == type)return true;
+            if(["string","boolean","number", 
+                String, Boolean, Number,
+                String.prototype, Boolean.prototype, Number.prototype].indexOf(type) != -1){
 
-                type = eval(type[0].toUpperCase() + type.slice(1));
-                return type.prototype.isPrototypeOf(o);
+                if(t == "string"){
+                    if(typeof(o) == type)return true; //$is("string", "astring")
+                }else{//Class or prototype
+                    o = M.util.toObject(o);
+                }
             }
         }
         
@@ -110,7 +114,6 @@ Mayjs.util.run(function(M){
 
     function $interface (define, base) {
         if(base) {
-            // if(!Interface.isPrototypeOf(base)) throw "Parameter base is not an Interface";
             interface_ = Object.create(base);
         } else {
             interface_ = Object.create(Interface);
@@ -131,8 +134,8 @@ Mayjs.util.run(function(M){
      * @return {Boolean}
      */
 
-    function $support(interface_, o) {
-        if(o.__interfaces__ && o.__interfaces__.indexOf(interface_) != -1) {
+    function $support(interface_, o, exactly) {
+        if(!exactly && o.__interfaces__ && o.__interfaces__.indexOf(interface_) != -1) {
             return true;
         }
 
@@ -141,15 +144,14 @@ Mayjs.util.run(function(M){
         for(var k in interface_) {
             var objK, typeK;
 
+            typeK = interface_[k];
             var realKey = k.match(ignoreRegExp);
             if(realKey){
                 k = realKey[1];
                 objK = o[k];
-                typeK = interface_[k];
                 if(objK == null)continue;
             }else{
                 objK = o[k];
-                typeK = interface_[k];
             }
 
             //ignore meta member that likes __proto__
@@ -179,12 +181,12 @@ Mayjs.util.run(function(M){
         var interfaces = obj.__interfaces__ || (obj.__interfaces__ = []);
         if(interfaces.indexOf(interface_) == -1) {
             if(!$support(interface_, obj)) {
-                throw "interface not supported";
+                throw "object dose not implement given interface";
             }
 
-            //write arguments meta for methods of obj
+            //write arguments meta to methods of obj
             Object.keys(interface_).forEach(function(p) {
-                if($is(Array, interface_[p])) {
+                if($is(Array, interface_[p])) { //接口声明用Array来表示方法签名
                     obj[p].__argu_types__ = _parseArguTypes(interface_[p]);
                 }
             });

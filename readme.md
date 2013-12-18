@@ -1,7 +1,7 @@
 # May.js 
 >for writing powerful and clear JavaScript code
 
-[![Build Status][]](http://travis-ci.org/zhongxingdou/mayjs)
+[![Build Status][]](http://travis-ci.org/zhongxingdou/mayjs.png)
 [![NPM version](https://badge.fury.io/js/mayjs.png)](http://badge.fury.io/js/mayjs)
 [![Views](https://sourcegraph.com/api/repos/github.com/zhongxingdou/mayjs/counters/views-24h.png)](https://sourcegraph.com/github.com/zhongxingdou/mayjs)
 

@@ -1,5 +1,12 @@
-#May.js 
+# May.js 
 >for writing powerful and clear JavaScript code
+
+[![Build Status][]](http://travis-ci.org/zhongxingdou/mayjs)
+[![Dependency Status][]](https://gemnasium.com/zhongxingdou/mayjs)
+[![NPM version](https://badge.fury.io/js/mayjs.png)](http://badge.fury.io/js/mayjs)
+[![Views](https://sourcegraph.com/api/repos/github.com/jedmao/codepainter/counters/views-24h.png)](https://sourcegraph.com/github.com/zhongxingdou/mayjs)
+
+[![NPM](https://nodei.co/npm/mayjs.png?downloads=true)](https://nodei.co/npm/mayjs/)
 
 ##principle
 + 简单，但清晰(simple, but clear)

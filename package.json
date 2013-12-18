@@ -1,6 +1,7 @@
 {
   "name": "mayjs",
   "version": "0.0.1",
+  "main": "may.js",
   "devDependencies": {
     "grunt": "~0.4.1",
     "mocha": "~1.12.1",

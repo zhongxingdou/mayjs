@@ -1,6 +1,4 @@
-var Mayjs={
-    version: 0.1
-}
+var Mayjs={}
 if(typeof(module) != "undefined")module.exports = Mayjs;
 Mayjs.util = {
     /**

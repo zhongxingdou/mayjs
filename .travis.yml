@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - "0.11.5"
+branches:
+    only:
+        - master
+notifications:
+    email:
+        - zhongxingdou@gmail.com

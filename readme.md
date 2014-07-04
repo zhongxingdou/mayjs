@@ -1,8 +1,4 @@
-<img src="static/logo/logo.png?raw=true" alt="Mayjs" />
-
-# May.js 
->for writing powerful and clear JavaScript
-
+# <img src="static/logo/logo.png?raw=true" alt="Mayjs" />
 
 [![Build Status](http://travis-ci.org/zhongxingdou/mayjs.png)](http://travis-ci.org/zhongxingdou/mayjs)
 [![NPM version](https://badge.fury.io/js/mayjs.png)](http://badge.fury.io/js/mayjs)

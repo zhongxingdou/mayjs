@@ -1,4 +1,4 @@
-<img src="static/logo/logo_light.png?raw=true" alt="Mayjs" />
+<img src="static/logo/logo.png?raw=true" alt="Mayjs" />
 
 # May.js 
 >for writing powerful and clear JavaScript

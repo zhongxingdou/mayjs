@@ -1,4 +1,6 @@
-var Mayjs={}
+var Mayjs=function(){
+    return Mayjs.importDSL();
+}
 if(typeof(module) != "undefined")module.exports = Mayjs;
 Mayjs.util = {
     /**
@@ -129,13 +131,12 @@ Mayjs.util = {
     dsl: function(obj, names) {
         obj = obj || this;
 
-        //create global tempObj
-        var tempVarName = "_temp" + Date.now();
+        var tempVarName =  "_temp" + Date.now();
         eval(tempVarName + "={value: {}}");
 
-        //get tempObj and set it's value with obj
         var temp = eval(tempVarName);
         temp.value = obj;
+
 
         if(typeof names == "string" && names !== ""){
             names = names.split(" ").map(function(n){ return n.trim(); });
@@ -151,7 +152,8 @@ Mayjs.util = {
         var members = names.map(function(name) {
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
-        return "var " + members.join(",") + "; delete " + tempVarName;
+        
+        return "var " + members.join(",") + ";delete " + tempVarName;
     },
 
     /**
@@ -181,7 +183,7 @@ Mayjs.MObjectUtil = {
         return !this.isProtected(name) && !this.isPrivate(name);
     },
 
-    have: function(o, property) {
+    has: function(o, property) {
         return(o && o.hasOwnProperty(property) && typeof o[property] != "function") || false;
     },
 
@@ -639,11 +641,9 @@ Mayjs.util.run(function(M) {
  * @require M.interface
  * @type {Object}
  */
-
 Mayjs.util.run(function(M) {
     var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
-
 
 
     var BaseObj = {
@@ -823,7 +823,7 @@ Mayjs.util.run(function(M) {
             this.__DSL__ = {
                 $: this.$.bind(this),
                 $$: this.$$.bind(this),
-                $use: this.use.bind(this)
+                using: this.using.bind(this)
             }
         },
         DSL: function(){
@@ -868,7 +868,7 @@ Mayjs.util.run(function(M) {
          * @param {Object|Interface|String} type
          * @param {Object} [includeOption]
          */
-        use: function(module, supports) {
+        using: function(module, supports) {
             var includeOption = module.__option__ || {};
             var types = supports 
                             ? (Array.prototype.isPrototypeOf(supports) ? supports : [supports])  
@@ -1101,22 +1101,42 @@ Mayjs.util.run(function(M){
     M.$overload = $overload;
 }, Mayjs);
 Mayjs.util.run(function(M) {
+
+    /**
+    * invoke fn always pass Mayjs as it's first parameter and
+    * create an unique wrapper for Mayjs.DSL which will auto remove after fn invoked
+    * so that wrapper avaiable in fn's inner only.
+    * @example
+    * Mayjs.run(function(M, p1, p2){
+    *   console.info(M);
+    *   console.info(p1);
+    *   console.info(p2);
+    *   //M.$
+    *   //M.$$
+    *   //M.using
+    * }, 'p1', 'p2');
+    */
     M.run = function(fn){
         var wrapper = M.$wrapper();
+
+        //copy member of wrapper to M.DSL
         M.MObjectUtil.mix(M.DSL, wrapper);
 
         var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
         try{
-            var result = M.util.run.apply(this, args);
+            var result = M.util.run.apply(this, args); //call fn with [Mayjs, args...]
         }catch(e){
             throw e;
         }finally{
+            //remove members of M.DSL which come from wrapper
             Object.keys(wrapper).forEach(function(k){
                 delete M.DSL[k];
             });
         }
+
         return result;
     }
+
 
     M.DSL = {
         $checkArgu: M.$checkArgu,

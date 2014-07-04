@@ -127,13 +127,12 @@ Mayjs.util = {
     dsl: function(obj, names) {
         obj = obj || this;
 
-        //create global tempObj
-        var tempVarName = "_temp" + Date.now();
+        var tempVarName =  "_temp" + Date.now();
         eval(tempVarName + "={value: {}}");
 
-        //get tempObj and set it's value with obj
         var temp = eval(tempVarName);
         temp.value = obj;
+
 
         if(typeof names == "string" && names !== ""){
             names = names.split(" ").map(function(n){ return n.trim(); });
@@ -149,7 +148,8 @@ Mayjs.util = {
         var members = names.map(function(name) {
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
-        return "var " + members.join(",") + "; delete " + tempVarName;
+        
+        return "var " + members.join(",") + ";delete " + tempVarName;
     },
 
     /**

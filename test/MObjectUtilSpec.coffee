@@ -34,13 +34,13 @@ describe 'MObjectUtil', ->
             isPublic('__fn').should.be.false
             isPublic('_fn').should.be.false
 
-    describe '#have()', ->
-        it 'should assert an object whether it have a property with given name', ->
-            have = util.have
+    describe '#has()', ->
+        it 'should assert an object whether it has a property with given name', ->
+            has = util.has
             o = 'p' : {}
-            have(o, 'p').should.be.true
+            has(o, 'p').should.be.true
 
-            have(o, 'toString').should.be.false
+            has(o, 'toString').should.be.false
 
     describe "#can()", ->
         it 'should assert an object whether it have a method with given name', ->

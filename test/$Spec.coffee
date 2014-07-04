@@ -6,7 +6,7 @@ describe '$.js', ->
     Mayjs = require("../may.js")
 
     Mayjs.run (M) ->
-        eval(M.importDSL())
+        eval(M())
 
         describe "$()", ->
 
@@ -15,7 +15,7 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [Number]
 
-                $use m
+                using m
 
                 $8 = $(8)
 
@@ -27,7 +27,7 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [Array]
 
-                $use m
+                using m
 
                 a = []
                 $a = $(a)
@@ -39,7 +39,7 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [Array.prototype]
 
-                $use m
+                using m
 
                 $a = $([])
                 $a.should.have.property "wrap", m.wrap
@@ -57,7 +57,7 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [IA,IB]
 
-                $use m
+                using m
 
                 $a = $(a)
                 $b = $(b)
@@ -69,7 +69,7 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [Array]
 
-                $use m
+                using m
 
                 $a = $({})
 
@@ -80,7 +80,7 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [Array, Number]
 
-                $use m
+                using m
 
                 $a = $([])
                 $n = $(8)
@@ -100,8 +100,8 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [Object]
 
-                $1.$use m1
-                $2.$use m2
+                $1.using m1
+                $2.using m2
 
                 obj = {}
                 $o1 = $1.$(obj)
@@ -117,7 +117,7 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [Number]
 
-                $use m
+                using m
 
                 $8 = $$(8)
 
@@ -129,7 +129,7 @@ describe '$.js', ->
                     wrap: ->
                     __supports__: [Array]
 
-                $use m
+                using m
 
                 a = []
                 $$(a)
@@ -150,7 +150,7 @@ describe '$.js', ->
                     __option__:
                         methodize: true
 
-                $use m
+                using m
 
                 a = 
                     name: "name"

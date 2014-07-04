@@ -1,5 +1,7 @@
 # May.js 
->for writing powerful and clear JavaScript code
+>for writing powerful and clear JavaScript
+
+<img src="static/logo/logo_light.png?raw=true" alt="Mayjs" />
 
 [![Build Status](http://travis-ci.org/zhongxingdou/mayjs.png)](http://travis-ci.org/zhongxingdou/mayjs)
 [![NPM version](https://badge.fury.io/js/mayjs.png)](http://badge.fury.io/js/mayjs)
@@ -34,8 +36,8 @@ The quickest way to start using May.js in your project, is by simply including m
 		<meta charset="utf-8">
 		<script src="may.js"></script>
 		<script>
-			Mayjs.$run(function(){
-				eval(Mayjs.DSL());
+			Mayjs.$run(function(M){
+				eval(M());
 				
 				var Duck = $class({
 					quack: function(){
@@ -55,8 +57,8 @@ The quickest way to start using May.js in your project, is by simply including m
 ##Examples
 ###Classes and Interfaces
 ```javascript
-Mayjs.$run(function(){
-    eval(Mayjs.DSL());
+Mayjs.$run(function(M){
+    eval(M());
     
     var IAnimal = $interface({
         "move": [{"distance": Number}]

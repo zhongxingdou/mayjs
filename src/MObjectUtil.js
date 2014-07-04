@@ -11,7 +11,7 @@ Mayjs.MObjectUtil = {
         return !this.isProtected(name) && !this.isPrivate(name);
     },
 
-    have: function(o, property) {
+    has: function(o, property) {
         return(o && o.hasOwnProperty(property) && typeof o[property] != "function") || false;
     },
 

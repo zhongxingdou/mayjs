@@ -177,11 +177,11 @@ Mayjs.util.run(function(M){
      * @argu  {Object} obj
      */
 
-    function $implement(obj, interface_) {
+    function $implement(interface_, obj) {
         var interfaces = obj.__interfaces__ || (obj.__interfaces__ = []);
         if(interfaces.indexOf(interface_) == -1) {
             if(!$support(interface_, obj)) {
-                throw "object dose not implement given interface";
+                throw "object did not implement given interface";
             }
 
             //write arguments meta to methods of obj

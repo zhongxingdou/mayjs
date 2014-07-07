@@ -33,7 +33,7 @@ The quickest way to start using May.js in your project, is by simply including m
 		<meta charset="utf-8">
 		<script src="may.js"></script>
 		<script>
-			Mayjs.run(function(M){
+			Mayjs(function(M){
 				eval(M());
 				
 				var Duck = $class({

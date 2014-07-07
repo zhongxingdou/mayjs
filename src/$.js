@@ -18,7 +18,7 @@ Mayjs.util.run(function(M) {
             this.__DSL__ = {
                 $: this.$.bind(this),
                 $$: this.$$.bind(this),
-                using: this.using.bind(this)
+                $reg: this.$reg.bind(this)
             }
         },
         DSL: function(){
@@ -63,7 +63,7 @@ Mayjs.util.run(function(M) {
          * @param {Object|Interface|String} type
          * @param {Object} [includeOption]
          */
-        using: function(module, supports) {
+        $reg: function(module, supports) {
             var includeOption = module.__option__ || {};
             var types = supports 
                             ? (Array.prototype.isPrototypeOf(supports) ? supports : [supports])  

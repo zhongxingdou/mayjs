@@ -1,12 +1,13 @@
 var Mayjs=function(){
-    if(arguments.length == 0){
-        return Mayjs.importDSL();
-    }else if(typeof arguments[0] == "function"){
-        return Mayjs.run.apply(Mayjs, arguments);
-    }
+	if(arguments.length == 0){
+		return Mayjs.importDSL();
+	}else if(typeof arguments[0] == "function"){
+		return Mayjs.run.apply(Mayjs, arguments);
+	}
 }
 
 if(typeof(module) != "undefined")module.exports = Mayjs;
+
 Mayjs.util = {
     /**
      * 将一个值对象转换成引用对象
@@ -514,11 +515,11 @@ Mayjs.util.run(function(M){
      * @argu  {Object} obj
      */
 
-    function $implement(obj, interface_) {
+    function $implement(interface_, obj) {
         var interfaces = obj.__interfaces__ || (obj.__interfaces__ = []);
         if(interfaces.indexOf(interface_) == -1) {
             if(!$support(interface_, obj)) {
-                throw "object dose not implement given interface";
+                throw "object did not implement given interface";
             }
 
             //write arguments meta to methods of obj
@@ -788,7 +789,7 @@ Mayjs.util.run(function(M) {
         "__interfaces__": Array
     });
 
-    M.$implement(BaseObj, IBase);
+    M.$implement(IBase, BaseObj);
 
 
 
@@ -828,7 +829,7 @@ Mayjs.util.run(function(M) {
             this.__DSL__ = {
                 $: this.$.bind(this),
                 $$: this.$$.bind(this),
-                using: this.using.bind(this)
+                $reg: this.$reg.bind(this)
             }
         },
         DSL: function(){
@@ -873,7 +874,7 @@ Mayjs.util.run(function(M) {
          * @param {Object|Interface|String} type
          * @param {Object} [includeOption]
          */
-        using: function(module, supports) {
+        $reg: function(module, supports) {
             var includeOption = module.__option__ || {};
             var types = supports 
                             ? (Array.prototype.isPrototypeOf(supports) ? supports : [supports])  

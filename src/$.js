@@ -7,7 +7,7 @@
  * @memberof M
  * @class
  */
-Mayjs.util.run(function(M) {
+M.util.run(function(M) {
     var toObject = M.util.toObject;
     var merge = M.MObjectUtil.merge;
     var mix = M.MObjectUtil.mix;
@@ -193,4 +193,4 @@ Mayjs.util.run(function(M) {
     }
 
     M.Wrapper = Wrapper;
-}, Mayjs);
+}, M);

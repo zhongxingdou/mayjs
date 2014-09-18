@@ -2,17 +2,15 @@
  * @require M.util
  * @require M.MObjectUtil
  */
-
-
-Mayjs.util.run(function(M) {
+M.util.run(function(M) {
     /**
-     * 定义一个part
+     * 定义一个module
      * @memberof M
      * @param  {Object} o
      * @return {Object}
      */
 
-    function $part(o) {
+    function $module(o) {
         return o;
     }
 
@@ -22,32 +20,32 @@ Mayjs.util.run(function(M) {
         "[methdizeTo]": [Object]
     }
 
-    var IPart = {
+    var Imodule = {
         "[__option__]": IIncludeOption,
         "[__supports__]": Array
     }
 
     /**
-     * include part to obj with option
+     * include module to obj with option
      * @memberof M
-     * @param  {Object} opt.part
+     * @param  {Object} opt.module
      * @param  {Object} opt.to
      * @param  {Object} opt.option
      * @return {Object}
      */
 
-    function $include(obj, part, option) {
+    function $include(obj, module, option) {
         var defauls = {
             "methodize": false,
             "context": null, //methodize的参数
             "methodizeTo": null //methodize的参数
         };
 
-        option = M.MObjectUtil.merge(defauls, part.__option__, option);
+        option = M.MObjectUtil.merge(defauls, module.__option__, option);
 
         var needMethodize = option.methodize;
 
-        M.MObjectUtil.eachOwn(part, function(k, v){
+        M.MObjectUtil.eachOwn(module, function(k, v){
             if("onIncluded" != k && !k.match(/^__.*__$/)) {
                 //var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
                 if(needMethodize && typeof v == "function") {
@@ -59,17 +57,17 @@ Mayjs.util.run(function(M) {
         });
 
         
-        if(part.__interfaces__) {
-            part.__interfaces__.forEach(function(interface_) {
+        if(module.__interfaces__) {
+            module.__interfaces__.forEach(function(interface_) {
                 M.$implement(interface_, obj);
             });
         }
 
-        if(part.onIncluded) {
-            part.onIncluded.call(obj, option.context || obj);
+        if(module.onIncluded) {
+            module.onIncluded.call(obj, option.context || obj);
         }
     }
 
-    M.$part = $part;
+    M.$module = $module;
     M.$include = $include;
-}, Mayjs);
+}, M);

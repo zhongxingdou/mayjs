@@ -1,4 +1,4 @@
-Mayjs.MObjectUtil = {
+M.MObjectUtil = {
     isPrivate: function(name) {
         return(/^__/).test(name);
     },
@@ -43,7 +43,7 @@ Mayjs.MObjectUtil = {
 
     /**
      * 根据指定属性来追溯
-     * @memberof Mayjs
+     * @memberof M
      * @param {Object} o 对象
      * @param {String} prop 属性名
      * @param {Function} fn(a) 处理函数(追溯到的对象)
@@ -61,7 +61,7 @@ Mayjs.MObjectUtil = {
 
     /**
      * clone oect
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} o 被克隆的对象
      * @param  {Boolean} [deep=false] 是否深度克隆
      * @return {Object} o的克隆
@@ -112,7 +112,7 @@ Mayjs.MObjectUtil = {
 
     /**
      * copy members from src to o
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} o [description]
      * @param  {Object} src [description]
      * @param  {String[]} [whitelist=null] 不想被覆盖的成员
@@ -137,7 +137,7 @@ Mayjs.MObjectUtil = {
 
     /**
      * merge o to a to b ... n
-     * @memberof Mayjs
+     * @memberof M
      * @param {Object} o
      * @param {Object} a
      * @return {Object} merge result

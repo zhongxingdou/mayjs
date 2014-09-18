@@ -5,13 +5,13 @@ assert = require 'assert'
 describe 'module.js', ->
     M = require("../may.js")
 
-    describe '$part(obj)', ->
+    describe '$module(obj)', ->
         it "should return given object self", ->
             obj = {}
-            M.$part(obj).should.eql obj
+            M.$module(obj).should.eql obj
 
-    describe '$include(obj, part, option)', ->
-        it "should merge part to obj", ->
+    describe '$include(obj, module, option)', ->
+        it "should merge module to obj", ->
             m =  
                 name: "jim"
                 age: 8
@@ -37,7 +37,7 @@ describe 'module.js', ->
             #check methodized
             o.sayHello().should.eql sayHello(o) 
 
-        it "should call the onincluded with obj when included if the part own it", ->
+        it "should call the onincluded with obj when included if the module own it", ->
             spy = sinon.spy()
 
             m = 
@@ -49,7 +49,7 @@ describe 'module.js', ->
             assert spy.calledOn o
             assert spy.calledWith o
 
-        it "should call the delegate onincluded with given option.context when included if the part own it", ->
+        it "should call the delegate onincluded with given option.context when included if the module own it", ->
             spy = sinon.spy()
 
             m = 

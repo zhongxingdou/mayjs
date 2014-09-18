@@ -2,7 +2,7 @@
  * interface 
  */
 
-Mayjs.util.run(function(M){
+M.util.run(function(M){
     var Interface = {};
 
     /**
@@ -226,4 +226,4 @@ Mayjs.util.run(function(M){
     M.$is = $is;
     M.$checkArgu = $checkArgu;
     M.$func = $func;
-}, Mayjs);
+}, M);

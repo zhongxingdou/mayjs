@@ -1,17 +1,17 @@
-var Mayjs=function(){
+var M=function(){
 	if(arguments.length == 0){
-		return Mayjs.importDSL();
+		return M.importDSL();
 	}else if(typeof arguments[0] == "function"){
-		return Mayjs.run.apply(Mayjs, arguments);
+		return M.run.apply(M, arguments);
 	}
 }
 
-if(typeof(module) != "undefined")module.exports = Mayjs;
+if(typeof(module) != "undefined")module.exports = M;
 
-Mayjs.util = {
+M.util = {
     /**
      * 将一个值对象转换成引用对象
-     * @memberof Mayjs
+     * @memberof M
      * @param {Object} value
      * @return {Object}
      */
@@ -33,7 +33,7 @@ Mayjs.util = {
 
     /**
      * 调用方法自身
-     * @memberof Mayjs
+     * @memberof M
      * @return {Function}
      */
 
@@ -43,7 +43,7 @@ Mayjs.util = {
 
     /**
      * 将类Array对象转换成Array
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} arrayLikeObj
      * @return {Array}
      */
@@ -55,7 +55,7 @@ Mayjs.util = {
 
     /**
      * 声明一个枚举
-     * @memberof Mayjs
+     * @memberof M
      * @param {...String} names enumeration key
      * @example
      * var color = $enum("BLUE", "RED", "YELLOW");
@@ -85,7 +85,7 @@ Mayjs.util = {
 
     /**
      * 将一个纯函数包装成指定对象的一个方法，并在此时设定纯函数的第一参数
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Function} fn 纯函数
      * @param  {Object}   [firstParam=this] fn的第一个参数，如果没有getFirstParam的话
      * @param  {Function} [getFirstParam] 使用此函数获取fn的第一个参数，调用此函数时将把firstParam传递给它
@@ -119,7 +119,7 @@ Mayjs.util = {
     /**
      * 生成供eval()函数将指定变量成员声明为当前作用域内变量的代码
      * 导入后会导致对象的方法调用时this变化
-     * @memberof Mayjs
+     * @memberof M
      * @param  {String} [obj=this]
      * @return {String}
      * @example
@@ -156,6 +156,7 @@ Mayjs.util = {
         // });
 
         var members = names.map(function(name) {
+            //可以加入检查是否已经定义的功能，如已定义则警告。
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
         
@@ -176,7 +177,7 @@ Mayjs.util = {
     }
 }
 
-Mayjs.MObjectUtil = {
+M.MObjectUtil = {
     isPrivate: function(name) {
         return(/^__/).test(name);
     },
@@ -221,7 +222,7 @@ Mayjs.MObjectUtil = {
 
     /**
      * 根据指定属性来追溯
-     * @memberof Mayjs
+     * @memberof M
      * @param {Object} o 对象
      * @param {String} prop 属性名
      * @param {Function} fn(a) 处理函数(追溯到的对象)
@@ -239,7 +240,7 @@ Mayjs.MObjectUtil = {
 
     /**
      * clone oect
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} o 被克隆的对象
      * @param  {Boolean} [deep=false] 是否深度克隆
      * @return {Object} o的克隆
@@ -290,7 +291,7 @@ Mayjs.MObjectUtil = {
 
     /**
      * copy members from src to o
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} o [description]
      * @param  {Object} src [description]
      * @param  {String[]} [whitelist=null] 不想被覆盖的成员
@@ -315,7 +316,7 @@ Mayjs.MObjectUtil = {
 
     /**
      * merge o to a to b ... n
-     * @memberof Mayjs
+     * @memberof M
      * @param {Object} o
      * @param {Object} a
      * @return {Object} merge result
@@ -340,7 +341,7 @@ Mayjs.MObjectUtil = {
  * interface 
  */
 
-Mayjs.util.run(function(M){
+M.util.run(function(M){
     var Interface = {};
 
     /**
@@ -564,23 +565,21 @@ Mayjs.util.run(function(M){
     M.$is = $is;
     M.$checkArgu = $checkArgu;
     M.$func = $func;
-}, Mayjs);
+}, M);
 
 /**
  * @require M.util
  * @require M.MObjectUtil
  */
-
-
-Mayjs.util.run(function(M) {
+M.util.run(function(M) {
     /**
-     * 定义一个part
+     * 定义一个module
      * @memberof M
      * @param  {Object} o
      * @return {Object}
      */
 
-    function $part(o) {
+    function $module(o) {
         return o;
     }
 
@@ -590,32 +589,32 @@ Mayjs.util.run(function(M) {
         "[methdizeTo]": [Object]
     }
 
-    var IPart = {
+    var Imodule = {
         "[__option__]": IIncludeOption,
         "[__supports__]": Array
     }
 
     /**
-     * include part to obj with option
+     * include module to obj with option
      * @memberof M
-     * @param  {Object} opt.part
+     * @param  {Object} opt.module
      * @param  {Object} opt.to
      * @param  {Object} opt.option
      * @return {Object}
      */
 
-    function $include(obj, part, option) {
+    function $include(obj, module, option) {
         var defauls = {
             "methodize": false,
             "context": null, //methodize的参数
             "methodizeTo": null //methodize的参数
         };
 
-        option = M.MObjectUtil.merge(defauls, part.__option__, option);
+        option = M.MObjectUtil.merge(defauls, module.__option__, option);
 
         var needMethodize = option.methodize;
 
-        M.MObjectUtil.eachOwn(part, function(k, v){
+        M.MObjectUtil.eachOwn(module, function(k, v){
             if("onIncluded" != k && !k.match(/^__.*__$/)) {
                 //var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
                 if(needMethodize && typeof v == "function") {
@@ -627,27 +626,27 @@ Mayjs.util.run(function(M) {
         });
 
         
-        if(part.__interfaces__) {
-            part.__interfaces__.forEach(function(interface_) {
+        if(module.__interfaces__) {
+            module.__interfaces__.forEach(function(interface_) {
                 M.$implement(interface_, obj);
             });
         }
 
-        if(part.onIncluded) {
-            part.onIncluded.call(obj, option.context || obj);
+        if(module.onIncluded) {
+            module.onIncluded.call(obj, option.context || obj);
         }
     }
 
-    M.$part = $part;
+    M.$module = $module;
     M.$include = $include;
-}, Mayjs);
+}, M);
 /**
  * [base description]
  * @require M.MObjectUtil
  * @require M.interface
  * @type {Object}
  */
-Mayjs.util.run(function(M) {
+M.util.run(function(M) {
     var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
 
@@ -808,7 +807,7 @@ Mayjs.util.run(function(M) {
     M.BaseClass = BaseClass;
     M.$class = $class;
     M.$obj = $obj;
-}, Mayjs);
+}, M);
 /**
  * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
  * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
@@ -818,7 +817,7 @@ Mayjs.util.run(function(M) {
  * @memberof M
  * @class
  */
-Mayjs.util.run(function(M) {
+M.util.run(function(M) {
     var toObject = M.util.toObject;
     var merge = M.MObjectUtil.merge;
     var mix = M.MObjectUtil.mix;
@@ -1004,7 +1003,7 @@ Mayjs.util.run(function(M) {
     }
 
     M.Wrapper = Wrapper;
-}, Mayjs);
+}, M);
 /**
  * [overload description]
  * @require M.meta
@@ -1012,7 +1011,7 @@ Mayjs.util.run(function(M) {
  * @type {Object}
  */
 
-Mayjs.util.run(function(M){
+M.util.run(function(M){
     var $func = M.$func;
 
     function _checkParams(fn, params) {
@@ -1105,15 +1104,15 @@ Mayjs.util.run(function(M){
     }
 
     M.$overload = $overload;
-}, Mayjs);
-Mayjs.util.run(function(M) {
+}, M);
+M.util.run(function(M) {
 
     /**
-    * invoke fn always pass Mayjs as it's first parameter and
-    * create an unique wrapper for Mayjs.DSL which will auto remove after fn invoked
+    * invoke fn always pass M as it's first parameter and
+    * create an unique wrapper for M.DSL which will auto remove after fn invoked
     * so that wrapper avaiable in fn's inner only.
     * @example
-    * Mayjs.run(function(M, p1, p2){
+    * M.run(function(M, p1, p2){
     *   console.info(M);
     *   console.info(p1);
     *   console.info(p2);
@@ -1130,7 +1129,7 @@ Mayjs.util.run(function(M) {
 
         var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
         try{
-            var result = M.util.run.apply(this, args); //call fn with [Mayjs, args...]
+            var result = M.util.run.apply(this, args); //call fn with [M, args...]
         }catch(e){
             throw e;
         }finally{
@@ -1157,7 +1156,7 @@ Mayjs.util.run(function(M) {
         $is: M.$is,
         $merge: M.MObjectUtil.merge,
         $mix: M.MObjectUtil.mix,
-        $part: M.$part,
+        $module: M.$module,
         $obj: M.$obj,
         $run: M.util.run,
         $support: M.$support,
@@ -1170,4 +1169,4 @@ Mayjs.util.run(function(M) {
     M.importDSL = function() {
         return M.util.dsl(M.DSL);
     }
-}, Mayjs);
+}, M);

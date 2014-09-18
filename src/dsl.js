@@ -1,11 +1,11 @@
-Mayjs.util.run(function(M) {
+M.util.run(function(M) {
 
     /**
-    * invoke fn always pass Mayjs as it's first parameter and
-    * create an unique wrapper for Mayjs.DSL which will auto remove after fn invoked
+    * invoke fn always pass M as it's first parameter and
+    * create an unique wrapper for M.DSL which will auto remove after fn invoked
     * so that wrapper avaiable in fn's inner only.
     * @example
-    * Mayjs.run(function(M, p1, p2){
+    * M.run(function(M, p1, p2){
     *   console.info(M);
     *   console.info(p1);
     *   console.info(p2);
@@ -22,7 +22,7 @@ Mayjs.util.run(function(M) {
 
         var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
         try{
-            var result = M.util.run.apply(this, args); //call fn with [Mayjs, args...]
+            var result = M.util.run.apply(this, args); //call fn with [M, args...]
         }catch(e){
             throw e;
         }finally{
@@ -49,7 +49,7 @@ Mayjs.util.run(function(M) {
         $is: M.$is,
         $merge: M.MObjectUtil.merge,
         $mix: M.MObjectUtil.mix,
-        $part: M.$part,
+        $module: M.$module,
         $obj: M.$obj,
         $run: M.util.run,
         $support: M.$support,
@@ -62,4 +62,4 @@ Mayjs.util.run(function(M) {
     M.importDSL = function() {
         return M.util.dsl(M.DSL);
     }
-}, Mayjs);
+}, M);

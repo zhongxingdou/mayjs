@@ -2,7 +2,7 @@
 sinon = require 'sinon'
 assert = require 'assert'
 
-describe 'Mayjs.util', ->
+describe 'M.util', ->
     util = require("../may.js").util
 
     describe '#toObject()', ->

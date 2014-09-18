@@ -4,7 +4,7 @@
  * @require M.interface
  * @type {Object}
  */
-Mayjs.util.run(function(M) {
+M.util.run(function(M) {
     var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
 
@@ -165,4 +165,4 @@ Mayjs.util.run(function(M) {
     M.BaseClass = BaseClass;
     M.$class = $class;
     M.$obj = $obj;
-}, Mayjs);
+}, M);

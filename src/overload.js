@@ -5,7 +5,7 @@
  * @type {Object}
  */
 
-Mayjs.util.run(function(M){
+M.util.run(function(M){
     var $func = M.$func;
 
     function _checkParams(fn, params) {
@@ -98,4 +98,4 @@ Mayjs.util.run(function(M){
     }
 
     M.$overload = $overload;
-}, Mayjs);
+}, M);

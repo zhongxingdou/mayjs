@@ -1,9 +1,9 @@
-var Mayjs=function(){
+var M=function(){
 	if(arguments.length == 0){
-		return Mayjs.importDSL();
+		return M.importDSL();
 	}else if(typeof arguments[0] == "function"){
-		return Mayjs.run.apply(Mayjs, arguments);
+		return M.run.apply(M, arguments);
 	}
 }
 
-if(typeof(module) != "undefined")module.exports = Mayjs;
+if(typeof(module) != "undefined")module.exports = M;

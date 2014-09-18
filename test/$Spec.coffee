@@ -3,9 +3,9 @@ sinon = require 'sinon'
 assert = require 'assert'
 
 describe '$.js', ->
-    Mayjs = require("../may.js")
+    M = require("../may.js")
 
-    Mayjs.run (M) ->
+    M.run (M) ->
         eval(M())
 
         describe "$()", ->

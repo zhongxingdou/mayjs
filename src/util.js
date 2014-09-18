@@ -1,7 +1,7 @@
-Mayjs.util = {
+M.util = {
     /**
      * 将一个值对象转换成引用对象
-     * @memberof Mayjs
+     * @memberof M
      * @param {Object} value
      * @return {Object}
      */
@@ -23,7 +23,7 @@ Mayjs.util = {
 
     /**
      * 调用方法自身
-     * @memberof Mayjs
+     * @memberof M
      * @return {Function}
      */
 
@@ -33,7 +33,7 @@ Mayjs.util = {
 
     /**
      * 将类Array对象转换成Array
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Object} arrayLikeObj
      * @return {Array}
      */
@@ -45,7 +45,7 @@ Mayjs.util = {
 
     /**
      * 声明一个枚举
-     * @memberof Mayjs
+     * @memberof M
      * @param {...String} names enumeration key
      * @example
      * var color = $enum("BLUE", "RED", "YELLOW");
@@ -75,7 +75,7 @@ Mayjs.util = {
 
     /**
      * 将一个纯函数包装成指定对象的一个方法，并在此时设定纯函数的第一参数
-     * @memberof Mayjs
+     * @memberof M
      * @param  {Function} fn 纯函数
      * @param  {Object}   [firstParam=this] fn的第一个参数，如果没有getFirstParam的话
      * @param  {Function} [getFirstParam] 使用此函数获取fn的第一个参数，调用此函数时将把firstParam传递给它
@@ -109,7 +109,7 @@ Mayjs.util = {
     /**
      * 生成供eval()函数将指定变量成员声明为当前作用域内变量的代码
      * 导入后会导致对象的方法调用时this变化
-     * @memberof Mayjs
+     * @memberof M
      * @param  {String} [obj=this]
      * @return {String}
      * @example
@@ -146,6 +146,7 @@ Mayjs.util = {
         // });
 
         var members = names.map(function(name) {
+            //可以加入检查是否已经定义的功能，如已定义则警告。
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
         

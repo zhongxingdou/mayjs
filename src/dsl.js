@@ -1,38 +1,6 @@
 M.util.run(function(M) {
-
-    /**
-    * invoke fn always pass M as it's first parameter and
-    * create an unique wrapper for M.DSL which will auto remove after fn invoked
-    * so that wrapper avaiable in fn's inner only.
-    * @example
-    * M.run(function(M, p1, p2){
-    *   console.info(M);
-    *   console.info(p1);
-    *   console.info(p2);
-    *   //M.$
-    *   //M.$$
-    *   //M.using
-    * }, 'p1', 'p2');
-    */
     M.run = function(fn){
-        var wrapper = M.$wrapper();
-
-        //copy member of wrapper to M.DSL
-        M.MObjectUtil.mix(M.DSL, wrapper); //$, $$, $reg
-
-        var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
-        try{
-            var result = M.util.run.apply(this, args); //call fn with [M, args...]
-        }catch(e){
-            throw e;
-        }finally{
-            //remove members of M.DSL which come from wrapper
-            Object.keys(wrapper).forEach(function(k){
-                delete M.DSL[k];
-            });
-        }
-
-        return result;
+        return fn.apply(this, Array.prototype.slice.call(arguments, 1));
     }
 
 
@@ -61,7 +29,8 @@ M.util.run(function(M) {
         $check: M.$check
     }
 
+
     M.importDSL = function() {
-        return M.util.dsl(M.DSL);
+        return M.util.dsl(M.DSL) + M.util.dsl(M.$wrapper());
     }
 }, M);

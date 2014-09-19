@@ -5,7 +5,7 @@ assert = require 'assert'
 describe '$.js', ->
     M = require("../may.js")
 
-    M.run (M) ->
+    M.run () ->
         eval(M())
 
         describe "$()", ->

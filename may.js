@@ -137,7 +137,7 @@ M.util = {
     dsl: function(obj, names) {
         obj = obj || this;
 
-        var tempVarName =  "_temp" + Date.now();
+        var tempVarName =  "_temp" + Date.now() + Math.random().toString().substr(2);
         eval(tempVarName + "={value: {}}");
 
         var temp = eval(tempVarName);
@@ -160,7 +160,7 @@ M.util = {
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
         
-        return "var " + members.join(",") + ";delete " + tempVarName;
+        return "var " + members.join(",") + ";delete " + tempVarName + ";";
     },
 
     /**
@@ -953,7 +953,12 @@ M.util.run(function(M) {
             var ms = this.__map__.filter(function(item) {
                 return item.type == type;
             });
+
             return ms.length === 0 ? [] : ms[0].modules;
+        },
+
+        findWrappersByType: function(type){
+            return _globalWrapper.__findWrappersByType(type).concat(this.__findWrappersByType(type));
         },
 
         /**
@@ -968,10 +973,10 @@ M.util.run(function(M) {
             var oldProto;
 
             while(proto) {
-                wrappers = wrappers.concat(self.__findWrappersByType(proto));
+                wrappers = wrappers.concat(self.findWrappersByType(proto));
                 if(proto.hasOwnProperty("__interfaces__")){
                     proto.__interfaces__.forEach(function(interface_) {
-                        wrappers = wrappers.concat(self.__findWrappersByType(interface_));
+                        wrappers = wrappers.concat(self.findWrappersByType(interface_));
                     });
                 }
 
@@ -999,7 +1004,7 @@ M.util.run(function(M) {
             var wrappers = [];
             var self = this;
             var addTypeWrappers = function(type) {
-                    wrappers = wrappers.concat(self.__findWrappersByType(type));
+                    wrappers = wrappers.concat(self.findWrappersByType(type));
                 };
 
             var objType = typeof obj;
@@ -1018,10 +1023,13 @@ M.util.run(function(M) {
         }
     });
 
-
     M.$wrapper = function () {
         return new Wrapper().__DSL__;
     }
+
+    var _globalWrapper = new Wrapper();
+
+    M.MObjectUtil.mix(M, _globalWrapper.__DSL__);
 
     M.Wrapper = Wrapper;
 }, M);
@@ -1127,40 +1135,8 @@ M.util.run(function(M){
     M.$overload = $overload;
 }, M);
 M.util.run(function(M) {
-
-    /**
-    * invoke fn always pass M as it's first parameter and
-    * create an unique wrapper for M.DSL which will auto remove after fn invoked
-    * so that wrapper avaiable in fn's inner only.
-    * @example
-    * M.run(function(M, p1, p2){
-    *   console.info(M);
-    *   console.info(p1);
-    *   console.info(p2);
-    *   //M.$
-    *   //M.$$
-    *   //M.using
-    * }, 'p1', 'p2');
-    */
     M.run = function(fn){
-        var wrapper = M.$wrapper();
-
-        //copy member of wrapper to M.DSL
-        M.MObjectUtil.mix(M.DSL, wrapper); //$, $$, $reg
-
-        var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
-        try{
-            var result = M.util.run.apply(this, args); //call fn with [M, args...]
-        }catch(e){
-            throw e;
-        }finally{
-            //remove members of M.DSL which come from wrapper
-            Object.keys(wrapper).forEach(function(k){
-                delete M.DSL[k];
-            });
-        }
-
-        return result;
+        return fn.apply(this, Array.prototype.slice.call(arguments, 1));
     }
 
 
@@ -1189,7 +1165,8 @@ M.util.run(function(M) {
         $check: M.$check
     }
 
+
     M.importDSL = function() {
-        return M.util.dsl(M.DSL);
+        return M.util.dsl(M.DSL) + M.util.dsl(M.$wrapper());
     }
 }, M);

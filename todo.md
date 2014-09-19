@@ -3,3 +3,4 @@
 * 支持事件
 * 给非mayjs class增加$extend
 * $include支持模块元信息
+* 支持bower包,spm包安装

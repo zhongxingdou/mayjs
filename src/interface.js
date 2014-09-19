@@ -5,6 +5,19 @@
 M.util.run(function(M){
     var Interface = {};
 
+    function $is(type, o){
+        if(arguments.length == 2){
+            return _is(type, o);
+        }else{
+            for(var i=1; l=arguments.length; i++){
+                if(!_is(type, arguments[i])){
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     /**
      * 对象类型判断
      * @memberof M
@@ -13,12 +26,12 @@ M.util.run(function(M){
      * @argu  {Boolean} exactly 
      * @return {Boolean}
      */
-    function $is(type, o, exactly) {
+    function _is(type, o) {
         var t = typeof type;
-        if(exactly){
+        /*if(exactly){
             if(type === null) return o === null;
             if(type === undefined) return o === undefined;
-        }else{
+        }else{*/
             if(type == null) return o == null;
             if(type == "undefined") return o == undefined;
 
@@ -32,7 +45,7 @@ M.util.run(function(M){
                     o = M.util.toObject(o);
                 }
             }
-        }
+        //}
         
         var result = false;
         switch(t) {
@@ -59,6 +72,13 @@ M.util.run(function(M){
             break;
         }
         return result;
+    }
+
+
+    function $check(result){
+        if(result === false){
+            throw "$check failed!";
+        }
     }
 
     function parseArguNames(fn) {
@@ -226,4 +246,5 @@ M.util.run(function(M){
     M.$is = $is;
     M.$checkArgu = $checkArgu;
     M.$func = $func;
+    M.$check = $check;
 }, M);

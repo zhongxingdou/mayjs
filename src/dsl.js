@@ -18,7 +18,7 @@ M.util.run(function(M) {
         var wrapper = M.$wrapper();
 
         //copy member of wrapper to M.DSL
-        M.MObjectUtil.mix(M.DSL, wrapper);
+        M.MObjectUtil.mix(M.DSL, wrapper); //$, $$, $reg
 
         var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
         try{
@@ -56,7 +56,9 @@ M.util.run(function(M) {
         $overload: M.$overload,
         $overwrite: M.util.overwrite,
         $methodize: M.util.methodize,
-        $wrapper: M.$wrapper
+        $wrapper: M.$wrapper,
+        $dsl: M.util.dsl,
+        $check: M.$check
     }
 
     M.importDSL = function() {

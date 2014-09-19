@@ -61,10 +61,10 @@ M.util.run(function(M) {
          * @memberof M.$
          * @param {Object} module
          * @param {Object|Interface|String} type
-         * @param {Object} [includeOption]
+         * @param {Object} [option]
          */
-        $reg: function(module, supports) {
-            var includeOption = module.__option__ || {};
+        $reg: function(module, supports, option) {
+            var includeOption = option || module.__option__ || {};
             var types = supports 
                             ? (Array.prototype.isPrototypeOf(supports) ? supports : [supports])  
                             : module.__supports__;

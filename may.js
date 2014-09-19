@@ -344,6 +344,19 @@ M.MObjectUtil = {
 M.util.run(function(M){
     var Interface = {};
 
+    function $is(type, o){
+        if(arguments.length == 2){
+            return _is(type, o);
+        }else{
+            for(var i=1; l=arguments.length; i++){
+                if(!_is(type, arguments[i])){
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     /**
      * 对象类型判断
      * @memberof M
@@ -352,12 +365,12 @@ M.util.run(function(M){
      * @argu  {Boolean} exactly 
      * @return {Boolean}
      */
-    function $is(type, o, exactly) {
+    function _is(type, o) {
         var t = typeof type;
-        if(exactly){
+        /*if(exactly){
             if(type === null) return o === null;
             if(type === undefined) return o === undefined;
-        }else{
+        }else{*/
             if(type == null) return o == null;
             if(type == "undefined") return o == undefined;
 
@@ -371,7 +384,7 @@ M.util.run(function(M){
                     o = M.util.toObject(o);
                 }
             }
-        }
+        //}
         
         var result = false;
         switch(t) {
@@ -398,6 +411,13 @@ M.util.run(function(M){
             break;
         }
         return result;
+    }
+
+
+    function $check(result){
+        if(result === false){
+            throw "$check failed!";
+        }
     }
 
     function parseArguNames(fn) {
@@ -565,6 +585,7 @@ M.util.run(function(M){
     M.$is = $is;
     M.$checkArgu = $checkArgu;
     M.$func = $func;
+    M.$check = $check;
 }, M);
 
 /**
@@ -871,10 +892,10 @@ M.util.run(function(M) {
          * @memberof M.$
          * @param {Object} module
          * @param {Object|Interface|String} type
-         * @param {Object} [includeOption]
+         * @param {Object} [option]
          */
-        $reg: function(module, supports) {
-            var includeOption = module.__option__ || {};
+        $reg: function(module, supports, option) {
+            var includeOption = option || module.__option__ || {};
             var types = supports 
                             ? (Array.prototype.isPrototypeOf(supports) ? supports : [supports])  
                             : module.__supports__;
@@ -1125,7 +1146,7 @@ M.util.run(function(M) {
         var wrapper = M.$wrapper();
 
         //copy member of wrapper to M.DSL
-        M.MObjectUtil.mix(M.DSL, wrapper);
+        M.MObjectUtil.mix(M.DSL, wrapper); //$, $$, $reg
 
         var args = [fn, M].concat(Array.prototype.slice.call(arguments, 1));
         try{
@@ -1163,7 +1184,9 @@ M.util.run(function(M) {
         $overload: M.$overload,
         $overwrite: M.util.overwrite,
         $methodize: M.util.methodize,
-        $wrapper: M.$wrapper
+        $wrapper: M.$wrapper,
+        $dsl: M.util.dsl,
+        $check: M.$check
     }
 
     M.importDSL = function() {

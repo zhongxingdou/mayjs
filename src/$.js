@@ -122,7 +122,12 @@ M.util.run(function(M) {
             var ms = this.__map__.filter(function(item) {
                 return item.type == type;
             });
+
             return ms.length === 0 ? [] : ms[0].modules;
+        },
+
+        findWrappersByType: function(type){
+            return _globalWrapper.__findWrappersByType(type).concat(this.__findWrappersByType(type));
         },
 
         /**
@@ -137,10 +142,10 @@ M.util.run(function(M) {
             var oldProto;
 
             while(proto) {
-                wrappers = wrappers.concat(self.__findWrappersByType(proto));
+                wrappers = wrappers.concat(self.findWrappersByType(proto));
                 if(proto.hasOwnProperty("__interfaces__")){
                     proto.__interfaces__.forEach(function(interface_) {
-                        wrappers = wrappers.concat(self.__findWrappersByType(interface_));
+                        wrappers = wrappers.concat(self.findWrappersByType(interface_));
                     });
                 }
 
@@ -168,7 +173,7 @@ M.util.run(function(M) {
             var wrappers = [];
             var self = this;
             var addTypeWrappers = function(type) {
-                    wrappers = wrappers.concat(self.__findWrappersByType(type));
+                    wrappers = wrappers.concat(self.findWrappersByType(type));
                 };
 
             var objType = typeof obj;
@@ -187,10 +192,13 @@ M.util.run(function(M) {
         }
     });
 
-
     M.$wrapper = function () {
         return new Wrapper().__DSL__;
     }
+
+    var _globalWrapper = new Wrapper();
+
+    M.MObjectUtil.mix(M, _globalWrapper.__DSL__);
 
     M.Wrapper = Wrapper;
 }, M);

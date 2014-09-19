@@ -127,7 +127,7 @@ M.util = {
     dsl: function(obj, names) {
         obj = obj || this;
 
-        var tempVarName =  "_temp" + Date.now();
+        var tempVarName =  "_temp" + Date.now() + Math.random().toString().substr(2);
         eval(tempVarName + "={value: {}}");
 
         var temp = eval(tempVarName);
@@ -150,7 +150,7 @@ M.util = {
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
         
-        return "var " + members.join(",") + ";delete " + tempVarName;
+        return "var " + members.join(",") + ";delete " + tempVarName + ";";
     },
 
     /**

@@ -2,9 +2,14 @@ var M=function(){
 	if(arguments.length == 0){
 		return M.importDSL();
 	}else if(typeof arguments[0] == "function"){
-		return M.run.apply(M, arguments);
+		var wrapper = M.$wrapper();
+		var args = Array.prototype.slice.call(arguments, 1);
+		return arguments[0].apply(this, [wrapper.$, wrapper.$$].concat(args));
 	}
 }
+
+M.global = this;
+if(typeof global != "undefined")M.global = global;
 
 if(typeof(module) != "undefined")module.exports = M;
 
@@ -100,6 +105,20 @@ M.util = {
             return fn.apply(this, args);
         };
     },
+    
+    methodize: function(fn, firstParam, getFirstParam) {
+        return function() {
+            //获取第一个参数
+            var p1 = firstParam || this;
+            if(getFirstParam) p1 = getFirstParam(p1);
+
+            //把第一个参数和其他参数放在一起
+            var slice = Array.prototype.slice;
+            var args = [p1].concat(slice.call(arguments));
+
+            return fn.apply(this, args);
+        }
+    },
 
     /**
      * overwrite对象的方法，新方法将调用指定的overwriter并把原方法当作第一个参数传递给它
@@ -128,7 +147,7 @@ M.util = {
      *     sub: function(a, b){ return a - b }
      * }
      *
-     * eval(localize(Calculator));
+     * eval(dsl(Calculator));
      *
      * add(4, 6);
      * sub(10, 4);
@@ -348,7 +367,7 @@ M.util.run(function(M){
         if(arguments.length == 2){
             return _is(type, o);
         }else{
-            for(var i=1; l=arguments.length; i++){
+            for(var i=1, l=arguments.length; i<l; i++){
                 if(!_is(type, arguments[i])){
                     return false;
                 }
@@ -612,7 +631,9 @@ M.util.run(function(M) {
 
     var Imodule = {
         "[__option__]": IIncludeOption,
-        "[__supports__]": Array
+        "[__supports__]": Array,
+        "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
+        "[onIncluded]": Function //include给object后被自动调用，一般不用于include给prototype object
     }
 
     /**
@@ -636,7 +657,7 @@ M.util.run(function(M) {
         var needMethodize = option.methodize;
 
         M.MObjectUtil.eachOwn(module, function(k, v){
-            if("onIncluded" != k && !k.match(/^__.*__$/)) {
+            if("init" !== k && "onIncluded" !== k && !k.match(/^__.*__$/)) {
                 //var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
                 if(needMethodize && typeof v == "function") {
                     obj[k] = M.util.methodize(v, option.context, option.methodizeTo);
@@ -849,11 +870,9 @@ M.util.run(function(M) {
             this.__DSL__ = {
                 $: this.$.bind(this),
                 $$: this.$$.bind(this),
-                $reg: this.$reg.bind(this)
             }
-        },
-        DSL: function(){
-            return M.util.dsl(this.__DSL__);
+            this.__DSL__.$.reg = this.$reg.bind(this);
+            this.__DSL__.$.clear = this.$clear.bind(this);
         },
         __wrap: function(obj, proxy, option){
             obj = toObject(obj);
@@ -871,6 +890,10 @@ M.util.run(function(M) {
 
             return proxy;
         },
+        $clear: function(){
+            this.__map__ = [];
+        },
+
         $: function(obj) {
             return this.__wrap(obj, {}, {context: obj});
         },
@@ -958,7 +981,11 @@ M.util.run(function(M) {
         },
 
         findWrappersByType: function(type){
-            return _globalWrapper.__findWrappersByType(type).concat(this.__findWrappersByType(type));
+            if(this != _globalWrapper){
+                return _globalWrapper.__findWrappersByType(type).concat(this.__findWrappersByType(type));
+            }else{
+                return this.__findWrappersByType(type);
+            }
         },
 
         /**
@@ -1135,11 +1162,6 @@ M.util.run(function(M){
     M.$overload = $overload;
 }, M);
 M.util.run(function(M) {
-    M.run = function(fn){
-        return fn.apply(this, Array.prototype.slice.call(arguments, 1));
-    }
-
-
     M.DSL = {
         $checkArgu: M.$checkArgu,
         $class: M.$class,
@@ -1168,5 +1190,9 @@ M.util.run(function(M) {
 
     M.importDSL = function() {
         return M.util.dsl(M.DSL) + M.util.dsl(M.$wrapper());
+    }
+
+    M.exportToGlobal = function(){
+        M.MObjectUtil.mix(M.global, M.DSL);
     }
 }, M);

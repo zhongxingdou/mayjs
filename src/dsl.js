@@ -1,9 +1,4 @@
 M.util.run(function(M) {
-    M.run = function(fn){
-        return fn.apply(this, Array.prototype.slice.call(arguments, 1));
-    }
-
-
     M.DSL = {
         $checkArgu: M.$checkArgu,
         $class: M.$class,
@@ -32,5 +27,9 @@ M.util.run(function(M) {
 
     M.importDSL = function() {
         return M.util.dsl(M.DSL) + M.util.dsl(M.$wrapper());
+    }
+
+    M.exportToGlobal = function(){
+        M.MObjectUtil.mix(M.global, M.DSL);
     }
 }, M);

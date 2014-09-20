@@ -4,7 +4,7 @@ var M=function(){
 	}else if(typeof arguments[0] == "function"){
 		var wrapper = M.$wrapper();
 		var args = Array.prototype.slice.call(arguments, 1);
-		return arguments[0].apply(this, [wrapper.$, wrapper.$$, wrapper.$reg].concat(args));
+		return arguments[0].apply(this, [wrapper.$, wrapper.$$].concat(args));
 	}
 }
 

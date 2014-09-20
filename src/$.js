@@ -18,11 +18,9 @@ M.util.run(function(M) {
             this.__DSL__ = {
                 $: this.$.bind(this),
                 $$: this.$$.bind(this),
-                $reg: this.$reg.bind(this)
             }
-        },
-        DSL: function(){
-            return M.util.dsl(this.__DSL__);
+            this.__DSL__.$.reg = this.$reg.bind(this);
+            this.__DSL__.$.clear = this.$clear.bind(this);
         },
         __wrap: function(obj, proxy, option){
             obj = toObject(obj);
@@ -40,6 +38,10 @@ M.util.run(function(M) {
 
             return proxy;
         },
+        $clear: function(){
+            this.__map__ = [];
+        },
+
         $: function(obj) {
             return this.__wrap(obj, {}, {context: obj});
         },
@@ -127,7 +129,11 @@ M.util.run(function(M) {
         },
 
         findWrappersByType: function(type){
-            return _globalWrapper.__findWrappersByType(type).concat(this.__findWrappersByType(type));
+            if(this != _globalWrapper){
+                return _globalWrapper.__findWrappersByType(type).concat(this.__findWrappersByType(type));
+            }else{
+                return this.__findWrappersByType(type);
+            }
         },
 
         /**

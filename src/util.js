@@ -90,6 +90,20 @@ M.util = {
             return fn.apply(this, args);
         };
     },
+    
+    methodize: function(fn, firstParam, getFirstParam) {
+        return function() {
+            //获取第一个参数
+            var p1 = firstParam || this;
+            if(getFirstParam) p1 = getFirstParam(p1);
+
+            //把第一个参数和其他参数放在一起
+            var slice = Array.prototype.slice;
+            var args = [p1].concat(slice.call(arguments));
+
+            return fn.apply(this, args);
+        }
+    },
 
     /**
      * overwrite对象的方法，新方法将调用指定的overwriter并把原方法当作第一个参数传递给它
@@ -118,7 +132,7 @@ M.util = {
      *     sub: function(a, b){ return a - b }
      * }
      *
-     * eval(localize(Calculator));
+     * eval(dsl(Calculator));
      *
      * add(4, 6);
      * sub(10, 4);

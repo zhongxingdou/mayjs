@@ -9,7 +9,7 @@ M.util.run(function(M){
         if(arguments.length == 2){
             return _is(type, o);
         }else{
-            for(var i=1; l=arguments.length; i++){
+            for(var i=1, l=arguments.length; i<l; i++){
                 if(!_is(type, arguments[i])){
                     return false;
                 }

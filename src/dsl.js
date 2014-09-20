@@ -1,35 +1,28 @@
 M.util.run(function(M) {
-    M.DSL = {
-        $checkArgu: M.$checkArgu,
-        $class: M.$class,
-        $clone: M.MObjectUtil.clone,
-        $func: M.$func,
-        $enum: M.util.enumeration,
-        $fn: M.util.fn,
-        $include: M.$include,
-        $implement: M.$implement,
-        $interface: M.$interface,
-        $is: M.$is,
-        $merge: M.MObjectUtil.merge,
-        $mix: M.MObjectUtil.mix,
-        $module: M.$module,
-        $obj: M.$obj,
-        $run: M.util.run,
-        $support: M.$support,
-        $overload: M.$overload,
-        $overwrite: M.util.overwrite,
-        $methodize: M.util.methodize,
-        $wrapper: M.$wrapper,
-        $dsl: M.util.dsl,
-        $check: M.$check
-    }
+    M.$merge = M.MObjectUtil.merge;
+    M.$mix = M.MObjectUtil.mix;
+    M.$clone = M.MObjectUtil.clone;
 
+    M.$fn = M.util.fn;
+    M.$run = M.util.run;
+    M.$enum = M.util.enumeration;
+    M.$overwrite = M.util.overwrite;
+    M.$methodize = M.util.methodize;
+    M.$dsl = M.util.dsl;
+
+    var _getKeywordFunc = function(){
+        return Object.keys(M).filter(function(name){
+            return (/^\$/).test(name) && ["$", "$$"].indexOf(name) == -1;
+        });
+    }
 
     M.importDSL = function() {
-        return M.util.dsl(M.DSL) + M.util.dsl(M.$wrapper());
+        return M.util.dsl(M, _getKeywordFunc()) + M.util.dsl(M.$wrapper());
     }
 
-    M.exportToGlobal = function(){
-        M.MObjectUtil.mix(M.global, M.DSL);
+    M.exportKeyFnTo = function(targetObj){
+        _getKeywordFunc().forEach(function (prop) {
+            targetObj[prop] = M[prop];
+        });
     }
 }, M);

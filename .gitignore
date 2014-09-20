@@ -16,3 +16,5 @@ may-inone.js
 may.min.js
 
 test/*.js
+
+may.min.js.gz

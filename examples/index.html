@@ -2,52 +2,38 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <!-- // <script src="../lib/firebug-lite/build/firebug-lite.js"></script> -->
-    <!---
     <script src="../lib/es5-shim.js"></script>
     <script src="../lib/es5-sham.js"></script>
-    
-
-    <script src="../src/may.js"></script>
-    <script src="../src/MObjectUtil.js"></script>
-
-    <script src="../src/global.js"></script>
-    <script src="../src/util.js"></script>
-    <script src="../src/meta.js"></script>
-
-    <script src="../src/interface.js"></script>
-    <script src="../src/module.js"></script>
-    <script src="../src/base.js"></script>
-    <script src="../src/$.js"></script>
-    <script src="../src/overload.js"></script>
-    <script src="../src/dsl.js"></script>
--->
-
 
     <script src="../may.js"></script>
-  <!--   // <script src="../may-min.js"></script> -->
-    <!-- // <script src="test.js"></script> -->
-    <!-- // <script src="test2.js"></script> -->
 </head>
 <body>
+    <div id="logs">
+    </div>
+
     <script>
         "use strict";
+        var log = function(msg){
+            var p = document.createElement('p');
+            p.innerHTML = msg;
+            document.getElementById("logs").appendChild(p);
+        }
         
         var stringEx = {
             reverse: function(s){
                 return s.split("").reverse().join("");
             }
         }
-        M.$reg(stringEx, String, {methodize: true});
-        console.info(M.$("abcd").reverse());
+        M.$.reg(stringEx, String, {methodize: true});
+        log("Reversed abcd is：" + M.$("abcd").reverse());
 
         var numberEx = {
             next: function(n){
                 return n+1;
             }
         }
-        M.$reg(numberEx, Number, {methodize: true});
-        console.info(M.$(8).next());
-    </script
+        M.$.reg(numberEx, Number, {methodize: true});
+        log("The next number from 8 is " + M.$(8).next());
+    </script>
 </body>
 </html>

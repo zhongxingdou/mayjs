@@ -22,7 +22,9 @@ M.util.run(function(M) {
 
     var Imodule = {
         "[__option__]": IIncludeOption,
-        "[__supports__]": Array
+        "[__supports__]": Array,
+        "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
+        "[onIncluded]": Function //include给object后被自动调用，一般不用于include给prototype object
     }
 
     /**
@@ -46,7 +48,7 @@ M.util.run(function(M) {
         var needMethodize = option.methodize;
 
         M.MObjectUtil.eachOwn(module, function(k, v){
-            if("onIncluded" != k && !k.match(/^__.*__$/)) {
+            if("init" !== k && "onIncluded" !== k && !k.match(/^__.*__$/)) {
                 //var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
                 if(needMethodize && typeof v == "function") {
                     obj[k] = M.util.methodize(v, option.context, option.methodizeTo);

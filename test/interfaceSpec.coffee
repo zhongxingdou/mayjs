@@ -22,15 +22,21 @@ describe 'interface.js', ->
     describe "#$is(type, object)", ->
         it "$is()检验值类型", ->
             assert $is('string', '')
+            assert $is(String, '')
             assert $is('string', 'abc')
 
             assert $is('number', 0)
             assert $is('number', 8)
+            assert $is(Number, 8)
             assert $is('number', - 1)
             assert $is('number', - 1.3)
 
             assert $is('boolean', true)
             assert $is('boolean', false)
+            assert $is(Boolean, false)
+
+            assert $is(undefined, null)
+            assert $is(null, undefined)
 
             $is('boolean', undefined).should.be.false
 
@@ -81,6 +87,10 @@ describe 'interface.js', ->
 
             assert $is(A, new B())
             assert $is(B.prototype, new B())
+
+        it "$is(type, o1, o2, o3)", ->
+            assert $is('string', "", "a", "b")
+            $is('string', "", "a", 8).should.be.false
 
     describe "#$func(arguTypes, fn)", ->
         it "should add property __argu__types__ to fn", ->
@@ -194,6 +204,19 @@ describe 'interface.js', ->
 
             fn2("jim", "xx", 18).should.be.true
             fn2("jim", null, 19).should.be.true
+
+    describe "$check(express)", ->
+        it "should throw error if express equals false", ->
+            assert.throws -> 
+                M.$check(false)
+
+        it "should not throw error if express not equals false", ->
+            assert.doesNotThrow -> 
+                M.$check(null)
+                M.$check("")
+                M.$check(true)
+                M.$check(undefined)
+                M.$check(0)
 
 
 

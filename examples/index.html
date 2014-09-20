@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html debug="debug">
+<html>
 <head>
     <meta charset="utf-8">
     <!-- // <script src="../lib/firebug-lite/build/firebug-lite.js"></script> -->
@@ -27,9 +27,27 @@
     <script src="../may.js"></script>
   <!--   // <script src="../may-min.js"></script> -->
     <!-- // <script src="test.js"></script> -->
-    <script src="test2.js"></script>
+    <!-- // <script src="test2.js"></script> -->
 </head>
 <body>
-    Mayjs Lib
+    <script>
+        "use strict";
+        
+        var stringEx = {
+            reverse: function(s){
+                return s.split("").reverse().join("");
+            }
+        }
+        M.$reg(stringEx, String, {methodize: true});
+        console.info(M.$("abcd").reverse());
+
+        var numberEx = {
+            next: function(n){
+                return n+1;
+            }
+        }
+        M.$reg(numberEx, Number, {methodize: true});
+        console.info(M.$(8).next());
+    </script
 </body>
 </html>

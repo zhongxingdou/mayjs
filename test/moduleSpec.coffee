@@ -89,7 +89,7 @@ describe 'module.js', ->
             M.$include(o, m)
 
             o.should.have.property("__interfaces__")
-            o.__interfaces__.should.contain inter for inter in interfaces
+            o.__interfaces__.should.include inter for inter in interfaces
 
 
 

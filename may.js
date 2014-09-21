@@ -135,16 +135,6 @@ M.util = {
      * @param  {Function} [getFirstParam] 使用此函数获取fn的第一个参数，调用此函数时将把firstParam传递给它
      * @return {Function}
      */
-
-    methodize: function(fn, firstParam, getFirstParam) {
-        var slice = Array.prototype.slice;
-        return function() {
-            var obj = firstParam || this;
-            var args = [getFirstParam ? getFirstParam(obj) : obj].concat(slice.call(arguments, 0));
-            return fn.apply(this, args);
-        };
-    },
-    
     methodize: function(fn, firstParam, getFirstParam) {
         return function() {
             //获取第一个参数

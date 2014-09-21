@@ -56,6 +56,14 @@ module.exports = function(grunt) {
         outputDirectory: 'src-cov'
       }
     },
+    jsdoc : {
+        dist : {
+            src: ['may.js'], 
+            options: {
+                destination: 'doc'
+            }
+        }
+    },
     watch: {
       scripts: {
         files: ['src/*.js', 'test/*.coffee'],
@@ -75,6 +83,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks("grunt-jscoverage");
+  grunt.loadNpmTasks("grunt-jsdoc");
 
   grunt.registerTask('default', ['coffee', 'concat:js', 'cafemocha']);
+  grunt.registerTask('doc', ['concat:js', 'jsdoc']);
 };

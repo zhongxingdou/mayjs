@@ -1,40 +1,83 @@
+/** @namespace M.MObjectUtil **/
 M.MObjectUtil = {
+    /**
+    * 判断name是否符合私有成员的名称规范
+    * @param {string} name
+    * @returns {boolean}
+    */
     isPrivate: function(name) {
         return(/^__/).test(name);
     },
 
+    /**
+    * 判断name是否符合受保护成员的名称规范
+    * @param {string} name
+    * @returns {boolean}
+    */
     isProtected: function(name) {
         return(/^_(?!_)/).test(name);
     },
 
+    /**
+    * 判断name是否符合公开成员的名称规范
+    * @param {string} name
+    * @returns {boolean}
+    */
     isPublic: function(name) {
         return !this.isProtected(name) && !this.isPrivate(name);
     },
 
-    has: function(o, property) {
-        return(o && o.hasOwnProperty(property) && typeof o[property] != "function") || false;
+    /**
+    * 判断对象是否拥有指定属性，该属性不能为function
+    * @param {string} obj
+    * @param {string} property
+    * @returns {boolean}
+    */
+    has: function(obj, property) {
+        return(obj && obj.hasOwnProperty(property) && typeof obj[property] != "function") || false;
     },
 
-    can: function(o, fn) {
-        return(o && o[fn] && typeof o[fn] == "function") || false;
+    /**
+    * 判断对象是否可响应指定方法
+    * @param {string} obj
+    * @param {string} funcName
+    * @returns {boolean}
+    */
+    can: function(obj, funcName) {
+        return(obj && obj[funcName] && typeof obj[funcName] == "function") || false;
     },
 
-    eachAll: function(o, fn) {
-        for(var p in o) {
-            if(fn(p, o[p]) === false) break;
+    /**
+    * 遍历对象，调用指定函数
+    * @param {string} obj
+    * @param {function} fn
+    */
+    eachAll: function(obj, fn) {
+        for(var p in obj) {
+            if(fn(p, obj[p]) === false) break;
         }
     },
 
-    eachOwn: function(o, fn) {
-        for(var p in o) {
-            if(o.hasOwnProperty(p) && this.isPublic(p)) {
-                if(fn(p, o[p]) === false) break;
+    /**
+    * 遍历对象拥有的成员，调用指定函数
+    * @param {string} obj
+    * @param {function} fn
+    */
+    eachOwn: function(obj, fn) {
+        for(var p in obj) {
+            if(obj.hasOwnProperty(p) && this.isPublic(p)) {
+                if(fn(p, obj[p]) === false) break;
             }
         }
     },
 
-    eachProp: function(o, fn) {
-        this.eachOwn(o, function(p, op) {
+    /**
+    * 遍历对象的属性（除方法外的所有成员），调用指定函数
+    * @param {string} obj
+    * @param {function} fn
+    */
+    eachProp: function(obj, fn) {
+        this.eachOwn(obj, function(p, op) {
             if(typeof op != "function") {
                 return fn(p, op);
             }
@@ -43,15 +86,13 @@ M.MObjectUtil = {
 
     /**
      * 根据指定属性来追溯
-     * @memberof M
-     * @param {Object} o 对象
+     * @param {Object} obj 对象
      * @param {String} prop 属性名
-     * @param {Function} fn(a) 处理函数(追溯到的对象)
-     * @return Boolean 全部处理完则返回true，中途结果返回false
+     * @param {function(a)} fn 处理函数(追溯到的对象)
+     * @returns {boolean} 全部处理完返回true，否则false
      */
-
-    traverseChain: function(o, prop, fn) {
-        var v = o[prop];
+    traverseChain: function(obj, prop, fn) {
+        var v = obj[prop];
         while(v) {
             if(fn(v) === false) return false;
             v = v[prop];
@@ -60,13 +101,11 @@ M.MObjectUtil = {
     },
 
     /**
-     * clone oect
-     * @memberof M
-     * @param  {Object} o 被克隆的对象
-     * @param  {Boolean} [deep=false] 是否深度克隆
-     * @return {Object} o的克隆
+     * clone克隆指定对象，如果对象自己有clone方法，则调用对象自己的clone方法
+     * @param  {Object} obj 被克隆的对象
+     * @param  {boolean} [deep=false] 是否深度克隆
+     * @returns {Object}
      */
-
     clone: function(o, deep) {
         if(!o) return o;
 
@@ -111,38 +150,34 @@ M.MObjectUtil = {
     },
 
     /**
-     * copy members from src to o
-     * @memberof M
-     * @param  {Object} o [description]
+     * copy members from src to obj
+     * @param  {Object} obj [description]
      * @param  {Object} src [description]
      * @param  {String[]} [whitelist=null] 不想被覆盖的成员
      * @return {Object}
      */
-    mix: function(o, src, whitelist) {
-        if(!src) return o;
+    mix: function(obj, src, whitelist) {
+        if(!src) return obj;
         var p;
         if(whitelist) {
             for(p in src) {
                 if(whitelist.indexOf(p) == -1) {
-                    o[p] = src[p];
+                    obj[p] = src[p];
                 }
             }
         } else {
             for(p in src) {
-                o[p] = src[p];
+                obj[p] = src[p];
             }
         }
-        return o;
+        return obj;
     },
 
     /**
-     * merge o to a to b ... n
-     * @memberof M
-     * @param {Object} o
-     * @param {Object} a
-     * @return {Object} merge result
+     * 依次合并给定的所有对象到一个新的对象
+     * @returns {Object} new object, merge 
      */
-    merge: function(o, a /*,b,c,...n*/ ) {
+    merge: function(/*a,b,c,d,...*/) {
         var obj = {},
             curr = null,
             p;
@@ -159,6 +194,11 @@ M.MObjectUtil = {
     }
 }
 
+/** @borrows M.MObjectUtil.merge as M.$merge **/
 M.$merge = M.MObjectUtil.merge;
+
+/** @borrows M.MObjectUtil.mix as M.$mix **/
 M.$mix = M.MObjectUtil.mix;
+
+/** @borrows M.MObjectUtil.clone as M.$clone **/
 M.$clone = M.MObjectUtil.clone;

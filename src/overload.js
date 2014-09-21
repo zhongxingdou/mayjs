@@ -1,10 +1,3 @@
-/**
- * [overload description]
- * @require M.meta
- * @require M.interface
- * @type {Object}
- */
-
 M.util.run(function(M){
     var $func = M.$func;
 
@@ -46,29 +39,27 @@ M.util.run(function(M){
      * function overload
      * @memberof M
      * @param {Array} paramsTypes params types
-     * @param {Function} fn overload function
-     * @return {Function}
+     * @param {function} fn overload function
+     * @returns {function}
      * @example
-     *   fn = $overload(["string","number"], function(name, age){
+     *   fn = M.$overload(["string","number"], function(name, age){
      *       return "I'm "+name+ " and I'm " + age + " years old";
-     *   }).$overload(["string"], function(name){
+     *   }).overload(["string"], function(name){
      *       return "i'm " + name;
      *   });
      *
-     *   fn.$overload(["string", "string"], function(name, interest){
+     *   fn.overload(["string", "string"], function(name, interest){
      *       return "I'm " + name + ", and i'm interesting "+ interest;
      *   });
      *
-     *   fn("lily");
-     *   fn("lily", 18);
-     *   fn("lily", "singing");
+     *   fn("lily"); // => "i'm lily"
+     *   fn("lily", 18); // => "I'm lily and I'm 18 years old"
+     *   fn("lily", "singing"); //=> "I'm lily, and i'm interesting singing"
      */
-
-
     function $overload(paramTypes, fn) {
         //存储重载的方法
         var _overloads = {};
-        _overloads.value = [ typeof paramTypes == "function" ? paramTypes : $func(paramsTypes, fn)];
+        _overloads.value = [ typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn)];
 
         var main = function() {
                 var params = arguments;

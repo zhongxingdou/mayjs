@@ -1,18 +1,21 @@
-/**
- * [base description]
- * @require M.MObjectUtil
- * @require M.interface
- * @type {Object}
- */
 M.util.run(function(M) {
     var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
 
-
+    /**
+    * @memberof M
+    * @namespace
+    */
     var BaseObj = {
+        /** 元信息：已实现的接口 **/
         __interfaces__: [],
+        /** 初始化方法 **/
         initialize: function(){ 
         },
+        /** 
+        * 使用定义信息生成新的对象，新对象的prototype为当前对象
+        * @param {Object} objDefined 对象定义
+        **/
         extend: function(objDefine){
             var obj = Object.create(this);
 
@@ -33,6 +36,9 @@ M.util.run(function(M) {
             this.initialize.call(obj);
             return obj;
         },
+        /**
+        * 模拟super关键字，访问原型链中的方法
+        */
         base: function(){
             var caller = arguments.callee.caller;
             var callerName = caller.name || caller.__name__;
@@ -86,6 +92,12 @@ M.util.run(function(M) {
     }
 
 
+    /**
+    * Klass类，{@link M.BaseClass}的父类，{@link M.BaseObj}是其prototype
+    * @memberof M
+    * @inner
+    * @constructor
+    */
     function Klass(){}
     Klass.prototype = BaseObj.extend({
         initialize: function(){
@@ -93,6 +105,12 @@ M.util.run(function(M) {
             this.base(); //call BaseObj.initialize
         }       
     });
+
+    /**
+    * 继承当前类，产生新类
+    * @memberof M~Klass
+    * @param {Object} classDefine
+    */
     Klass.extend = function(classDefine){
         var proto = this.prototype.extend(classDefine);
 
@@ -134,9 +152,15 @@ M.util.run(function(M) {
         return clazz;
     }
 
+    /**
+    * BaseClass类，父类是{@link M~Klass}
+    * @class
+    * @memberof M
+    */
     var BaseClass = Klass.extend({})
 
     /**
+     * May.js的类的接口
      * @memberof M
      * @type {Interface}
      */
@@ -149,11 +173,20 @@ M.util.run(function(M) {
     M.$implement(IBase, BaseObj);
 
 
-
+    /**
+    * 定义一个Mayjs类，该类自动继承{@link M.BaseClass}
+    * @memberof M
+    * @param {Object} prototype 新类的prototype
+    */
     function $class(prototype){
         return BaseClass.extend(prototype);
     }
 
+    /**
+    * 定义一个对象，该对象的原型为{@link M.BaseObj}
+    * @memberof M
+    * @param {Object} obj
+    */
     function $obj(obj){
         return BaseObj.extend(obj);
     }

@@ -1,15 +1,10 @@
-/**
- * @require M.util
- * @require M.MObjectUtil
- */
 M.util.run(function(M) {
     /**
      * 定义一个module
      * @memberof M
      * @param  {Object} o
-     * @return {Object}
+     * @returns {Object}
      */
-
     function $module(o) {
         return o;
     }
@@ -20,7 +15,12 @@ M.util.run(function(M) {
         "[methdizeTo]": [Object]
     }
 
-    var Imodule = {
+    /** 
+    * Mayjs的Module的原型对象
+    * @memberof M
+    * @type Object
+    **/
+    var IModule = {
         "[__option__]": IIncludeOption,
         "[__supports__]": Array,
         "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
@@ -33,9 +33,8 @@ M.util.run(function(M) {
      * @param  {Object} opt.module
      * @param  {Object} opt.to
      * @param  {Object} opt.option
-     * @return {Object}
+     * @returns {Object}
      */
-
     function $include(obj, module, option) {
         var defauls = {
             "methodize": false,
@@ -72,4 +71,5 @@ M.util.run(function(M) {
 
     M.$module = $module;
     M.$include = $include;
+    M.IModule = IModule;
 }, M);

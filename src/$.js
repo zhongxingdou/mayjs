@@ -1,20 +1,26 @@
-/**
- * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
- * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
- * @require M.util
- * @require M.module
- * @require M.MObjectUtil
- * @memberof M
- * @class
- */
 M.util.run(function(M) {
     var toObject = M.util.toObject;
     var merge = M.MObjectUtil.merge;
     var mix = M.MObjectUtil.mix;
 
-    var Wrapper = M.$class({
+    /**
+    * @memberof M
+    * @class
+    * @constructor
+    */
+    var Wrapper = M.$class(
+        /** @lends M.Wrapper.prototype **/
+        {
         initialize: function() {
+            /**
+            * type -- module map
+            * @type Array
+            */
             this.__map__ = [];
+
+            /**
+            * @type Object
+            */
             this.__DSL__ = {
                 $: this.$.bind(this),
                 $$: this.$$.bind(this),
@@ -38,32 +44,34 @@ M.util.run(function(M) {
 
             return proxy;
         },
+        /**
+        * 清空wrap module表
+        */
         $clear: function(){
             this.__map__ = [];
         },
 
+        /**
+        * wrap对象，非侵入
+        * @param {Object} obj
+        */
         $: function(obj) {
             return this.__wrap(obj, {}, {context: obj});
         },
 
         /**
-         * 给对象包含对象原型的扩展模块，并返回对象自己
-         * 如果对象是值类型，会新建一个它对应的引用类型对象，包含扩展模块后返回
-         * @memberof M
+         * 直接复制wrap modules中的成员到指定对象
          * @param {Object} obj 对象
-         * @param {Object}
          */
-
         $$: function(obj) {
             return this.__wrap(obj);
         },
 
         /**
-         * 注册一个prototype或interface_或value object的扩展模块
-         * @memberof M.$
+         * 将wrap module注册到prototype,Interface或Class
          * @param {Object} module
-         * @param {Object|Interface|String} type
-         * @param {Object} [option]
+         * @param {Object|Interface|Function} supports 
+         * @param {Object} [option] 
          */
         $reg: function(module, supports, option) {
             var includeOption = option || module.__option__ || {};
@@ -114,12 +122,7 @@ M.util.run(function(M) {
             return this;
         },
 
-        /**
-         * 从字典中查找prototype|interface_|value type的注册扩展模块
-         * @memberof M.$
-         * @param {Object|Interface|String} type
-         * @return {Array}
-         */
+
         __findWrappersByType: function(type) {
             var ms = this.__map__.filter(function(item) {
                 return item.type == type;
@@ -128,6 +131,11 @@ M.util.run(function(M) {
             return ms.length === 0 ? [] : ms[0].modules;
         },
 
+        /**
+         * 根据prototype,Interface或Class查找已注册的wrap modules
+         * @param {Object|Interface|Function} type
+         * @return {Array}
+         */
         findWrappersByType: function(type){
             if(this != _globalWrapper){
                 return _globalWrapper.__findWrappersByType(type).concat(this.__findWrappersByType(type));
@@ -136,12 +144,6 @@ M.util.run(function(M) {
             }
         },
 
-        /**
-         * 查找对象原型链的扩展模块
-         * @memberof M.$
-         * @param {Object} proto 对象的原型
-         * @return {Array}
-         */
         __findWrappersByPrototype: function(proto) {
             var self = this;
             var wrappers = [];
@@ -167,12 +169,6 @@ M.util.run(function(M) {
             return wrappers;
         },
 
-        /**
-         * 查找对象的扩展模块
-         * @memberof M.$
-         * @param {Object|Interface|String} obj
-         * @return {Array}
-         */
         __findWrappersByObj: function(obj) {
             if(obj === null) return [];
 
@@ -198,10 +194,18 @@ M.util.run(function(M) {
         }
     });
 
+    /**
+    * 创建一个新的{@link M.Wrapper}并返回它的__DSL__
+    * @memberof M
+    */
     M.$wrapper = function () {
         return new Wrapper().__DSL__;
     }
 
+    /**
+    * @memberof M~_globalWrapper
+    * @instance M.Wrapper
+    */
     var _globalWrapper = new Wrapper();
 
     M.MObjectUtil.mix(M, _globalWrapper.__DSL__);

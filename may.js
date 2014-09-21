@@ -1,18 +1,31 @@
-var M=function(){
+/**
+* 执行fn并把一个新的Wrapper的$()和$$()传递给它
+* 如果没有传递任何参数，则执行M.exportDSL()
+* @namespace
+* @param {Function} [fn] 
+*/
+var M=function(fn){
 	if(arguments.length == 0){
 		return M.exportDSL();
-	}else if(typeof arguments[0] == "function"){
+	}else if(fn){
 		var wrapper = M.$wrapper();
 		var args = Array.prototype.slice.call(arguments, 1);
-		return arguments[0].apply(this, [wrapper.$, wrapper.$$].concat(args));
+		return fn.apply(this, [wrapper.$, wrapper.$$].concat(args));
 	}
 }
 
+/**
+* 引用当前运行环境的全局对象
+* 浏览器中指向window，node环境下指向global
+*/
 M.global = this;
 if(typeof global != "undefined")M.global = global;
 
-if(typeof(module) != "undefined")module.exports = M;
-
+/**
+* 将May.js的关键字方法复制到目标对象
+* 如果未传递target参数，则使用eval()导出到当前作用域内
+* @param {Object} [target] 目标对象
+*/
 M.exportDSL = function(target) {
     var _getKeywordFunc = function(){
         return Object.keys(M).filter(function(name){
@@ -29,7 +42,19 @@ M.exportDSL = function(target) {
     }
 }
 
+if(typeof(module) != "undefined")module.exports = M;
+
+/** @namespace M.util **/
 M.util = {
+    /**
+    * 获取函数的参数名称
+    * @example
+    * function Add(number1, number2){}
+    * M.util.parseArguNames(Add);
+    * => ["number1", "number2"]
+    * @param {function} fn
+    * @returns {Array}
+    */
     parseArguNames: function (fn) {
         var m = fn.toString().match(/.*?\((.*)?\)/);
         if(m && m[1]) {
@@ -38,6 +63,11 @@ M.util = {
         return [];
     },
 
+    /**
+    * 包装只有两个参数的函数, 包装后会把第二个参数开始的所有参数依次传递给原函数运行
+    * @param {function(param, param2)} fn
+    * @returns {function}
+    */
     makeMultiTargetFn: function (fn){
         return function(){
             if(arguments.length <= 2){
@@ -54,10 +84,9 @@ M.util = {
         }
     },
     /**
-     * 将一个值对象转换成引用对象
-     * @memberof M
-     * @param {Object} value
-     * @return {Object}
+     * 将值转换成其对应的引用对象
+     * @param {string|number|bool} value
+     * @returns {Object}
      */
     toObject: function(value) {
         var obj = value;
@@ -75,23 +104,16 @@ M.util = {
         return obj;
     },
 
-    /**
-     * 调用方法自身
-     * @memberof M
-     * @return {Function}
-     */
-
+    /** 在函数内部调用函数自身, 代替引用auguments.callee **/
     fn: function() {
         return arguments.callee.caller.apply(this, arguments);
     },
 
     /**
-     * 将类Array对象转换成Array
-     * @memberof M
+     * 将类Array对象转换成真正的Array
      * @param  {Object} arrayLikeObj
-     * @return {Array}
+     * @returns {Array}
      */
-
     parseArray: function(arrayLikeObj) {
         return Array.prototype.slice.call(arrayLikeObj, 0);
     },
@@ -99,20 +121,18 @@ M.util = {
 
     /**
      * 声明一个枚举
-     * @memberof M
      * @param {...String} names enumeration key
      * @example
-     * var color = $enum("BLUE", "RED", "YELLOW");
+     * var color = M.$enum("BLUE", "RED", "YELLOW");
      * color.BLUE
      * color.RED
      * color.YELLOW
      *
-     * var color = $enum{{
+     * var color = M.$enum({
      *  "BLUE": -1,
      *  "RED": 1
      * })
      */
-
     enumeration: function(names) {
         if(typeof names == "object") {
             return arguments[0];
@@ -128,12 +148,11 @@ M.util = {
 
 
     /**
-     * 将一个纯函数包装成指定对象的一个方法，并在此时设定纯函数的第一参数
-     * @memberof M
-     * @param  {Function} fn 纯函数
-     * @param  {Object}   [firstParam=this] fn的第一个参数，如果没有getFirstParam的话
-     * @param  {Function} [getFirstParam] 使用此函数获取fn的第一个参数，调用此函数时将把firstParam传递给它
-     * @return {Function}
+     * 包装纯函数，包装时指定纯函数的第一参数
+     * @param  {function} fn 纯函数
+     * @param  {Object}   [firstParam=this] fn的第一个参数，如果未传递getFirstParam参数
+     * @param  {function(firstParam)} [getFirstParam] 获取fn的第一个参数的函数，调用时将把firstParam传递给它
+     * @return {function}
      */
     methodize: function(fn, firstParam, getFirstParam) {
         return function() {
@@ -150,39 +169,48 @@ M.util = {
     },
 
     /**
-     * overwrite对象的方法，新方法将调用指定的overwriter并把原方法当作第一个参数传递给它
-     * @param  {Object} obj 被覆盖的对象
-     * @param  {string} funcName   对象被覆盖的方法名
-     * @param  {Function} overwriter 实际替代原方法的函数
+     * 重写对象的方法，新方法将调用overwriter并把原方法作为第一个参数传递给它
+     * @param  {Object} obj 要重写方法的对象 
+     * @param  {string} funcName 被重写的方法名
+     * @param  {function} overwriter 真正的覆盖函数
+     * @example
+     * var Jim = {
+     *     sayHi: function(){ return "Hi"}
+     * }
+     *
+     * M.util.overwrite(Jim, "sayHi", function(oldFn, name){
+     *     return oldFn.call(this) + ", " + name + "!";
+     * })
+     * 
+     * Jim.sayHi("Lucy");
+     * => "Hi, Lucy!"
      */
     overwrite: function(obj, funcName, overwriter) {
-        var _baseFn = obj[funcName].bind(obj);
+        var _oldFn = obj[funcName].bind(obj);
         obj[funcName] = function() {
-            var args = [_baseFn].concat(Array.prototype.slice.call(arguments, 0));
+            var args = [_oldFn].concat(Array.prototype.slice.call(arguments, 0));
             return overwriter.apply(this, args);
         };
     },
 
-
     /**
-     * 生成供eval()函数将指定变量成员声明为当前作用域内变量的代码
-     * 导入后会导致对象的方法调用时this变化
-     * @memberof M
-     * @param  {String} [obj=this]
-     * @return {String}
+     * 生成将对象的成员导出到当前作用域的代码，该代码可被eval()正确执行,
+     * 该函数生成的代码不能在strict模式下运行
+     * @param  {string} [obj=this]
+     * @param {string} [members] 指定要导入的成员，未指定则导入全部成员，用空格分隔成员名
+     * @return {string}
      * @example
      * var Calculator = {
      *     add: function(a, b){ return a + b },
      *     sub: function(a, b){ return a - b }
      * }
      *
-     * eval(dsl(Calculator));
+     * eval(M.util.dsl(Calculator));
      *
      * add(4, 6);
      * sub(10, 4);
      */
-
-    dsl: function(obj, names) {
+    dsl: function(obj, members) {
         obj = obj || this;
 
         var tempVarName =  "_temp" + Date.now() + Math.random().toString().substr(2);
@@ -192,29 +220,23 @@ M.util = {
         temp.value = obj;
 
 
-        if(typeof names == "string" && names !== ""){
-            names = names.split(" ").map(function(n){ return n.trim(); });
-        }else if(!names){
-            names = Object.keys(obj);
+        if(typeof members == "string" && members !== ""){
+            members = members.split(" ").map(function(n){ return n.trim(); });
+        }else if(!members){
+            members = Object.keys(obj);
         }
 
-        //generate members declare string
-        // var keys = Object.keys(obj).filter(function(k) {
-            // return obj.hasOwnProperty(k) && typeof obj[k] == "function";
-        // });
-
-        var members = names.map(function(name) {
+        var codes = members.map(function(name) {
             //可以加入检查是否已经定义的功能，如已定义则警告。
             return name + "=" + tempVarName + ".value" + "['" + name + "']";
         });
         
-        return "var " + members.join(",") + ";delete " + tempVarName + ";";
+        return "var " + codes.join(",") + ";delete " + tempVarName + ";";
     },
 
     /**
-     * 运行一个方法，一个快捷的使用闭包来避免全局变量的方法
-     * @param  {Function} fn [description]
-     * @return {[type]}      [description]
+     * 运行指定方法，避免在全局作用域下产生全局变量
+     * @param {function} fn
      */
     run: function(fn) {
         if(arguments.length == 1) {
@@ -225,51 +247,104 @@ M.util = {
     }
 }
 
+/** @borrows M.util.fn as M.$fn **/
 M.$fn = M.util.fn;
+
+/** @borrows M.util.run as M.$fun **/
 M.$run = M.util.run;
+
+/** @borrows M.util.enumeration as M.$enum **/
 M.$enum = M.util.enumeration;
+
+/** @borrows M.util.overwrite as M.$overwrite **/
 M.$overwrite = M.util.overwrite;
+
+/** @borrows M.util.methodize as M.$methodize **/
 M.$methodize = M.util.methodize;
+
+/** @borrows M.util.dsl as M.$dsl **/
 M.$dsl = M.util.dsl;
 
-
+/** @namespace M.MObjectUtil **/
 M.MObjectUtil = {
+    /**
+    * 判断name是否符合私有成员的名称规范
+    * @param {string} name
+    * @returns {boolean}
+    */
     isPrivate: function(name) {
         return(/^__/).test(name);
     },
 
+    /**
+    * 判断name是否符合受保护成员的名称规范
+    * @param {string} name
+    * @returns {boolean}
+    */
     isProtected: function(name) {
         return(/^_(?!_)/).test(name);
     },
 
+    /**
+    * 判断name是否符合公开成员的名称规范
+    * @param {string} name
+    * @returns {boolean}
+    */
     isPublic: function(name) {
         return !this.isProtected(name) && !this.isPrivate(name);
     },
 
-    has: function(o, property) {
-        return(o && o.hasOwnProperty(property) && typeof o[property] != "function") || false;
+    /**
+    * 判断对象是否拥有指定属性，该属性不能为function
+    * @param {string} obj
+    * @param {string} property
+    * @returns {boolean}
+    */
+    has: function(obj, property) {
+        return(obj && obj.hasOwnProperty(property) && typeof obj[property] != "function") || false;
     },
 
-    can: function(o, fn) {
-        return(o && o[fn] && typeof o[fn] == "function") || false;
+    /**
+    * 判断对象是否可响应指定方法
+    * @param {string} obj
+    * @param {string} funcName
+    * @returns {boolean}
+    */
+    can: function(obj, funcName) {
+        return(obj && obj[funcName] && typeof obj[funcName] == "function") || false;
     },
 
-    eachAll: function(o, fn) {
-        for(var p in o) {
-            if(fn(p, o[p]) === false) break;
+    /**
+    * 遍历对象，调用指定函数
+    * @param {string} obj
+    * @param {function} fn
+    */
+    eachAll: function(obj, fn) {
+        for(var p in obj) {
+            if(fn(p, obj[p]) === false) break;
         }
     },
 
-    eachOwn: function(o, fn) {
-        for(var p in o) {
-            if(o.hasOwnProperty(p) && this.isPublic(p)) {
-                if(fn(p, o[p]) === false) break;
+    /**
+    * 遍历对象拥有的成员，调用指定函数
+    * @param {string} obj
+    * @param {function} fn
+    */
+    eachOwn: function(obj, fn) {
+        for(var p in obj) {
+            if(obj.hasOwnProperty(p) && this.isPublic(p)) {
+                if(fn(p, obj[p]) === false) break;
             }
         }
     },
 
-    eachProp: function(o, fn) {
-        this.eachOwn(o, function(p, op) {
+    /**
+    * 遍历对象的属性（除方法外的所有成员），调用指定函数
+    * @param {string} obj
+    * @param {function} fn
+    */
+    eachProp: function(obj, fn) {
+        this.eachOwn(obj, function(p, op) {
             if(typeof op != "function") {
                 return fn(p, op);
             }
@@ -278,15 +353,13 @@ M.MObjectUtil = {
 
     /**
      * 根据指定属性来追溯
-     * @memberof M
-     * @param {Object} o 对象
+     * @param {Object} obj 对象
      * @param {String} prop 属性名
-     * @param {Function} fn(a) 处理函数(追溯到的对象)
-     * @return Boolean 全部处理完则返回true，中途结果返回false
+     * @param {function(a)} fn 处理函数(追溯到的对象)
+     * @returns {boolean} 全部处理完返回true，否则false
      */
-
-    traverseChain: function(o, prop, fn) {
-        var v = o[prop];
+    traverseChain: function(obj, prop, fn) {
+        var v = obj[prop];
         while(v) {
             if(fn(v) === false) return false;
             v = v[prop];
@@ -295,13 +368,11 @@ M.MObjectUtil = {
     },
 
     /**
-     * clone oect
-     * @memberof M
-     * @param  {Object} o 被克隆的对象
-     * @param  {Boolean} [deep=false] 是否深度克隆
-     * @return {Object} o的克隆
+     * clone克隆指定对象，如果对象自己有clone方法，则调用对象自己的clone方法
+     * @param  {Object} obj 被克隆的对象
+     * @param  {boolean} [deep=false] 是否深度克隆
+     * @returns {Object}
      */
-
     clone: function(o, deep) {
         if(!o) return o;
 
@@ -346,38 +417,34 @@ M.MObjectUtil = {
     },
 
     /**
-     * copy members from src to o
-     * @memberof M
-     * @param  {Object} o [description]
+     * copy members from src to obj
+     * @param  {Object} obj [description]
      * @param  {Object} src [description]
      * @param  {String[]} [whitelist=null] 不想被覆盖的成员
      * @return {Object}
      */
-    mix: function(o, src, whitelist) {
-        if(!src) return o;
+    mix: function(obj, src, whitelist) {
+        if(!src) return obj;
         var p;
         if(whitelist) {
             for(p in src) {
                 if(whitelist.indexOf(p) == -1) {
-                    o[p] = src[p];
+                    obj[p] = src[p];
                 }
             }
         } else {
             for(p in src) {
-                o[p] = src[p];
+                obj[p] = src[p];
             }
         }
-        return o;
+        return obj;
     },
 
     /**
-     * merge o to a to b ... n
-     * @memberof M
-     * @param {Object} o
-     * @param {Object} a
-     * @return {Object} merge result
+     * 依次合并给定的所有对象到一个新的对象
+     * @returns {Object} new object, merge 
      */
-    merge: function(o, a /*,b,c,...n*/ ) {
+    merge: function(/*a,b,c,d,...*/) {
         var obj = {},
             curr = null,
             p;
@@ -394,15 +461,24 @@ M.MObjectUtil = {
     }
 }
 
+/** @borrows M.MObjectUtil.merge as M.$merge **/
 M.$merge = M.MObjectUtil.merge;
+
+/** @borrows M.MObjectUtil.mix as M.$mix **/
 M.$mix = M.MObjectUtil.mix;
+
+/** @borrows M.MObjectUtil.clone as M.$clone **/
 M.$clone = M.MObjectUtil.clone;
 
 /**
  * interface 
  */
-
 M.util.run(function(M){
+    /** 
+    * Mayjs的interface的原型对象
+    * @memberof M
+    * @type Object
+    **/
     var Interface = {};
 
     var _getType = function(obj){
@@ -440,18 +516,37 @@ M.util.run(function(M){
         return obj instanceof Clazz;
     });
 
+    /**
+    * 判断对象是否为指定类型
+    * @memberof M
+    * @param {string|function|undefined} type
+    * @param {string|number|boolean|function|Array|Object} obj
+    * @returns {boolean}
+    */
     var $is = M.util.makeMultiTargetFn(function(type, obj){
         if(_isValueType(type, obj))return true;
         if(_isInstanceof(type, obj))return true;
         return false;
     });
 
+    /**
+    * 判断proto是否为obj的原型
+    * @memberof M
+    * @param {Object} proto
+    * @param {Object} obj
+    * @returns {boolean}
+    **/
     var $hasProto = M.util.makeMultiTargetFn(function(proto, obj){
         if(typeof proto != "object")return false;
         if(proto == null)return false;
         return proto.isPrototypeOf(obj);
     });
 
+    /**
+    * 依次判断给定的参数是否为false，一旦发现为false立即抛出错误
+    * @memberof M
+    * @function
+    */
     var $check = M.util.makeMultiTargetFn(function(result){
         if(result === false){
             throw "$check failed!";
@@ -487,6 +582,12 @@ M.util.run(function(M){
         return meta;
     }
 
+    /**
+    * 给指定方法设定参数的元类型信息
+    * @memberof M
+    * @param {Object|Interface} arguTypes 参数的类型定义
+    * @param {function} fn
+    **/
     function $func(arguTypes, fn) {
         fn.__argu_types__ = _parseArguTypes(arguTypes, M.util.parseArguNames(fn));
         return fn;
@@ -498,7 +599,7 @@ M.util.run(function(M){
      * @memberof M
      * @param  {Object} define interface define
      * @param  {Interface} base base interface
-     * @return {Interface}
+     * @returns {Interface}
      */
     function $interface(define, base) {
         if(base) {
@@ -514,6 +615,13 @@ M.util.run(function(M){
         return interface_;
     }
 
+    /**
+    * 判断对象是否为指定类型或者符合指定协议
+    * @private
+    * @memberof M
+    * @param {function|Object|Interface|string} type 类型或者协议
+    * @param {Object} obj
+    */
     function _is(type, obj){
         if($is(type, obj) || $hasProto(type, obj)){
             return true;
@@ -533,14 +641,12 @@ M.util.run(function(M){
     /**
      * 判断一个对象是否支持指定协议
      * @memberof M
-     * @param {Interface} interface_
-     * @param {Object} o
-     * @param {bool} exactly=false
-     * @return {Boolean}
+     * @param {Interface|Object} interface_
+     * @param {Object} obj
+     * @param {bool} [exactly=false] 如果为false且对象的已实现接口元信息中包含了该接口，则不再次检查是否支持
+     * @returns {boolean}
      */
-
     function $support(interface_, obj, exactly) {
-        //非严格格式下，如果对象的已实现接口中包含了该接口，则认为支持该接口。否则通过检查来确定是否支持。
         if(!exactly && obj.__interfaces__ && obj.__interfaces__.indexOf(interface_) != -1) {
             return true;
         }
@@ -571,9 +677,9 @@ M.util.run(function(M){
     }
 
     /**
-     * implement a interface
+     * 把指定协议加入对象的已实现协议元信息中，加入前检查是否支持指定协议
      * @memberof M
-     * @param {Interface} interface_
+     * @param {Interface|Object} interface_
      * @param {Object} obj
      */
     function $implement(interface_, obj) {
@@ -606,18 +712,13 @@ M.util.run(function(M){
     M._is = _is;
 }, M);
 
-/**
- * @require M.util
- * @require M.MObjectUtil
- */
 M.util.run(function(M) {
     /**
      * 定义一个module
      * @memberof M
      * @param  {Object} o
-     * @return {Object}
+     * @returns {Object}
      */
-
     function $module(o) {
         return o;
     }
@@ -628,7 +729,12 @@ M.util.run(function(M) {
         "[methdizeTo]": [Object]
     }
 
-    var Imodule = {
+    /** 
+    * Mayjs的Module的原型对象
+    * @memberof M
+    * @type Object
+    **/
+    var IModule = {
         "[__option__]": IIncludeOption,
         "[__supports__]": Array,
         "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
@@ -641,9 +747,8 @@ M.util.run(function(M) {
      * @param  {Object} opt.module
      * @param  {Object} opt.to
      * @param  {Object} opt.option
-     * @return {Object}
+     * @returns {Object}
      */
-
     function $include(obj, module, option) {
         var defauls = {
             "methodize": false,
@@ -680,22 +785,26 @@ M.util.run(function(M) {
 
     M.$module = $module;
     M.$include = $include;
+    M.IModule = IModule;
 }, M);
-/**
- * [base description]
- * @require M.MObjectUtil
- * @require M.interface
- * @type {Object}
- */
 M.util.run(function(M) {
     var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
 
-
+    /**
+    * @memberof M
+    * @namespace
+    */
     var BaseObj = {
+        /** 元信息：已实现的接口 **/
         __interfaces__: [],
+        /** 初始化方法 **/
         initialize: function(){ 
         },
+        /** 
+        * 使用定义信息生成新的对象，新对象的prototype为当前对象
+        * @param {Object} objDefined 对象定义
+        **/
         extend: function(objDefine){
             var obj = Object.create(this);
 
@@ -716,6 +825,9 @@ M.util.run(function(M) {
             this.initialize.call(obj);
             return obj;
         },
+        /**
+        * 模拟super关键字，访问原型链中的方法
+        */
         base: function(){
             var caller = arguments.callee.caller;
             var callerName = caller.name || caller.__name__;
@@ -769,6 +881,12 @@ M.util.run(function(M) {
     }
 
 
+    /**
+    * Klass类，{@link M.BaseClass}的父类，{@link M.BaseObj}是其prototype
+    * @memberof M
+    * @inner
+    * @constructor
+    */
     function Klass(){}
     Klass.prototype = BaseObj.extend({
         initialize: function(){
@@ -776,6 +894,12 @@ M.util.run(function(M) {
             this.base(); //call BaseObj.initialize
         }       
     });
+
+    /**
+    * 继承当前类，产生新类
+    * @memberof M~Klass
+    * @param {Object} classDefine
+    */
     Klass.extend = function(classDefine){
         var proto = this.prototype.extend(classDefine);
 
@@ -817,9 +941,15 @@ M.util.run(function(M) {
         return clazz;
     }
 
+    /**
+    * BaseClass类，父类是{@link M~Klass}
+    * @class
+    * @memberof M
+    */
     var BaseClass = Klass.extend({})
 
     /**
+     * May.js的类的接口
      * @memberof M
      * @type {Interface}
      */
@@ -832,11 +962,20 @@ M.util.run(function(M) {
     M.$implement(IBase, BaseObj);
 
 
-
+    /**
+    * 定义一个Mayjs类，该类自动继承{@link M.BaseClass}
+    * @memberof M
+    * @param {Object} prototype 新类的prototype
+    */
     function $class(prototype){
         return BaseClass.extend(prototype);
     }
 
+    /**
+    * 定义一个对象，该对象的原型为{@link M.BaseObj}
+    * @memberof M
+    * @param {Object} obj
+    */
     function $obj(obj){
         return BaseObj.extend(obj);
     }
@@ -849,23 +988,29 @@ M.util.run(function(M) {
     M.$class = $class;
     M.$obj = $obj;
 }, M);
-/**
- * 新建并返回对象的代理，该代理包含了对象原型的扩展模块<br/>
- * !!!为了JSDoc能够生成文档而标记为一个类，不要使用new $()调用。
- * @require M.util
- * @require M.module
- * @require M.MObjectUtil
- * @memberof M
- * @class
- */
 M.util.run(function(M) {
     var toObject = M.util.toObject;
     var merge = M.MObjectUtil.merge;
     var mix = M.MObjectUtil.mix;
 
-    var Wrapper = M.$class({
+    /**
+    * @memberof M
+    * @class
+    * @constructor
+    */
+    var Wrapper = M.$class(
+        /** @lends M.Wrapper.prototype **/
+        {
         initialize: function() {
+            /**
+            * type -- module map
+            * @type Array
+            */
             this.__map__ = [];
+
+            /**
+            * @type Object
+            */
             this.__DSL__ = {
                 $: this.$.bind(this),
                 $$: this.$$.bind(this),
@@ -889,32 +1034,34 @@ M.util.run(function(M) {
 
             return proxy;
         },
+        /**
+        * 清空wrap module表
+        */
         $clear: function(){
             this.__map__ = [];
         },
 
+        /**
+        * wrap对象，非侵入
+        * @param {Object} obj
+        */
         $: function(obj) {
             return this.__wrap(obj, {}, {context: obj});
         },
 
         /**
-         * 给对象包含对象原型的扩展模块，并返回对象自己
-         * 如果对象是值类型，会新建一个它对应的引用类型对象，包含扩展模块后返回
-         * @memberof M
+         * 直接复制wrap modules中的成员到指定对象
          * @param {Object} obj 对象
-         * @param {Object}
          */
-
         $$: function(obj) {
             return this.__wrap(obj);
         },
 
         /**
-         * 注册一个prototype或interface_或value object的扩展模块
-         * @memberof M.$
+         * 将wrap module注册到prototype,Interface或Class
          * @param {Object} module
-         * @param {Object|Interface|String} type
-         * @param {Object} [option]
+         * @param {Object|Interface|Function} supports 
+         * @param {Object} [option] 
          */
         $reg: function(module, supports, option) {
             var includeOption = option || module.__option__ || {};
@@ -965,12 +1112,7 @@ M.util.run(function(M) {
             return this;
         },
 
-        /**
-         * 从字典中查找prototype|interface_|value type的注册扩展模块
-         * @memberof M.$
-         * @param {Object|Interface|String} type
-         * @return {Array}
-         */
+
         __findWrappersByType: function(type) {
             var ms = this.__map__.filter(function(item) {
                 return item.type == type;
@@ -979,6 +1121,11 @@ M.util.run(function(M) {
             return ms.length === 0 ? [] : ms[0].modules;
         },
 
+        /**
+         * 根据prototype,Interface或Class查找已注册的wrap modules
+         * @param {Object|Interface|Function} type
+         * @return {Array}
+         */
         findWrappersByType: function(type){
             if(this != _globalWrapper){
                 return _globalWrapper.__findWrappersByType(type).concat(this.__findWrappersByType(type));
@@ -987,12 +1134,6 @@ M.util.run(function(M) {
             }
         },
 
-        /**
-         * 查找对象原型链的扩展模块
-         * @memberof M.$
-         * @param {Object} proto 对象的原型
-         * @return {Array}
-         */
         __findWrappersByPrototype: function(proto) {
             var self = this;
             var wrappers = [];
@@ -1018,12 +1159,6 @@ M.util.run(function(M) {
             return wrappers;
         },
 
-        /**
-         * 查找对象的扩展模块
-         * @memberof M.$
-         * @param {Object|Interface|String} obj
-         * @return {Array}
-         */
         __findWrappersByObj: function(obj) {
             if(obj === null) return [];
 
@@ -1049,23 +1184,24 @@ M.util.run(function(M) {
         }
     });
 
+    /**
+    * 创建一个新的{@link M.Wrapper}并返回它的__DSL__
+    * @memberof M
+    */
     M.$wrapper = function () {
         return new Wrapper().__DSL__;
     }
 
+    /**
+    * @memberof M~_globalWrapper
+    * @instance M.Wrapper
+    */
     var _globalWrapper = new Wrapper();
 
     M.MObjectUtil.mix(M, _globalWrapper.__DSL__);
 
     M.Wrapper = Wrapper;
 }, M);
-/**
- * [overload description]
- * @require M.meta
- * @require M.interface
- * @type {Object}
- */
-
 M.util.run(function(M){
     var $func = M.$func;
 
@@ -1107,29 +1243,27 @@ M.util.run(function(M){
      * function overload
      * @memberof M
      * @param {Array} paramsTypes params types
-     * @param {Function} fn overload function
-     * @return {Function}
+     * @param {function} fn overload function
+     * @returns {function}
      * @example
-     *   fn = $overload(["string","number"], function(name, age){
+     *   fn = M.$overload(["string","number"], function(name, age){
      *       return "I'm "+name+ " and I'm " + age + " years old";
-     *   }).$overload(["string"], function(name){
+     *   }).overload(["string"], function(name){
      *       return "i'm " + name;
      *   });
      *
-     *   fn.$overload(["string", "string"], function(name, interest){
+     *   fn.overload(["string", "string"], function(name, interest){
      *       return "I'm " + name + ", and i'm interesting "+ interest;
      *   });
      *
-     *   fn("lily");
-     *   fn("lily", 18);
-     *   fn("lily", "singing");
+     *   fn("lily"); // => "i'm lily"
+     *   fn("lily", 18); // => "I'm lily and I'm 18 years old"
+     *   fn("lily", "singing"); //=> "I'm lily, and i'm interesting singing"
      */
-
-
     function $overload(paramTypes, fn) {
         //存储重载的方法
         var _overloads = {};
-        _overloads.value = [ typeof paramTypes == "function" ? paramTypes : $func(paramsTypes, fn)];
+        _overloads.value = [ typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn)];
 
         var main = function() {
                 var params = arguments;

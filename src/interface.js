@@ -1,8 +1,12 @@
 /**
  * interface 
  */
-
 M.util.run(function(M){
+    /** 
+    * Mayjs的interface的原型对象
+    * @memberof M
+    * @type Object
+    **/
     var Interface = {};
 
     var _getType = function(obj){
@@ -40,18 +44,37 @@ M.util.run(function(M){
         return obj instanceof Clazz;
     });
 
+    /**
+    * 判断对象是否为指定类型
+    * @memberof M
+    * @param {string|function|undefined} type
+    * @param {string|number|boolean|function|Array|Object} obj
+    * @returns {boolean}
+    */
     var $is = M.util.makeMultiTargetFn(function(type, obj){
         if(_isValueType(type, obj))return true;
         if(_isInstanceof(type, obj))return true;
         return false;
     });
 
+    /**
+    * 判断proto是否为obj的原型
+    * @memberof M
+    * @param {Object} proto
+    * @param {Object} obj
+    * @returns {boolean}
+    **/
     var $hasProto = M.util.makeMultiTargetFn(function(proto, obj){
         if(typeof proto != "object")return false;
         if(proto == null)return false;
         return proto.isPrototypeOf(obj);
     });
 
+    /**
+    * 依次判断给定的参数是否为false，一旦发现为false立即抛出错误
+    * @memberof M
+    * @function
+    */
     var $check = M.util.makeMultiTargetFn(function(result){
         if(result === false){
             throw "$check failed!";
@@ -87,6 +110,12 @@ M.util.run(function(M){
         return meta;
     }
 
+    /**
+    * 给指定方法设定参数的元类型信息
+    * @memberof M
+    * @param {Object|Interface} arguTypes 参数的类型定义
+    * @param {function} fn
+    **/
     function $func(arguTypes, fn) {
         fn.__argu_types__ = _parseArguTypes(arguTypes, M.util.parseArguNames(fn));
         return fn;
@@ -98,7 +127,7 @@ M.util.run(function(M){
      * @memberof M
      * @param  {Object} define interface define
      * @param  {Interface} base base interface
-     * @return {Interface}
+     * @returns {Interface}
      */
     function $interface(define, base) {
         if(base) {
@@ -114,6 +143,13 @@ M.util.run(function(M){
         return interface_;
     }
 
+    /**
+    * 判断对象是否为指定类型或者符合指定协议
+    * @private
+    * @memberof M
+    * @param {function|Object|Interface|string} type 类型或者协议
+    * @param {Object} obj
+    */
     function _is(type, obj){
         if($is(type, obj) || $hasProto(type, obj)){
             return true;
@@ -133,14 +169,12 @@ M.util.run(function(M){
     /**
      * 判断一个对象是否支持指定协议
      * @memberof M
-     * @param {Interface} interface_
-     * @param {Object} o
-     * @param {bool} exactly=false
-     * @return {Boolean}
+     * @param {Interface|Object} interface_
+     * @param {Object} obj
+     * @param {bool} [exactly=false] 如果为false且对象的已实现接口元信息中包含了该接口，则不再次检查是否支持
+     * @returns {boolean}
      */
-
     function $support(interface_, obj, exactly) {
-        //非严格格式下，如果对象的已实现接口中包含了该接口，则认为支持该接口。否则通过检查来确定是否支持。
         if(!exactly && obj.__interfaces__ && obj.__interfaces__.indexOf(interface_) != -1) {
             return true;
         }
@@ -171,9 +205,9 @@ M.util.run(function(M){
     }
 
     /**
-     * implement a interface
+     * 把指定协议加入对象的已实现协议元信息中，加入前检查是否支持指定协议
      * @memberof M
-     * @param {Interface} interface_
+     * @param {Interface|Object} interface_
      * @param {Object} obj
      */
     function $implement(interface_, obj) {

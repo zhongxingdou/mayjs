@@ -1,4 +1,19 @@
 M.util = {
+    makeMultiTargetFn: function (fn){
+        return function(){
+            if(arguments.length <= 2){
+                return fn(arguments[0], arguments[1]);
+            }else{//3个以上
+                var arg0 = arguments[0];
+                for(var i=1, l=arguments.length; i<l; i++){
+                    if(fn(arg0, arguments[i]) === false){
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+    },
     /**
      * 将一个值对象转换成引用对象
      * @memberof M

@@ -3,21 +3,13 @@
         "allowUnknownTags": true
     },
     "source": {
-        "include": ["."],
+        "include": ["./may.js"],
         "exclude": [],
         "includePattern": ".+\\.js(doc)?$",
-        "excludePattern": "(^|\\/|\\\\)_|-min.js",
+        "excludePattern": "(^|\\/|\\\\)_|-min.js"
     },
-    "plugins": [
-        "plugins/ignoreWrapFn"
-    ],
-    "templates": {
-        "cleverLinks": false,
-        "monospaceLinks": false
-    },
-    "jsVersion": 180,
     "opts": {
-        "destination": "doc/",
+        "destination": "./doc/",
         "recurse": false
     }
 }

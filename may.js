@@ -14,6 +14,21 @@ if(typeof global != "undefined")M.global = global;
 if(typeof(module) != "undefined")module.exports = M;
 
 M.util = {
+    makeMultiTargetFn: function (fn){
+        return function(){
+            if(arguments.length <= 2){
+                return fn(arguments[0], arguments[1]);
+            }else{//3个以上
+                var arg0 = arguments[0];
+                for(var i=1, l=arguments.length; i<l; i++){
+                    if(fn(arg0, arguments[i]) === false){
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+    },
     /**
      * 将一个值对象转换成引用对象
      * @memberof M
@@ -363,81 +378,58 @@ M.MObjectUtil = {
 M.util.run(function(M){
     var Interface = {};
 
-    function $is(type, o){
-        if(arguments.length == 2){
-            return _is(type, o);
+    var _getType = function(obj){
+        return Object.prototype.toString.call(obj);
+    }
+
+    /* validate types = [null, undefined, "undefined",
+            "number", "string", "boolean", "function", 
+            Number, String, Boolean, Function];
+    */
+    var _isValueType = M.util.makeMultiTargetFn(function(type, obj){
+        if(type == null || type == "undefined")return obj == null;
+
+        var objType = _getType(obj)
+        if(type == "number" || type == Number){
+            return objType == _getType(Number.prototype);
+        }else if(type == "string" || type == String){
+            return objType == _getType(String.prototype);
+        }else if(type == "boolean" || type == Boolean){
+            return objType == _getType(Boolean.prototype);
+        }else if(type == "function" || type == Function){
+            return typeof(obj)== "function";
         }else{
-            for(var i=1, l=arguments.length; i<l; i++){
-                if(!_is(type, arguments[i])){
-                    return false;
-                }
-            }
-            return true;
+            return false;
         }
-    }
+    });
 
-    /**
-     * 对象类型判断
-     * @memberof M
-     * @argu  {Object|String}  type
-     * @argu  {Object}  o
-     * @argu  {Boolean} exactly 
-     * @return {Boolean}
-     */
-    function _is(type, o) {
-        var t = typeof type;
-        /*if(exactly){
-            if(type === null) return o === null;
-            if(type === undefined) return o === undefined;
-        }else{*/
-            if(type == null) return o == null;
-            if(type == "undefined") return o == undefined;
+    var _isInstanceof = M.util.makeMultiTargetFn(function(Clazz, obj){
+        if(typeof Clazz != "function")return false;
 
-            if(["string","boolean","number", 
-                String, Boolean, Number,
-                String.prototype, Boolean.prototype, Number.prototype].indexOf(type) != -1){
-
-                if(t == "string"){
-                    if(typeof(o) == type)return true; //$is("string", "astring")
-                }else{//Class or prototype
-                    o = M.util.toObject(o);
-                }
-            }
-        //}
-        
-        var result = false;
-        switch(t) {
-        case "string":
-            result = typeof(o) == type;
-            break;
-        case "object": 
-            if(Interface.isPrototypeOf(type)) {
-                result = $support(type, o);
-            } else { //先看它是不是原型，如果不是，则假定它为接口声明，但并不是接口对象的实例
-                result = type.isPrototypeOf(o);
-                if(!result){
-                    result = $support(type, o);
-                }
-            }
-            break;
-        case "function":
-            var proto = type.prototype;
-            if(proto) {
-                result = proto.isPrototypeOf(o);
-            } else {
-                result = o instanceof type;
-            }
-            break;
+        if([Array, RegExp, Error, Date].indexOf(Clazz) != -1){
+            return _getType(Clazz.prototype) === _getType(obj);
         }
-        return result;
-    }
 
+        return obj instanceof Clazz;
+    });
 
-    function $check(result){
+    var $is = M.util.makeMultiTargetFn(function(type, obj){
+        if(_isValueType(type, obj))return true;
+        if(_isInstanceof(type, obj))return true;
+        return false;
+    });
+
+    var $hasProto = M.util.makeMultiTargetFn(function(proto, obj){
+        if(typeof proto != "object")return false;
+        if(proto == null)return false;
+        return proto.isPrototypeOf(obj);
+    });
+
+    var $check = M.util.makeMultiTargetFn(function(result){
         if(result === false){
             throw "$check failed!";
         }
-    }
+    });
 
     function parseArguNames(fn) {
         var m = fn.toString().match(/.*?\((.*)?\)/);
@@ -449,7 +441,7 @@ M.util.run(function(M){
 
     function _parseArguTypes(arguTypes, arguNames) {
         var meta = [];
-        if($is(Array, arguTypes)) {
+        if(_is(Array, arguTypes)) {
             if(arguNames) { //$func声明时带了方法定义，参数类型声明中无参数名项，参数名列表从方法定义中获取
                 for(var i = 0, l=arguNames.length; i < l; i++) {
                     meta.push({
@@ -485,12 +477,12 @@ M.util.run(function(M){
     /**
      * 创建Interface的快捷方法
      * @memberof M
-     * @argu  {Object} define interface define
-     * @argu  {Interface} base base interface
+     * @param  {Object} define interface define
+     * @param  {Interface} base base interface
      * @return {Interface}
      */
 
-    function $interface (define, base) {
+    function $interface(define, base) {
         if(base) {
             interface_ = Object.create(base);
         } else {
@@ -504,55 +496,68 @@ M.util.run(function(M){
         return interface_;
     }
 
-    /**
-     * 判断一个对象是否支持指定协议
-     * @memberof M
-     * @argu  {Interface} interface_
-     * @argu  {Object} o
-     * @return {Boolean}
-     */
-
-    function $support(interface_, o, exactly) {
-        if(!exactly && o.__interfaces__ && o.__interfaces__.indexOf(interface_) != -1) {
+    function _is(type, obj){
+        if($is(type, obj) || $hasProto(type, obj)){
             return true;
         }
 
-        var ignoreRegExp = /^\[(.*?)\]$/;
-        var metaRegExp = /^__.*__$/;
-        for(var k in interface_) {
-            var objK, typeK;
-
-            typeK = interface_[k];
-            var realKey = k.match(ignoreRegExp);
-            if(realKey){
-                k = realKey[1];
-                objK = o[k];
-                if(objK == null)continue;
-            }else{
-                objK = o[k];
-            }
-
-            //ignore meta member that likes __proto__
-            if(metaRegExp.test(k))continue;
-            
-            if($is(Array, typeK)) {
-                if(!$is("function", objK)) {
-                    return false;
-                }
-            } else {
-                if(!$is(typeK, objK)) {
-                    return false;
-                }
-            }
+        var t = typeof(type);
+        if(t == "function"){
+            if(type.prototype && $hasProto(type.prototype, obj))return true;
+        }else if(t == "object"){
+            return $support(type, obj);
         }
+
+        return false;
+    }
+
+
+    /**
+     * 判断一个对象是否支持指定协议
+     * @memberof M
+     * @param {Interface} interface_
+     * @param {Object} o
+     * @param {bool} exactly=false
+     * @return {Boolean}
+     */
+
+    function $support(interface_, obj, exactly) {
+        //非严格格式下，如果对象的已实现接口中包含了该接口，则认为支持该接口。否则通过检查来确定是否支持。
+        if(!exactly && obj.__interfaces__ && obj.__interfaces__.indexOf(interface_) != -1) {
+            return true;
+        }
+
+        var isOptionalName = /^\[(.*?)\]$/;
+        var isMataName = /^__.*__$/;
+        for(var name in interface_) {
+            var member = obj[name];
+            var type = interface_[name];
+
+            var optionalName = name.match(isOptionalName);
+            if(optionalName){
+                name = optionalName[1];
+                member = obj[name]; 
+                if(member == null)continue;  //可选参数为null或者undefined则表示没有出现，不用检查
+            }
+
+            if(isMataName.test(name))continue;
+
+            if($is(Array, type)){ //用数组实例表示方法签名，如[TypeOfP1, TypeOfP2]，要表示成员类型是数组，用Array类
+                if(!typeof(member) == "function")return false;
+                continue;  
+            }else if(!_is(type, member)){
+                return false;
+            } 
+      }
         return true;
     }
+    //http://yewu.chukou1.cn/Store/Sys/ClientMenu.aspx
 
     /**
      * implement a interface
      * @memberof M
-     * @argu  {Interface} interface_
-     * @argu  {Object} obj
+     * @param {Interface} interface_
+     * @param {Object} obj
      */
 
     function $implement(interface_, obj) {
@@ -564,7 +569,7 @@ M.util.run(function(M){
 
             //write arguments meta to methods of obj
             Object.keys(interface_).forEach(function(p) {
-                if($is(Array, interface_[p])) { //接口声明用Array来表示方法签名
+                if(_is(Array, interface_[p])) { //接口声明用Array来表示方法签名
                     obj[p].__argu_types__ = _parseArguTypes(interface_[p]);
                 }
             });
@@ -588,7 +593,7 @@ M.util.run(function(M){
             type = arguTypes[i].type;
             //将方法的参数声明为undefined类型，表明其可为任何值，所以总是验证通过
             if(type === undefined) return true;
-            if(!$is(type, args[i])) {
+            if(!_is(type, args[i])) {
                 return false;
             }
         }
@@ -602,9 +607,11 @@ M.util.run(function(M){
     M.$support = $support;
     M.$implement = $implement;
     M.$is = $is;
+    M.$hasProto = $hasProto;
     M.$checkArgu = $checkArgu;
     M.$func = $func;
     M.$check = $check;
+    M._is = _is;
 }, M);
 
 /**
@@ -1079,7 +1086,7 @@ M.util.run(function(M){
             type = paramsMeta[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
-            if(!M.$is(type, params[i])) {
+            if(!M._is(type, params[i])) {
                 return false;
             }
         }
@@ -1087,29 +1094,16 @@ M.util.run(function(M){
     }
 
     function dispatch(overloads, params) {
-        var l = params.length;
-
-        var paramTypes = function(fn) {
-                return fn.__argu_types__;
-            };
+        var arguCount = params.length;
 
         var matches = overloads.filter(function(fn) {
-            return paramTypes(fn).length >= l;
+            return fn.__argu_types__.length >= arguCount;
         });
         
-        if(matches.length == 1 && _checkParams(matches[0], params)){
-            return matches[0];
-        }else if(matches.length == 0){
-            return null;
-        }
-
-        //这个可以移入overload中，没有必要每次排序
-        var orderedMatches = matches.sort(function(fn1, fn2) {
-            return paramTypes(fn1).length - paramTypes(fn2).length;
-        });
+        if(matches.length == 0) return null;
 
         var fn;
-        while((fn = orderedMatches.shift())) {
+        while((fn = matches.shift())) {
             if(_checkParams(fn, params)) {
                 return fn;
             }
@@ -1142,20 +1136,27 @@ M.util.run(function(M){
 
     function $overload(paramTypes, fn) {
         //存储重载的方法
-        var _overloads = [ typeof paramTypes == "function" ? paramTypes : $func(paramsTypes, fn)];
+        var _overloads = {};
+        _overloads.value = [ typeof paramTypes == "function" ? paramTypes : $func(paramsTypes, fn)];
 
         var main = function() {
                 var params = arguments;
-                var fn = dispatch(_overloads, params);
+                var fn = dispatch(_overloads.value, params);
                 if(fn) {
                     return fn.apply(this, params);
                 }
             };
 
         main.overload = function(paramTypes, fn) {
-            _overloads.push(typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn));
+            _overloads.value.push(typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn));
+            _overloads.value = _overloads.value.sort(function(fn1, fn2) {
+                return fn1.__argu_types__.length - fn2.__argu_types__.length;
+            });
+
             return this;
         };
+
+
         return main;
     }
 

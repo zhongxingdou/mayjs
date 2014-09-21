@@ -4,7 +4,8 @@ assert = require 'assert'
 
 describe 'interface.js', ->
     M = require("../may.js")
-    $is = M.$is;
+    $is = M.$is
+    $hasProto = M.$hasProto
 
     describe '#parseArguNames()', ->
         it 'should parse function parameter names', ->
@@ -40,12 +41,10 @@ describe 'interface.js', ->
 
             $is('boolean', undefined).should.be.false
 
-        it "$is()检验引用类型", ->
-            assert $is('function', ->)
+        it "$isA()检验引用类型", ->
             assert $is(Function, ->)
             assert $is(Object, ->)
 
-            assert $is('object', {})
             assert $is(Object, {})
 
             assert $is(Date, new Date())
@@ -56,8 +55,6 @@ describe 'interface.js', ->
             assert $is(Object, [])
 
         it "$is()检验null", ->
-            assert $is('object', null)
-
             assert $is(null, null)
 
             $is(null, undefined).should.be.true
@@ -78,15 +75,18 @@ describe 'interface.js', ->
 
             t(8);
 
-        it "$is()检验原型链", ->
+        it "$hasProto()检验原型链", ->
             A = ->
                 
             B = ->
             B.prototype = new A();
-            B.prototype.constructor = B();
+            assert $hasProto(B.prototype, new B())
 
-            assert $is(A, new B())
-            assert $is(B.prototype, new B())
+            C = ->
+            C.prototype = new B();
+            assert $hasProto(B.prototype, new C())
+
+            assert $hasProto(Array.prototype, [])
 
         it "$is(type, o1, o2, o3)", ->
             assert $is('string', "", "a", "b")

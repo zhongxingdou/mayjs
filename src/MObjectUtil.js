@@ -158,3 +158,7 @@ M.MObjectUtil = {
         return obj;
     }
 }
+
+M.$merge = M.MObjectUtil.merge;
+M.$mix = M.MObjectUtil.mix;
+M.$clone = M.MObjectUtil.clone;

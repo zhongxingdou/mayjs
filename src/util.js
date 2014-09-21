@@ -203,3 +203,11 @@ M.util = {
         }
     }
 }
+
+M.$fn = M.util.fn;
+M.$run = M.util.run;
+M.$enum = M.util.enumeration;
+M.$overwrite = M.util.overwrite;
+M.$methodize = M.util.methodize;
+M.$dsl = M.util.dsl;
+

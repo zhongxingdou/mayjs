@@ -14,6 +14,14 @@ if(typeof global != "undefined")M.global = global;
 if(typeof(module) != "undefined")module.exports = M;
 
 M.util = {
+    parseArguNames: function (fn) {
+        var m = fn.toString().match(/.*?\((.*)?\)/);
+        if(m && m[1]) {
+            return m[1].split(",").map(function(i){ return i.trim();});
+        }
+        return [];
+    },
+
     makeMultiTargetFn: function (fn){
         return function(){
             if(arguments.length <= 2){
@@ -431,14 +439,6 @@ M.util.run(function(M){
         }
     });
 
-    function parseArguNames(fn) {
-        var m = fn.toString().match(/.*?\((.*)?\)/);
-        if(m && m[1]) {
-            return m[1].split(",").map(function(i){ return i.trim();});
-        }
-        return [];
-    }
-
     function _parseArguTypes(arguTypes, arguNames) {
         var meta = [];
         if(_is(Array, arguTypes)) {
@@ -469,7 +469,7 @@ M.util.run(function(M){
     }
 
     function $func(arguTypes, fn) {
-        fn.__argu_types__ = _parseArguTypes(arguTypes, parseArguNames(fn));
+        fn.__argu_types__ = _parseArguTypes(arguTypes, M.util.parseArguNames(fn));
         return fn;
     }
 
@@ -481,7 +481,6 @@ M.util.run(function(M){
      * @param  {Interface} base base interface
      * @return {Interface}
      */
-
     function $interface(define, base) {
         if(base) {
             interface_ = Object.create(base);
@@ -551,7 +550,6 @@ M.util.run(function(M){
       }
         return true;
     }
-    //http://yewu.chukou1.cn/Store/Sys/ClientMenu.aspx
 
     /**
      * implement a interface
@@ -559,7 +557,6 @@ M.util.run(function(M){
      * @param {Interface} interface_
      * @param {Object} obj
      */
-
     function $implement(interface_, obj) {
         var interfaces = obj.__interfaces__ || (obj.__interfaces__ = []);
         if(interfaces.indexOf(interface_) == -1) {
@@ -578,29 +575,6 @@ M.util.run(function(M){
         }
     }
 
-    function $checkArgu() {
-        var caller = arguments.callee.caller;
-        var args = caller["arguments"];
-        var arguTypes;
-        if(arguments.length === 0) {
-            arguTypes = caller.__argu_types__;
-        } else {
-            arguTypes = _parseArguTypes(Array.prototype.slice.call(arguments), parseArguNames(caller));
-        }
-        var type;
-
-        for(var i = 0, l = arguTypes.length; i < l; i++) {
-            type = arguTypes[i].type;
-            //将方法的参数声明为undefined类型，表明其可为任何值，所以总是验证通过
-            if(type === undefined) return true;
-            if(!_is(type, args[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    M.parseArguNames = parseArguNames;
     M.Interface = Interface;
 
     M.$interface = $interface;
@@ -608,7 +582,6 @@ M.util.run(function(M){
     M.$implement = $implement;
     M.$is = $is;
     M.$hasProto = $hasProto;
-    M.$checkArgu = $checkArgu;
     M.$func = $func;
     M.$check = $check;
     M._is = _is;

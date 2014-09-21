@@ -1,4 +1,12 @@
 M.util = {
+    parseArguNames: function (fn) {
+        var m = fn.toString().match(/.*?\((.*)?\)/);
+        if(m && m[1]) {
+            return m[1].split(",").map(function(i){ return i.trim();});
+        }
+        return [];
+    },
+
     makeMultiTargetFn: function (fn){
         return function(){
             if(arguments.length <= 2){

@@ -10,14 +10,14 @@ describe 'interface.js', ->
     describe '#parseArguNames()', ->
         it 'should parse function parameter names', ->
             fn = (p1, p2, p3) ->
-            names = M.parseArguNames(fn)
+            names = M.util.parseArguNames(fn)
             names.should.have.property('length', 3)
             names.should.include('p1')
             names.should.include('p2')
             names.should.include('p3')
 
             fn2 = ->
-            names2 = M.parseArguNames(fn2)
+            names2 = M.util.parseArguNames(fn2)
             names2.should.be.empty
 
     describe "#$is(type, object)", ->
@@ -188,23 +188,6 @@ describe 'interface.js', ->
                 M.$implement(IA, o)
             )
             
-    describe "$checkArgu(Type1, Type2)", ->
-        fn = (name, age) ->
-            return M.$checkArgu("string", "number")
-
-        it "should return true when the arguments valid", ->
-            fn("jim", 18).should.be.true
-
-        it "should return false when the arguments invalid", ->
-            fn("jim", "18").should.be.false
-
-        it "should pass by any value when the check type is defined be undefined", ->
-            fn2 = (name, age) ->
-                return M.$checkArgu("string", undefined, "number")
-
-            fn2("jim", "xx", 18).should.be.true
-            fn2("jim", null, 19).should.be.true
-
     describe "$check(express)", ->
         it "should throw error if express equals false", ->
             assert.throws -> 

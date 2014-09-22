@@ -134,7 +134,12 @@ M.MObjectUtil = {
 
         if(deep) {
             for(var p in o) {
+                if( p == 'constructor') continue;
                 var op = o[p];
+                if( p == '__proto__'){
+                    cloneObj[p] = op;
+                    continue;
+                }
                 if(Object.prototype.isPrototypeOf(op)) {
                     cloneObj[p] = arguments.callee(op, deep);
                 } else {

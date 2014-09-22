@@ -6,7 +6,6 @@ M.util.run(function(M) {
     /**
     * @memberof M
     * @class
-    * @constructor
     */
     var Wrapper = M.$class(
         /** @lends M.Wrapper.prototype **/
@@ -14,7 +13,6 @@ M.util.run(function(M) {
          /**
           * @alias M.Wrapper
           * @constructor
-          * @return {[type]}
           */
         initialize: function() {
             /**
@@ -61,7 +59,10 @@ M.util.run(function(M) {
         * @param {Object} obj
         */
         $: function(obj) {
-            return this.__wrap(obj, {}, {context: obj});
+            var proxy = {
+                valueOf: function(){ return obj}
+            }
+            return this.__wrap(obj, proxy, {context: obj});
         },
 
         /**
@@ -80,9 +81,8 @@ M.util.run(function(M) {
          */
         $reg: function(module, supports, option) {
             var includeOption = option || module.__option__ || {};
-            var types = supports 
-                            ? (Array.prototype.isPrototypeOf(supports) ? supports : [supports])  
-                            : module.__supports__;
+            supports = supports || includeOption.supports;
+            var types = Array.prototype.isPrototypeOf(supports) ? supports : [supports];
 
             for(var i=0,l=types.length; i<l; i++){
                 var type = types[i];

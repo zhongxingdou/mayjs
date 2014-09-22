@@ -811,28 +811,33 @@ M.util.run(function(M){
 
 M.util.run(function(M) {
     /**
-     * 定义一个module
+     * 定义一个module，暂时啥也不干，原样返回传入的对象，标识作用
      * @memberof M
-     * @param  {Object} o
+     * @param   {Object} obj
      * @returns {Object}
      */
     function $module(o) {
         return o;
     }
 
-    var IIncludeOption = {
+    /**
+     * 供include module时使用的选项的接口
+     * @memberof M
+     * @interface
+     */
+    var IModuleOption = {
         "[context]": Object,
         "[methdize]": Boolean,
         "[methdizeTo]": [Object]
     }
 
     /** 
-    * Mayjs的Module的原型对象
+    * module interface
     * @memberof M
-    * @type Object
+    * @interface
     **/
     var IModule = {
-        "[__option__]": IIncludeOption,
+        "[__option__]": IModuleOption,
         "[__supports__]": Array,
         "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
         "[onIncluded]": Function //include给object后被自动调用，一般不用于include给prototype object
@@ -882,6 +887,7 @@ M.util.run(function(M) {
 
     M.$module = $module;
     M.$include = $include;
+    M.IModuleOption =  IModuleOption;
     M.IModule = IModule;
 }, M);
 M.util.run(function(M) {
@@ -889,17 +895,21 @@ M.util.run(function(M) {
     var mix = M.MObjectUtil.mix;
 
     /**
-    * @memberof M
     * @namespace
+    * @memberOf M
+    * @type {Object}
     */
     var BaseObj = {
-        /** 元信息：已实现的接口 **/
+        /** 
+        * 元信息：已实现的接口 
+        * @member
+        */
         __interfaces__: [],
         /** 初始化方法 **/
-        initialize: function(){ 
-        },
+        initialize: function(){},
         /** 
         * 使用定义信息生成新的对象，新对象的prototype为当前对象
+        * @member
         * @param {Object} objDefined 对象定义
         **/
         extend: function(objDefine){
@@ -924,6 +934,7 @@ M.util.run(function(M) {
         },
         /**
         * 模拟super关键字，访问原型链中的方法
+        * @member
         */
         base: function(){
             var caller = arguments.callee.caller;
@@ -979,14 +990,20 @@ M.util.run(function(M) {
 
 
     /**
-    * Klass类，{@link M.BaseClass}的父类，{@link M.BaseObj}是其prototype
-    * @memberof M
+    * Klass类，{@link M.BaseObj}是其prototype
     * @inner
+    * @memberof M
+    * @augments {M.BaseObj}
     * @constructor
     */
     function Klass(){}
-    Klass.prototype = BaseObj.extend({
+    Klass.prototype = BaseObj.extend(/** @lends M~Klass.prototype **/{
         initialize: function(){
+            /**
+             * 已实现接口元信息
+             * @instance
+             * @type {Array}
+             */
             this.__interfaces__ = [];
             this.base(); //call BaseObj.initialize
         }       
@@ -1039,16 +1056,16 @@ M.util.run(function(M) {
     }
 
     /**
-    * BaseClass类，父类是{@link M~Klass}
+    * BaseClass
     * @class
+    * @augments {M~Klass}
     * @memberof M
     */
     var BaseClass = Klass.extend({})
 
     /**
-     * May.js的类的接口
+     * May.js Object的接口
      * @memberof M
-     * @type {Interface}
      */
     var IBase = M.$interface({
         "initialize": [],

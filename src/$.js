@@ -11,6 +11,11 @@ M.util.run(function(M) {
     var Wrapper = M.$class(
         /** @lends M.Wrapper.prototype **/
         {
+         /**
+          * @alias M.Wrapper
+          * @constructor
+          * @return {[type]}
+          */
         initialize: function() {
             /**
             * type -- module map

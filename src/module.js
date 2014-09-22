@@ -1,27 +1,32 @@
 M.util.run(function(M) {
     /**
-     * 定义一个module
+     * 定义一个module，暂时啥也不干，原样返回传入的对象，标识作用
      * @memberof M
-     * @param  {Object} o
+     * @param   {Object} obj
      * @returns {Object}
      */
     function $module(o) {
         return o;
     }
 
-    var IIncludeOption = {
+    /**
+     * 供include module时使用的选项的接口
+     * @memberof M
+     * @interface
+     */
+    var IModuleOption = {
         "[context]": Object,
         "[methdize]": Boolean,
         "[methdizeTo]": [Object]
     }
 
     /** 
-    * Mayjs的Module的原型对象
+    * module interface
     * @memberof M
-    * @type Object
+    * @interface
     **/
     var IModule = {
-        "[__option__]": IIncludeOption,
+        "[__option__]": IModuleOption,
         "[__supports__]": Array,
         "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
         "[onIncluded]": Function //include给object后被自动调用，一般不用于include给prototype object
@@ -71,5 +76,6 @@ M.util.run(function(M) {
 
     M.$module = $module;
     M.$include = $include;
+    M.IModuleOption =  IModuleOption;
     M.IModule = IModule;
 }, M);

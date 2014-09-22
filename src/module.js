@@ -15,9 +15,17 @@ M.util.run(function(M) {
      * @interface
      */
     var IModuleOption = {
+        //执行onincluded和methodize时会用到
         "[context]": Object,
+
+        //是否对所有函数成员进行methodize
         "[methdize]": Boolean,
-        "[methdizeTo]": [Object]
+
+        //通过这个函数获得methodize时的第一参数
+        "[methdizeTo]": [Object],
+
+        //可以被mix到哪些类型
+        "[supports]": Array
     }
 
     /** 
@@ -27,7 +35,6 @@ M.util.run(function(M) {
     **/
     var IModule = {
         "[__option__]": IModuleOption,
-        "[__supports__]": Array,
         "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
         "[onIncluded]": Function //include给object后被自动调用，一般不用于include给prototype object
     }

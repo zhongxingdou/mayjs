@@ -32,8 +32,45 @@
                 return n+1;
             }
         }
-        M.$.reg(numberEx, Number, {methodize: true});
-        log("The next number from 8 is " + M.$(8).next());
+        //M.$.reg(numberEx, Number, {methodize: true});
+        //log("The next number from 8 is " + M.$(8).next());
+
+        M.$.reg({
+    mix: function(obj, src){
+        for(var p in src){ obj[p] = src[p] }
+    }, 
+    __option__: {
+        methodize: true,
+        supports: [Object]
+    }
+});
+
+M(function($, $$){
+    //$() and $$() both use the same wrapper table
+
+    var Jim = {};
+    $(Jim).mix({
+        name: "Jim",
+        age: 20
+    });
+
+    Jim.name; //=> Jim
+    Jim.hasOwnProperty("mix"); //=> false
+    typeof(Jim.mix); //=> undefined
+
+    $$(Jim); //copy mix() to Jim directly
+    Jim.hasOwnProperty("mix"); //=> true
+
+    //register a wrapper locally
+    $.reg({
+        next: function(num){
+            return num + 1;
+        },
+        __option__: {methodize: true}
+    }, Number);
+
+    $(8).next(); //=> 9
+})
     </script>
 </body>
 </html>

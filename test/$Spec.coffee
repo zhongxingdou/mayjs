@@ -9,7 +9,8 @@ describe '$.js', ->
             it "包装值类型", ->
                 m = 
                     wrap: ->
-                    __supports__: [Number]
+                    __option__: 
+                        supports: [Number]
 
                 $.reg m
 
@@ -21,7 +22,8 @@ describe '$.js', ->
             it "包装引用类型", ->
                 m = 
                     wrap: ->
-                    __supports__: [Array]
+                    __option__: 
+                        supports: [Array]
 
                 $.reg m
 
@@ -33,7 +35,8 @@ describe '$.js', ->
             it "should wrap a object if its prototype wrapper registed", ->
                 m = 
                     wrap: ->
-                    __supports__: [Array.prototype]
+                    __option__: 
+                        supports: [Array.prototype]
 
                 $.reg m
 
@@ -51,7 +54,8 @@ describe '$.js', ->
 
                 m = 
                     wrap: ->
-                    __supports__: [IA,IB]
+                    __option__:
+                        supports: [IA,IB]
 
                 $.reg m
 
@@ -63,7 +67,8 @@ describe '$.js', ->
             it "should not wrap the object which wrapper module not registed", ->
                 m = 
                     wrap: ->
-                    __supports__: [Array]
+                    __option__:
+                        supports: [Array]
 
                 $.reg m
 
@@ -74,7 +79,8 @@ describe '$.js', ->
             it "should wrap all of objects if that wrapper module registed", ->
                 m = 
                     wrap: ->
-                    __supports__: [Array, Number]
+                    __option__:
+                        supports: [Array, Number]
 
                 $.reg m
 
@@ -91,10 +97,12 @@ describe '$.js', ->
 
                 m1 = 
                     wrap: ->
-                    __supports__: [Object]
+                    __option__:
+                        supports: [Object]
                 m2 = 
                     wrap: ->
-                    __supports__: [Object]
+                    __option__:
+                        supports: [Object]
 
                 $1.$.reg m1
                 $2.$.reg m2
@@ -111,7 +119,8 @@ describe '$.js', ->
             it "should wrap value type object", ->
                 m = 
                     wrap: ->
-                    __supports__: [Number]
+                    __option__:
+                        supports: [Number]
 
                 $.reg m
 
@@ -122,7 +131,8 @@ describe '$.js', ->
             it "should wrap reference type object", ->
                 m = 
                     wrap: ->
-                    __supports__: [Array]
+                    __option__:
+                        supports: [Array]
 
                 $.reg m
 
@@ -141,8 +151,8 @@ describe '$.js', ->
                     wrapA: ->
                         this.spy()
 
-                    __supports__: [Object]
                     __option__:
+                        supports: [Object]
                         methodize: true
 
                 $.reg m

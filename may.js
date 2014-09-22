@@ -826,9 +826,17 @@ M.util.run(function(M) {
      * @interface
      */
     var IModuleOption = {
+        //执行onincluded和methodize时会用到
         "[context]": Object,
+
+        //是否对所有函数成员进行methodize
         "[methdize]": Boolean,
-        "[methdizeTo]": [Object]
+
+        //通过这个函数获得methodize时的第一参数
+        "[methdizeTo]": [Object],
+
+        //可以被mix到哪些类型
+        "[supports]": Array
     }
 
     /** 
@@ -838,7 +846,6 @@ M.util.run(function(M) {
     **/
     var IModule = {
         "[__option__]": IModuleOption,
-        "[__supports__]": Array,
         "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
         "[onIncluded]": Function //include给object后被自动调用，一般不用于include给prototype object
     }
@@ -1110,11 +1117,14 @@ M.util.run(function(M) {
     /**
     * @memberof M
     * @class
-    * @constructor
     */
     var Wrapper = M.$class(
         /** @lends M.Wrapper.prototype **/
         {
+         /**
+          * @alias M.Wrapper
+          * @constructor
+          */
         initialize: function() {
             /**
             * type -- module map
@@ -1160,7 +1170,10 @@ M.util.run(function(M) {
         * @param {Object} obj
         */
         $: function(obj) {
-            return this.__wrap(obj, {}, {context: obj});
+            var proxy = {
+                valueOf: function(){ return obj}
+            }
+            return this.__wrap(obj, proxy, {context: obj});
         },
 
         /**
@@ -1179,9 +1192,8 @@ M.util.run(function(M) {
          */
         $reg: function(module, supports, option) {
             var includeOption = option || module.__option__ || {};
-            var types = supports 
-                            ? (Array.prototype.isPrototypeOf(supports) ? supports : [supports])  
-                            : module.__supports__;
+            supports = supports || includeOption.supports;
+            var types = Array.prototype.isPrototypeOf(supports) ? supports : [supports];
 
             for(var i=0,l=types.length; i<l; i++){
                 var type = types[i];

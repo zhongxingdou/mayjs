@@ -1,7 +1,7 @@
 /**
 * 执行fn并把一个新的Wrapper的$()和$$()传递给它
-* 如果没有传递任何参数，则执行M.exportDSL()
-* @namespace
+* 如果没有传递任何参数，则执行{@link M.exportDSL}
+* @namespace {Function} M
 * @param {Function} [fn] 
 */
 var M=function(fn){

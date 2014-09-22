@@ -1,7 +1,7 @@
 /**
 * 执行fn并把一个新的Wrapper的$()和$$()传递给它
-* 如果没有传递任何参数，则执行M.exportDSL()
-* @namespace
+* 如果没有传递任何参数，则执行{@link M.exportDSL}
+* @namespace {Function} M
 * @param {Function} [fn] 
 */
 var M=function(fn){
@@ -247,22 +247,90 @@ M.util = {
     }
 }
 
-/** @borrows M.util.fn as M.$fn **/
+/** 
+ * 在函数内部调用函数自身, 代替引用auguments.callee，是{@link M.util.fn}的别名
+ * @memberof M
+ * @function
+ **/
 M.$fn = M.util.fn;
 
-/** @borrows M.util.run as M.$fun **/
+/**
+ * 运行指定方法，避免在全局作用域下产生全局变量，是{@link M.util.run}的别名
+ * @memberof M
+ * @function
+ * @param {function} fn
+ */
 M.$run = M.util.run;
 
-/** @borrows M.util.enumeration as M.$enum **/
+/**
+ * 声明一个枚举，是{@link M.util.enumeration}的别名
+ * @memberof M
+ * @function
+ * @param {...String} names enumeration key
+ * @example
+ * var color = M.$enum("BLUE", "RED", "YELLOW");
+ * color.BLUE
+ * color.RED
+ * color.YELLOW
+ *
+ * var color = M.$enum({
+ *  "BLUE": -1,
+ *  "RED": 1
+ * })
+ */
 M.$enum = M.util.enumeration;
 
-/** @borrows M.util.overwrite as M.$overwrite **/
+/**
+ * 重写对象的方法，新方法将调用overwriter并把原方法作为第一个参数传递给它，是{@link M.util.overwrite}的别名
+ * @memberof M
+ * @function
+ * @param  {Object} obj 要重写方法的对象 
+ * @param  {string} funcName 被重写的方法名
+ * @param  {function} overwriter 真正的覆盖函数
+ * @example
+ * var Jim = {
+ *     sayHi: function(){ return "Hi"}
+ * }
+ *
+ * M.util.overwrite(Jim, "sayHi", function(oldFn, name){
+ *     return oldFn.call(this) + ", " + name + "!";
+ * })
+ * 
+ * Jim.sayHi("Lucy");
+ * => "Hi, Lucy!"
+ */
 M.$overwrite = M.util.overwrite;
 
-/** @borrows M.util.methodize as M.$methodize **/
+/**
+ * 包装纯函数，包装时指定纯函数的第一参数，是{@link M.util.methodize}的别名
+ * @memberof M
+ * @function
+ * @param  {function} fn 纯函数
+ * @param  {Object}   [firstParam=this] fn的第一个参数，如果未传递getFirstParam参数
+ * @param  {function(firstParam)} [getFirstParam] 获取fn的第一个参数的函数，调用时将把firstParam传递给它
+ * @return {function}
+ */
 M.$methodize = M.util.methodize;
 
-/** @borrows M.util.dsl as M.$dsl **/
+/**
+ * 生成将对象的成员导出到当前作用域的代码，该代码可被eval()正确执行,
+ * 该函数生成的代码不能在strict模式下运行，是{@link M.util.dsl}的别名
+ * @memberof M
+ * @function
+ * @param  {string} [obj=this]
+ * @param {string} [members] 指定要导入的成员，未指定则导入全部成员，用空格分隔成员名
+ * @return {string}
+ * @example
+ * var Calculator = {
+ *     add: function(a, b){ return a + b },
+ *     sub: function(a, b){ return a - b }
+ * }
+ *
+ * eval(M.util.dsl(Calculator));
+ *
+ * add(4, 6);
+ * sub(10, 4);
+ */
 M.$dsl = M.util.dsl;
 
 /** @namespace M.MObjectUtil **/
@@ -447,6 +515,7 @@ M.MObjectUtil = {
 
     /**
      * 依次合并给定的所有对象到一个新的对象
+     * @param {...Object} obj
      * @returns {Object} new object, merge 
      */
     merge: function(/*a,b,c,d,...*/) {
@@ -466,18 +535,36 @@ M.MObjectUtil = {
     }
 }
 
-/** @borrows M.MObjectUtil.merge as M.$merge **/
+/**
+ * 依次合并给定的所有对象到一个新的对象，是{@link M.MObjectUtil.merge}的别名
+ * @memberof M
+ * @function
+ * @param {...Object} obj
+ * @returns {Object} new object, merge 
+ */
 M.$merge = M.MObjectUtil.merge;
 
-/** @borrows M.MObjectUtil.mix as M.$mix **/
+/**
+ * copy members from src to obj，是{@link M.MObjectUtil.mix}的别名
+ * @memberof M
+ * @function
+ * @param  {Object} obj [description]
+ * @param  {Object} src [description]
+ * @param  {String[]} [whitelist=null] 不想被覆盖的成员
+ * @return {Object}
+ */
 M.$mix = M.MObjectUtil.mix;
 
-/** @borrows M.MObjectUtil.clone as M.$clone **/
+/**
+ * clone克隆指定对象，如果对象自己有clone方法，则调用对象自己的clone方法，是{@link M.MObjectUtil.clone}的别名
+ * @memberof M
+ * @function
+ * @param  {Object} obj 被克隆的对象
+ * @param  {boolean} [deep=false] 是否深度克隆
+ * @returns {Object}
+ */
 M.$clone = M.MObjectUtil.clone;
 
-/**
- * interface 
- */
 M.util.run(function(M){
     /** 
     * Mayjs的interface的原型对象
@@ -524,8 +611,9 @@ M.util.run(function(M){
     /**
     * 判断对象是否为指定类型
     * @memberof M
+    * @function
     * @param {string|function|undefined} type
-    * @param {string|number|boolean|function|Array|Object} obj
+    * @param {...Object} obj
     * @returns {boolean}
     */
     var $is = M.util.makeMultiTargetFn(function(type, obj){
@@ -534,23 +622,27 @@ M.util.run(function(M){
         return false;
     });
 
-    /**
+    /** 
     * 判断proto是否为obj的原型
     * @memberof M
+    * @function
     * @param {Object} proto
     * @param {Object} obj
     * @returns {boolean}
     **/
-    var $hasProto = M.util.makeMultiTargetFn(function(proto, obj){
-        if(typeof proto != "object")return false;
-        if(proto == null)return false;
-        return proto.isPrototypeOf(obj);
-    });
+    var $hasProto = M.util.makeMultiTargetFn(
+        function(proto, obj){
+            if(typeof proto != "object")return false;
+            if(proto == null)return false;
+            return proto.isPrototypeOf(obj);
+        }
+    );
 
     /**
     * 依次判断给定的参数是否为false，一旦发现为false立即抛出错误
     * @memberof M
     * @function
+    * @param {...boolean} result
     */
     var $check = M.util.makeMultiTargetFn(function(result){
         if(result === false){

@@ -180,6 +180,7 @@ M.MObjectUtil = {
 
     /**
      * 依次合并给定的所有对象到一个新的对象
+     * @param {...Object} obj
      * @returns {Object} new object, merge 
      */
     merge: function(/*a,b,c,d,...*/) {
@@ -199,11 +200,32 @@ M.MObjectUtil = {
     }
 }
 
-/** @borrows M.MObjectUtil.merge as M.$merge **/
+/**
+ * 依次合并给定的所有对象到一个新的对象，是{@link M.MObjectUtil.merge}的别名
+ * @memberof M
+ * @function
+ * @param {...Object} obj
+ * @returns {Object} new object, merge 
+ */
 M.$merge = M.MObjectUtil.merge;
 
-/** @borrows M.MObjectUtil.mix as M.$mix **/
+/**
+ * copy members from src to obj，是{@link M.MObjectUtil.mix}的别名
+ * @memberof M
+ * @function
+ * @param  {Object} obj [description]
+ * @param  {Object} src [description]
+ * @param  {String[]} [whitelist=null] 不想被覆盖的成员
+ * @return {Object}
+ */
 M.$mix = M.MObjectUtil.mix;
 
-/** @borrows M.MObjectUtil.clone as M.$clone **/
+/**
+ * clone克隆指定对象，如果对象自己有clone方法，则调用对象自己的clone方法，是{@link M.MObjectUtil.clone}的别名
+ * @memberof M
+ * @function
+ * @param  {Object} obj 被克隆的对象
+ * @param  {boolean} [deep=false] 是否深度克隆
+ * @returns {Object}
+ */
 M.$clone = M.MObjectUtil.clone;

@@ -201,20 +201,88 @@ M.util = {
     }
 }
 
-/** @borrows M.util.fn as M.$fn **/
+/** 
+ * 在函数内部调用函数自身, 代替引用auguments.callee，是{@link M.util.fn}的别名
+ * @memberof M
+ * @function
+ **/
 M.$fn = M.util.fn;
 
-/** @borrows M.util.run as M.$fun **/
+/**
+ * 运行指定方法，避免在全局作用域下产生全局变量，是{@link M.util.run}的别名
+ * @memberof M
+ * @function
+ * @param {function} fn
+ */
 M.$run = M.util.run;
 
-/** @borrows M.util.enumeration as M.$enum **/
+/**
+ * 声明一个枚举，是{@link M.util.enumeration}的别名
+ * @memberof M
+ * @function
+ * @param {...String} names enumeration key
+ * @example
+ * var color = M.$enum("BLUE", "RED", "YELLOW");
+ * color.BLUE
+ * color.RED
+ * color.YELLOW
+ *
+ * var color = M.$enum({
+ *  "BLUE": -1,
+ *  "RED": 1
+ * })
+ */
 M.$enum = M.util.enumeration;
 
-/** @borrows M.util.overwrite as M.$overwrite **/
+/**
+ * 重写对象的方法，新方法将调用overwriter并把原方法作为第一个参数传递给它，是{@link M.util.overwrite}的别名
+ * @memberof M
+ * @function
+ * @param  {Object} obj 要重写方法的对象 
+ * @param  {string} funcName 被重写的方法名
+ * @param  {function} overwriter 真正的覆盖函数
+ * @example
+ * var Jim = {
+ *     sayHi: function(){ return "Hi"}
+ * }
+ *
+ * M.util.overwrite(Jim, "sayHi", function(oldFn, name){
+ *     return oldFn.call(this) + ", " + name + "!";
+ * })
+ * 
+ * Jim.sayHi("Lucy");
+ * => "Hi, Lucy!"
+ */
 M.$overwrite = M.util.overwrite;
 
-/** @borrows M.util.methodize as M.$methodize **/
+/**
+ * 包装纯函数，包装时指定纯函数的第一参数，是{@link M.util.methodize}的别名
+ * @memberof M
+ * @function
+ * @param  {function} fn 纯函数
+ * @param  {Object}   [firstParam=this] fn的第一个参数，如果未传递getFirstParam参数
+ * @param  {function(firstParam)} [getFirstParam] 获取fn的第一个参数的函数，调用时将把firstParam传递给它
+ * @return {function}
+ */
 M.$methodize = M.util.methodize;
 
-/** @borrows M.util.dsl as M.$dsl **/
+/**
+ * 生成将对象的成员导出到当前作用域的代码，该代码可被eval()正确执行,
+ * 该函数生成的代码不能在strict模式下运行，是{@link M.util.dsl}的别名
+ * @memberof M
+ * @function
+ * @param  {string} [obj=this]
+ * @param {string} [members] 指定要导入的成员，未指定则导入全部成员，用空格分隔成员名
+ * @return {string}
+ * @example
+ * var Calculator = {
+ *     add: function(a, b){ return a + b },
+ *     sub: function(a, b){ return a - b }
+ * }
+ *
+ * eval(M.util.dsl(Calculator));
+ *
+ * add(4, 6);
+ * sub(10, 4);
+ */
 M.$dsl = M.util.dsl;

@@ -1,6 +1,3 @@
-/**
- * interface 
- */
 M.util.run(function(M){
     /** 
     * Mayjs的interface的原型对象
@@ -47,8 +44,9 @@ M.util.run(function(M){
     /**
     * 判断对象是否为指定类型
     * @memberof M
+    * @function
     * @param {string|function|undefined} type
-    * @param {string|number|boolean|function|Array|Object} obj
+    * @param {...Object} obj
     * @returns {boolean}
     */
     var $is = M.util.makeMultiTargetFn(function(type, obj){
@@ -57,23 +55,27 @@ M.util.run(function(M){
         return false;
     });
 
-    /**
+    /** 
     * 判断proto是否为obj的原型
     * @memberof M
+    * @function
     * @param {Object} proto
     * @param {Object} obj
     * @returns {boolean}
     **/
-    var $hasProto = M.util.makeMultiTargetFn(function(proto, obj){
-        if(typeof proto != "object")return false;
-        if(proto == null)return false;
-        return proto.isPrototypeOf(obj);
-    });
+    var $hasProto = M.util.makeMultiTargetFn(
+        function(proto, obj){
+            if(typeof proto != "object")return false;
+            if(proto == null)return false;
+            return proto.isPrototypeOf(obj);
+        }
+    );
 
     /**
     * 依次判断给定的参数是否为false，一旦发现为false立即抛出错误
     * @memberof M
     * @function
+    * @param {...boolean} result
     */
     var $check = M.util.makeMultiTargetFn(function(result){
         if(result === false){

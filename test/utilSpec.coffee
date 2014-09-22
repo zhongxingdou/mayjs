@@ -1,7 +1,5 @@
 # encoding: utf-8
 sinon = require 'sinon'
-assert = require 'assert'
-
 describe 'M.util', ->
     util = require("../may.js").util
 
@@ -50,8 +48,8 @@ describe 'M.util', ->
 
             (gender.male != gender.famele).should.be.true
 
-            gender.male.should.be.a('object')
-            gender.female.should.be.a('object')
+            gender.male.should.be.type('object')
+            gender.female.should.be.type('object')
 
     describe "#methodize(fn, firstParam)", ->
         it 'should return a function that call given fn always with given parameter as first parameter', ->
@@ -100,8 +98,8 @@ describe 'M.util', ->
             args = [1,2]
             obj.fn()
 
-            assert fn.called
-            assert.equal fn.calledThis, obj
+            fn.called.should.be.true
+            fn.calledThis.should.equal obj
 
     describe '#dsl(obj, memberFnNames)', ->
         obj = 
@@ -120,7 +118,7 @@ describe 'M.util', ->
         it "should call given function", ->
             util.run(spy)
 
-            assert spy.called
+            spy.called.should.be.true
 
         it "should call given function with given arguments", ->
             argu = {}
@@ -128,6 +126,6 @@ describe 'M.util', ->
 
             util.run(spy, argu, argu2)
 
-            assert spy.calledWith(argu, argu2)
+            spy.calledWith(argu, argu2).should.be.true
 
 

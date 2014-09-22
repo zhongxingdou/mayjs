@@ -1,4 +1,3 @@
-
 describe 'MObjectUtil', ->
     util = require('../may.js').MObjectUtil
     describe '#isPrivate()', ->
@@ -63,14 +62,14 @@ describe 'MObjectUtil', ->
                 keys.push k
                 members.push v
 
-            keys.should.include 'p1'
+            keys.should.containEql 'p1'
             members[0].should.equal o.p1
 
-            keys.should.include 'p2'
+            keys.should.containEql 'p2'
             members[1].should.equal o.p2
 
-            keys.should.not.include 'pOther'
-            keys.should.not.include 'toString'
+            keys.should.not.containEql 'pOther'
+            keys.should.not.containEql 'toString'
 
             clazz = ->
             clazz.prototype = 
@@ -83,8 +82,8 @@ describe 'MObjectUtil', ->
             eachAll obj, (k, v) ->
                 keys.push k
 
-            keys.should.include 'baseFn'
-            keys.should.include 'ownFn'
+            keys.should.containEql 'baseFn'
+            keys.should.containEql 'ownFn'
 
     describe "#eachOwn()", ->
         it 'should each every own member of an object unless it is not enumerably', ->
@@ -100,8 +99,8 @@ describe 'MObjectUtil', ->
             eachOwn obj, (k, v) ->
                 keys.push k
 
-            keys.should.include('ownFn')
-            keys.should.not.include('baseFn')
+            keys.should.containEql('ownFn')
+            keys.should.not.containEql('baseFn')
 
     describe '#eachProp()', ->
         it 'should each every property of an object unless it is not enumerably', ->
@@ -119,10 +118,10 @@ describe 'MObjectUtil', ->
             eachProp obj, (k, v) ->
                 keys.push k
 
-            keys.should.include 'ownP'
-            keys.should.not.include 'baseP'
-            keys.should.not.include 'ownFn'
-            keys.should.not.include 'baseFn'
+            keys.should.containEql 'ownP'
+            keys.should.not.containEql 'baseP'
+            keys.should.not.containEql 'ownFn'
+            keys.should.not.containEql 'baseFn'
 
     describe '#traverseChain()', ->
         it 'should traversing value chain using specify property', ->
@@ -168,7 +167,7 @@ describe 'MObjectUtil', ->
 
             b.should.have.property('name', 'Jim')
             b.should.have.property('age', 18)
-            b.should.not.have.property('score', a.score)
+            b.score.should.not.equal('score', a.score)
             b.score.math.should.equal(a.score.math)
 
         it 'should shadow clone an array', ->
@@ -190,7 +189,7 @@ describe 'MObjectUtil', ->
             array = [1, o, now]
 
             op = {name: 'op'}
-            array.ownProp = op;
+            array.ownProp = op
 
             b = clone(array, 'deep')
 

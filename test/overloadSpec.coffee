@@ -1,6 +1,5 @@
 # encoding: utf-8
 sinon = require 'sinon'
-assert = require 'assert'
 
 describe "overload.js", ->
   M = require("../may.js")
@@ -21,13 +20,13 @@ describe "overload.js", ->
     p1 = "jim"
     fn(p1)
 
-    assert spy1.called
+    spy1.called.should.be.true
 
     p2 = "jim"
     p3 = "pingpang"
     fn(p2, p3)
     
-    assert spy2.called
+    spy2.called.should.be.true
 
   it "找到类型相同的方法", ->
     spy1 = sinon.spy()
@@ -42,12 +41,12 @@ describe "overload.js", ->
 
     p1 = "jim"
     fn(p1)
-    assert spy1.called
+    spy1.called.should.be.true
 
     p2 = 21
     fn(p2)
     
-    assert spy2.called
+    spy2.called.should.be.true
 
   it "使用interface作为参数类型声明", ->
     spy1 = sinon.spy()
@@ -64,7 +63,7 @@ describe "overload.js", ->
       age: 30
 
     fn(p1)
-    assert spy1.called
+    spy1.called.should.be.true
 
     p2 = 
       name: "xingdou"
@@ -72,4 +71,4 @@ describe "overload.js", ->
 
     spy1.reset()
     fn(p2)
-    assert spy1.called == false
+    spy1.called.should.be.false

@@ -1,6 +1,5 @@
 # encoding: utf-8
 sinon = require 'sinon'
-assert = require 'assert'
 
 describe 'base.js', ->
     M = require("../may.js")
@@ -25,7 +24,7 @@ describe 'base.js', ->
 
             Monkey = Animal.extend()
 
-            assert initialize.calledOn Monkey
+            initialize.calledOn(Monkey).should.be.true
 
     describe "BaseObj.base()", ->
         baseFunc = base = a = b = aspy = null
@@ -45,7 +44,7 @@ describe 'base.js', ->
 
         it "should call the same name function of base", ->
             a.func()
-            assert baseFunc.called
+            baseFunc.called.should.be.true
 
         it "should call the same name function of base and base.base", ->
             bspy = sinon.spy()
@@ -60,9 +59,9 @@ describe 'base.js', ->
 
             c.func()
 
-            assert bspy.called
-            assert aspy.called
-            assert baseFunc.called
+            bspy.called.should.be.true
+            aspy.called.should.be.true
+            baseFunc.called.should.be.true
 
     describe "BaseClass.extend(classDefine)", ->
         aspy = sinon.spy()
@@ -88,7 +87,7 @@ describe 'base.js', ->
 
         describe "BaseClass.extend", ->
             it "should return a Class", ->
-                assert typeof(ABase) == "function"
+                ABase.should.be.type "function"
 
         describe "ABase", ->
             it "should have member extend()", ->
@@ -96,31 +95,31 @@ describe 'base.js', ->
 
         describe "new ABase()", ->
             it "should call initialize", ->
-                assert aspy.called
+                aspy.called.should.be.true
 
             it "should return a instance", ->
-                assert instance != null
+                instance.should.not.equal null
 
         describe "ABase's instance", ->
             it "should link prototype M.BaseObj and M.BaseClass.prototype", ->
-                assert M.BaseObj.isPrototypeOf instance 
-                assert M.BaseClass.prototype.isPrototypeOf instance
+                M.BaseObj.isPrototypeOf(instance).should.be.true
+                M.BaseClass.prototype.isPrototypeOf(instance).should.be.true
 
         describe "new SubClass()", ->
             it "shold call ABase.initialize", ->
                 aspy.reset()
                 subInstance = new SubClass()
-                assert subInstance != null
+                subInstance.should.not.equal null
 
-                assert aspy.called
-                assert bspy.called
+                aspy.called.should.be.true
+                bspy.called.should.be.true
 
 
                 subInstance.Func = ->
                     this.base()
 
                 subInstance.Func()
-                assert aFuncSpy.called
-                assert bFuncSpy.called
+                aFuncSpy.called.should.be.true
+                bFuncSpy.called.should.be.true
 
 

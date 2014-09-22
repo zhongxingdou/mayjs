@@ -1,7 +1,4 @@
 # encoding: utf-8
-sinon = require 'sinon'
-assert = require 'assert'
-
 describe 'interface.js', ->
     M = require("../may.js")
     $is = M.$is
@@ -12,9 +9,9 @@ describe 'interface.js', ->
             fn = (p1, p2, p3) ->
             names = M.util.parseArguNames(fn)
             names.should.have.property('length', 3)
-            names.should.include('p1')
-            names.should.include('p2')
-            names.should.include('p3')
+            names.should.containEql('p1')
+            names.should.containEql('p2')
+            names.should.containEql('p3')
 
             fn2 = ->
             names2 = M.util.parseArguNames(fn2)
@@ -22,56 +19,56 @@ describe 'interface.js', ->
 
     describe "#$is(type, object)", ->
         it "$is()检验值类型", ->
-            assert $is('string', '')
-            assert $is(String, '')
-            assert $is('string', 'abc')
+            $is('string', '').should.be.true
+            $is(String, '').should.be.true
+            $is('string', 'abc').should.be.true
 
-            assert $is('number', 0)
-            assert $is('number', 8)
-            assert $is(Number, 8)
-            assert $is('number', - 1)
-            assert $is('number', - 1.3)
+            $is('number', 0).should.be.true
+            $is('number', 8).should.be.true
+            $is(Number, 8).should.be.true
+            $is('number', - 1).should.be.true
+            $is('number', - 1.3).should.be.true
 
-            assert $is('boolean', true)
-            assert $is('boolean', false)
-            assert $is(Boolean, false)
+            $is('boolean', true).should.be.true
+            $is('boolean', false).should.be.true
+            $is(Boolean, false).should.be.true
 
-            assert $is(undefined, null)
-            assert $is(null, undefined)
+            $is(undefined, null).should.be.true
+            $is(null, undefined).should.be.true
 
             $is('boolean', undefined).should.be.false
 
         it "$isA()检验引用类型", ->
-            assert $is(Function, ->)
-            assert $is(Object, ->)
+            $is(Function, ->).should.be.true
+            $is(Object, ->).should.be.true
 
-            assert $is(Object, {})
+            $is(Object, {}).should.be.true
 
-            assert $is(Date, new Date())
+            $is(Date, new Date()).should.be.true
 
-            assert $is(RegExp, /abc/)
+            $is(RegExp, /abc/).should.be.true
 
-            assert $is(Array, [])
-            assert $is(Object, [])
+            $is(Array, []).should.be.true
+            $is(Object, []).should.be.true
 
         it "$is()检验null", ->
-            assert $is(null, null)
+            $is(null, null).should.be.true
 
             $is(null, undefined).should.be.true
             $is(null, 8).should.be.false
             $is(null, {}).should.be.false
 
         it "$is()检验undefined", ->
-            assert $is('undefined', undefined)
-            assert $is(undefined, undefined)
+            $is('undefined', undefined).should.be.true
+            $is(undefined, undefined).should.be.true
 
             $is('undefined', null).should.be.true
 
             a = {};
-            assert $is('undefined', a.b)
+            $is('undefined', a.b).should.be.true
 
             t = (a, b) -> 
-                assert $is(undefined, b)
+                $is(undefined, b).should.be.true
 
             t(8);
 
@@ -80,16 +77,16 @@ describe 'interface.js', ->
                 
             B = ->
             B.prototype = new A();
-            assert $hasProto(B.prototype, new B())
+            $hasProto(B.prototype, new B()).should.be.true
 
             C = ->
             C.prototype = new B();
-            assert $hasProto(B.prototype, new C())
+            $hasProto(B.prototype, new C()).should.be.true
 
-            assert $hasProto(Array.prototype, [])
+            $hasProto(Array.prototype, []).should.be.true
 
         it "$is(type, o1, o2, o3)", ->
-            assert $is('string', "", "a", "b")
+            $is('string', "", "a", "b").should.be.true
             $is('string', "", "a", 8).should.be.false
 
     describe "#$func(arguTypes, fn)", ->
@@ -111,7 +108,7 @@ describe 'interface.js', ->
     describe "#$interface(define, base)", ->
         it "should return a new object that prototype is Interface", ->
             a = M.$interface({})
-            assert M.Interface.isPrototypeOf a
+            M.Interface.isPrototypeOf(a).should.be.true
 
         it "should return a new object that prototype is given base", ->
             base = M.$interface()
@@ -121,7 +118,7 @@ describe 'interface.js', ->
 
             a = M.$interface(define, base)
 
-            assert base.isPrototypeOf a
+            base.isPrototypeOf(a).should.be.true
             a.should.have.property "t1", define.t1
             a.should.have.property "t2", define.t2
 
@@ -138,11 +135,11 @@ describe 'interface.js', ->
             )
 
         it "should return true when object supported protocol", ->
-            assert M.$support(IMan, o)
+            M.$support(IMan, o).should.be.true
 
         it "should return true when the count of object members more than the interface's", ->
             o.score = 90
-            assert M.$support(IMan, o)
+            M.$support(IMan, o).should.be.true
 
         it "should return false when the count of object members less than the interface's", ->
             IMan.height = "number"
@@ -152,7 +149,7 @@ describe 'interface.js', ->
             a = 
                 __interfaces__: [IMan]
 
-            assert M.$support(IMan, a)
+            M.$support(IMan, a).should.be.true
 
         it "should be same to function define when the protocol method member defined be Array format", ->
             IA = M.$interface(
@@ -161,14 +158,14 @@ describe 'interface.js', ->
 
             a = { sayHello: -> }
 
-            assert M.$support(IA, a)
+            M.$support(IA, a).should.be.true
 
         it "should be same to Interface when the protocol be a pure object", ->
             IA = { sayHello: "function"}
 
             a = { sayHello: -> }
 
-            assert M.$support(IA, a)
+            M.$support(IA, a).should.be.true
 
     describe "$implement(protocol, object)", ->
         it "should add protocol to object.__interfaces__ if the object supported that", ->
@@ -177,29 +174,29 @@ describe 'interface.js', ->
 
             M.$implement(IA, o)
 
-            o.__interfaces__.should.include IA
+            o.__interfaces__.should.containEql IA
 
         it "should throw error when the object not supported protocol", ->
             o = {}
 
             IA = {m: String}
 
-            assert.throws(-> 
+            (-> 
                 M.$implement(IA, o)
-            )
+            ).should.throw
             
     describe "$check(express)", ->
         it "should throw error if express equals false", ->
-            assert.throws -> 
-                M.$check(false)
+            (-> 
+                M.$check(false)).should.throw
 
         it "should not throw error if express not equals false", ->
-            assert.doesNotThrow -> 
+            (-> 
                 M.$check(null)
                 M.$check("")
                 M.$check(true)
                 M.$check(undefined)
-                M.$check(0)
+                M.$check(0)).should.not.throw
 
 
 

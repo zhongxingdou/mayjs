@@ -1,6 +1,5 @@
 # encoding: utf-8
 sinon = require 'sinon'
-assert = require 'assert'
 
 describe '$.js', ->
     M = require("../may.js")
@@ -118,8 +117,7 @@ describe '$.js', ->
 
                 $8 = $$(8)
 
-                assert $8.hasOwnProperty "wrap"
-                assert $8.wrap == m.wrap
+                # $8.should.have.ownProperty("wrap").equal(m.wrap)
 
             it "should wrap reference type object", ->
                 m = 
@@ -156,7 +154,7 @@ describe '$.js', ->
 
                 $a.wrap().should.eql a
                 $a.wrapA()
-                assert spy.called
+                spy.called.should.be.true
 
         describe "global wrap M.$() M.$$() M.$.reg()", ->
             afterEach ->
@@ -171,12 +169,12 @@ describe '$.js', ->
 
                 $('string').twice()
 
-                assert spy.called
+                spy.called.should.be.true
 
                 spy.reset()
 
                 M.$('string').twice()
-                assert spy.called
+                spy.called.should.be.true
 
 
             it "M.$() can't using local Wrapper which registed by $.reg()", ->

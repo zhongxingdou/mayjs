@@ -1,6 +1,5 @@
 # encoding: utf-8
 sinon = require 'sinon'
-assert = require 'assert'
 
 describe 'module.js', ->
     M = require("../may.js")
@@ -46,8 +45,8 @@ describe 'module.js', ->
 
             M.$include(o, m)
 
-            assert spy.calledOn o
-            assert spy.calledWith o
+            spy.calledOn(o).should.be.true
+            spy.calledWith(o).should.be.true
 
         it "should call the onIncluded() on passing binding context after included", ->
             spy = sinon.spy()
@@ -62,8 +61,8 @@ describe 'module.js', ->
                 context: a 
             )
 
-            assert spy.calledOn o
-            assert spy.calledWith a
+            spy.calledOn(o).should.be.true
+            spy.calledWith(a).should.be.true
 
         it "should not merge specific member, such as init method, meta member which name starts with __, onIncluded callback", ->
             m = 
@@ -89,7 +88,7 @@ describe 'module.js', ->
             M.$include(o, m)
 
             o.should.have.property("__interfaces__")
-            o.__interfaces__.should.include inter for inter in interfaces
+            o.__interfaces__.should.containEql inter for inter in interfaces
 
 
 

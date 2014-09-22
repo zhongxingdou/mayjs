@@ -2,11 +2,42 @@
 <head>
   <meta charset="utf-8">
   <title>Mocha Tests</title>
+  <link rel="stylesheet" href="../lib/mocha/mocha.css" />
+
 </head>
 <body>
   <div id="mocha"></div>
+
+  <script src="../lib/mocha/mocha.js"></script>
   <script src="../lib/sinon-1.7.3.js"></script>
+  <script src="../node_modules/should/should.js"></script>
+
+  <script>
+  var host = this;
+  function require (obj) {
+  	if(obj.match(/may.js/)){
+  		return M;
+  	}
+  	return host[obj];
+  }
+  </script>
+  <script>mocha.setup('bdd')</script>
+
+  <script src="../lib/es5-shim.min.js"></script>
+  <script src="../lib/es5-sham.min.js"></script>
   <script src="../may.js"></script>
-  <script src="../../../may.js"></script>
+  <script src="$Spec.js"></script>
+  <script src="baseSpec.js"></script>
+  <script src="interfaceSpec.js"></script>
+  <script src="MObjectUtilSpec.js"></script>
+  <script src="moduleSpec.js"></script>
+  <script src="overloadSpec.js"></script>
+  <script src="utilSpec.js"></script>
+
+  <script>
+    mocha.checkLeaks();
+    // mocha.globals(['jQuery']);
+    mocha.run();
+  </script>
 </body>
 </html>

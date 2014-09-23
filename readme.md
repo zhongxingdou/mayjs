@@ -9,7 +9,7 @@
 ##principle
 + Simple, but clear
 + Focus better javascript
-+ Keep javascript as javascript
++ Keep JavaScript as JavaScript
 
 ##Features
 + smart object wrap (wrapping any object like $() in jQuery)
@@ -17,7 +17,7 @@
 + Classes and inheritance
 + Interfaces (for documentation implicit interface and validate object)
 + methodize (provides a simple way to make a pure function as members of an object)
-+ function overload
++ method overload and overwrite
 + keyword-like function (a series of function to simplify complex expressions and repetitive code)
 
 ##Getting started

@@ -53,7 +53,6 @@ M.exportDSL(M.global);
 
 ## methodize
 ```javascript
-<script>
 //in may.js, 'Pure function' means the function which does not refer to this object
 function capitalize(string){
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -65,12 +64,10 @@ var china = new String("china"); //value type object can't have members
 china.capitalize = $methodize(capitalize, china); 
 
 china.capitalize(); //=> China
-</script>
 ```
 
 ## Module
 ```javascript
-<script>
 var MEvent = $module({
     onIncluded: function(obj){
         obj.__observers = {};
@@ -104,13 +101,11 @@ man.subscribe("nameChanged", function(newName){
 
 man.setName("Hal"); //=> name changed to:Hal 
 man.setName("Jerry"); //=> name changed to:Jerry 
-</script>
 ```
 
 
 ##smart object wrap
 ```javascript
-<script>
 //register a global wrapper
 M.$.reg({
     mix: function(obj, src){
@@ -150,13 +145,11 @@ M(function($, $$){
 })
 
 M.$(8).next() //oh, No!
-</script>
 ```
 
 
 ## Classes and inheritance
 ```javascript
-<script>
 M(function(){
     var Animal = $class({
         initialize: function(name){
@@ -185,14 +178,12 @@ M(function(){
     var duck = new Duck("Litter yellow duck");
     duck.eat("grass"); // => Little yellow duck is eating grass, she is so happy: quack quack!
 });
-</script>
 ```
 
 ## Interface
 
 ### using interface to validate object
 ```javascript
-<script>
 M(function(){
     var Gender = $enum("Male","Female")
 
@@ -228,7 +219,6 @@ M(function(){
         // => error: birthday invlid
     });
 });
-</script>
 ```
 
 ### implementation interface
@@ -257,7 +247,9 @@ M(function($, $$){
         }
     });
     $implement(IMoveAble, Man.prototype);
-
+```
+## register an module map to an interface
+``` javascript
     var MoveStatus = $enum("Stoped", "Moving", "Arrived");
 
     var Marathon = $module({
@@ -312,6 +304,7 @@ M(function($, $$){
     var toyota = new Car("Toyota");
     var liuXiang = new Man("LiuXiang");
 
+    //liuXiang and toyota will wrapping by Marathon cause Car and Man both implementation IMoveAble 
     var marathonMan = $(liuXiang);
     var marathonCar = $(toyota);
 

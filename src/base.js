@@ -14,7 +14,6 @@ M.util.run(function(M) {
         */
         __interfaces__: [],
         /** 初始化方法 **/
-        initialize: function(){},
         /** 
         * 使用定义信息生成新的对象，新对象的prototype为当前对象
         * @member
@@ -37,7 +36,6 @@ M.util.run(function(M) {
                 }
             }
 
-            this.initialize.call(obj);
             return obj;
         },
         /**
@@ -113,55 +111,105 @@ M.util.run(function(M) {
              * @type {Array}
              */
             this.__interfaces__ = [];
-            this.base(); //call BaseObj.initialize
-        }       
+
+            this.constructor.fireInitialized && this.constructor.fireInitialized(this);
+        }
     });
 
-    /**
-    * 继承当前类，产生新类
-    * @memberof M~Klass
-    * @param {Object} classDefine
-    */
-    Klass.extend = function(classDefine){
-        var proto = this.prototype.extend(classDefine);
+    var KlazzStatics = {
+        __observers__: [],
+        fireInitialized: function(instance){
+            this.__observers__.forEach(function(observer){
+                observer(instance);
+            });        
+        },
+        /**
+         * 添加类的初始化事件的监听者
+         * @param  {function} observer
+         */
+        onInitialize: function(observer){
+            this.__observers__.push(observer);
+        },
+        /**
+         * 包含指定的module到当前类中
+         * @param  {IModule} module
+         * @param  {IModuleOption} option
+         */
+        include: function(module, option){
+            if(module.onIncluded){
+                option = option || {};
+                option.stopCallback = true;
 
-        if(!proto.hasOwnProperty("initialize")){
-            proto.initialize = function(){
-                this.base.apply(this, arguments);
+                M.$include(this.prototype, module, option);
+
+                this.onInitialize(function(instance){
+                    var context = option.context || instance;
+                    module.onIncluded.call(instance, context);
+                });
+            }else{
+                M.$include(this.prototype, module, option);
             }
-        }
+        },      
 
-        var clazz;
-        if(!Object["__proto__"]) {//for IE browser
-            clazz = function(){
-                if(!proto.isPrototypeOf(this)){
-                    return new (arguments.callee);
+        /**
+        * 继承当前类，产生新类
+        * @memberof M~Klass
+        * @param {Object} classDefine
+        */
+        extend: function(classDefine){
+            var proto = this.prototype.extend(classDefine);
+
+            //如果prototype未定义initialize，则为其添加一个
+            if(!proto.hasOwnProperty("initialize")){
+                proto.initialize = function(){
+                    //调用父类的initiazlie
+                    this.base.apply(this, arguments);
                 }
-                this.constructor = clazz;
-                this["__proto__"] = proto;
-                proto.initialize.apply(this, arguments);
             }
-        }else{
-            clazz = function(){
-                if(!proto.isPrototypeOf(this)){
-                    return new (arguments.callee);
+
+            var clazz;
+            if(!Object["__proto__"]) {//for IE browser
+                clazz = function(){
+                    if(!proto.isPrototypeOf(this)){
+                        return new (arguments.callee);
+                    }
+                    this.constructor = clazz;
+                    this["__proto__"] = proto;
+                    proto.initialize.apply(this, arguments);
                 }
-                this.constructor = clazz;
-                proto.initialize.apply(this, arguments);
+            }else{
+                clazz = function(){
+                    if(!proto.isPrototypeOf(this)){
+                        return new (arguments.callee);
+                    }
+                    this.constructor = clazz;
+                    proto.initialize.apply(this, arguments);
+                }
             }
-        }
 
-        proto.constructor = this;
-        clazz.prototype = proto;
-        var excludes = ["prototype"];
-        for(var p in Klass){
-            if(excludes.indexOf(p) == -1){
-                clazz[p] = this[p];
+            proto.constructor = this;
+            clazz.prototype = proto;
+            /*
+            var excludes = ["prototype"];
+            for(var p in Klass){
+                if(excludes.indexOf(p) == -1){
+                    clazz[p] = this[p];
+                }
+            }*/
+
+            M.MObjectUtil.mix(clazz, Object.create(KlazzStatics));
+
+            if(classDefine.modules && clazz.include){
+                classDefine.modules.forEach(function(module){
+                    clazz.include(module);
+                })
             }
-        }
 
-        return clazz;
-    }
+            return clazz;
+        }
+    }    
+
+    M.MObjectUtil.mix(Klass, Object.create(KlazzStatics));
 
     /**
     * BaseClass
@@ -176,7 +224,6 @@ M.util.run(function(M) {
      * @memberof M
      */
     var IBase = M.$interface({
-        "initialize": [],
         "base": [],
         "__interfaces__": Array
     });

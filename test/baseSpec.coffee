@@ -14,18 +14,6 @@ describe 'base.js', ->
 
             sub.should.have.property(member) for member of  subProto
 
-        it "should call initialize if defined", ->
-            initialize = sinon.spy()
-
-            AnimalProto = 
-                initialize: initialize
-
-            Animal = M.BaseObj.extend(AnimalProto)
-
-            Monkey = Animal.extend()
-
-            initialize.calledOn(Monkey).should.be.true
-
     describe "BaseObj.base()", ->
         baseFunc = base = a = b = aspy = null
 
@@ -121,5 +109,31 @@ describe 'base.js', ->
                 subInstance.Func()
                 aFuncSpy.called.should.be.true
                 bFuncSpy.called.should.be.true
+    
+    describe "class include module", ->
+        it "should include module", ->
+
+            m1 = 
+                p1: ->
+                onIncluded: sinon.spy()
+
+            m2 = 
+                p2: ->
+            
+            A = M.BaseClass.extend
+                modules: [m1, m2]
+
+            A.prototype.should.have.property("p1", m1.p1)
+            A.prototype.should.have.property("p2", m2.p2)
+
+            new A()
+            m1.onIncluded.called.should.be.true
+
+            
+
+
+
+
+
 
 

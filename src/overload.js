@@ -10,7 +10,7 @@ M.util.run(function(M){
             type = paramsMeta[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
-            if(!M._is(type, params[i])) {
+            if(!M.$ensure(function(){ return M._is(type, params[i]) })){
                 return false;
             }
         }

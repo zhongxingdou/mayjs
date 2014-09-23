@@ -25,7 +25,10 @@ M.util.run(function(M) {
         "[methdizeTo]": [Object],
 
         //可以被mix到哪些类型
-        "[supports]": Array
+        "[supports]": Array,
+
+        //停止调用module.onIncluded
+        "[stopCallback]": Boolean
     }
 
     /** 
@@ -35,7 +38,6 @@ M.util.run(function(M) {
     **/
     var IModule = {
         "[__option__]": IModuleOption,
-        "[init]": Function, //include给Class的prototype后，在Class的constructor内手动调用M.init.call(this)，方便传递类的实例
         "[onIncluded]": Function //include给object后被自动调用，一般不用于include给prototype object
     }
 
@@ -51,7 +53,8 @@ M.util.run(function(M) {
         var defauls = {
             "methodize": false,
             "context": null, //methodize的参数
-            "methodizeTo": null //methodize的参数
+            "methodizeTo": null, //methodize的参数
+            "stopCallback": false
         };
 
         option = M.MObjectUtil.merge(defauls, module.__option__, option);
@@ -59,7 +62,7 @@ M.util.run(function(M) {
         var needMethodize = option.methodize;
 
         M.MObjectUtil.eachOwn(module, function(k, v){
-            if("init" !== k && "onIncluded" !== k && !k.match(/^__.*__$/)) {
+            if("onIncluded" !== k && !k.match(/^__.*__$/)) {
                 //var name = (option.alias && option.alias[k]) ? option.alias[k] : k;
                 if(needMethodize && typeof v == "function") {
                     obj[k] = M.util.methodize(v, option.context, option.methodizeTo);
@@ -76,7 +79,7 @@ M.util.run(function(M) {
             });
         }
 
-        if(module.onIncluded) {
+        if(!option.stopCallback && module.onIncluded) {
             module.onIncluded.call(obj, option.context || obj);
         }
     }

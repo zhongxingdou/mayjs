@@ -233,7 +233,6 @@ M(function(){
 
 ### implementation interface
 ```javascript
-<script>
 M(function($, $$){
     var IMoveAble = $interface({
         move: Function
@@ -330,5 +329,4 @@ M(function($, $$){
         }
     }, 3000);
 });
-</script>
 ```

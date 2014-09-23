@@ -21,7 +21,7 @@ describe 'module.js', ->
 
             o.should.have.property(member, m[member]) for member of m
 
-        it "should merge methodized method to obj if option.methodize set be true", ->
+        it "should merge methodized method to obj if option.methodize be true", ->
             sayHello =  (man) ->
                     "hello " + man.name
             m = 
@@ -36,7 +36,7 @@ describe 'module.js', ->
             #check methodized
             o.sayHello().should.eql sayHello(o) 
 
-        it "should call the onIncluded() after included", ->
+        it "should call the onIncluded() after include", ->
             spy = sinon.spy()
 
             m = 
@@ -48,7 +48,7 @@ describe 'module.js', ->
             spy.calledOn(o).should.be.true
             spy.calledWith(o).should.be.true
 
-        it "should call the onIncluded() on passing binding context after included", ->
+        it "should call the onIncluded() with passing context", ->
             spy = sinon.spy()
 
             m = 
@@ -64,17 +64,16 @@ describe 'module.js', ->
             spy.calledOn(o).should.be.true
             spy.calledWith(a).should.be.true
 
-        it "should not merge specific member, such as init method, meta member which name starts with __, onIncluded callback", ->
+        it "should not merge specific member, include meta member which name starts with __, onIncluded callback", ->
             m = 
                 onIncluded: ->
                 __interface__: []
-                init: ->
                 member1: {}
 
             o = {}
             M.$include(o, m)
 
-            o.should.not.have.property(member) for member in ["onIncluded", "__interface__", "init"]
+            o.should.not.have.property(member) for member in ["onIncluded", "__interface__"]
             o.should.have.property("member1")
 
         it "should implementation all of interfaces from module", ->
@@ -89,6 +88,17 @@ describe 'module.js', ->
 
             o.should.have.property("__interfaces__")
             o.__interfaces__.should.containEql inter for inter in interfaces
+
+
+        it "should not call onIncluded() if option.stopCallback be true", ->
+            m = 
+                onIncluded: sinon.spy()
+
+            M.$include({}, m, {stopCallback: true})
+
+            m.onIncluded.called.should.be.false
+
+
 
 
 

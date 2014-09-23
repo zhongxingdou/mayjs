@@ -11,23 +11,43 @@ M.util.run(function(M) {
 
     /**
      * 供include module时使用的选项的接口
-     * @memberof M
-     * @interface
+     * @namespace M.IModuleOption
      */
     var IModuleOption = {
-        //执行onincluded和methodize时会用到
+        /**
+         * 执行onincluded和methodize时会用到
+         * @alias M.IModuleOption.context
+         * @type {Object}
+         */
         "[context]": Object,
 
-        //是否对所有函数成员进行methodize
+        /** 
+         * 是否对所有函数成员进行methodize 
+         * @alias M.IModuleOption.methodize
+         * @type {boolean}
+         */
         "[methdize]": Boolean,
 
-        //通过这个函数获得methodize时的第一参数
+        /**
+         * 通过这个函数获得methodize时的第一参数 
+         * @alias M.IModuleOption.methodizeTo
+         * @type {function}
+         */
         "[methdizeTo]": [Object],
 
-        //可以被mix到哪些类型
+        /**
+         * 可以被mix到哪些类型
+         * @alias M.IModuleOption.supports
+         * @type {Array}
+         */
         "[supports]": Array,
 
-        //停止调用module.onIncluded
+        /**
+         * 停止调用module.onIncluded，
+         * 考虑类似这种情况：当include一个module类时，应该copy成员到类的prototype，module的onIncluded则在类的initialize中调用
+         * @alias M.IModuleOption.stopCallback
+         * @type {boolean}
+         */
         "[stopCallback]": Boolean
     }
 

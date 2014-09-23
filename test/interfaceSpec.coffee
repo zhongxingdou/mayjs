@@ -106,7 +106,7 @@ describe 'interface.js', ->
             types[1].type.should.eql arguType[1]
 
     describe "#$interface(define, base)", ->
-        it "should return a new object that prototype is Interface", ->
+        it "should return a new interface that prototype is Interface", ->
             a = M.$interface({})
             M.Interface.isPrototypeOf(a).should.be.true
 
@@ -122,7 +122,7 @@ describe 'interface.js', ->
             a.should.have.property "t1", define.t1
             a.should.have.property "t2", define.t2
 
-    describe "#$support(protocol, object)", ->
+    describe "#$support(interface, object)", ->
         o = 
             name: "jim"
             age: 18
@@ -134,24 +134,25 @@ describe 'interface.js', ->
                 sayHello: "function"
             )
 
-        it "should return true when object supported protocol", ->
+        it "should be true if object supported protocol", ->
             M.$support(IMan, o).should.be.true
 
-        it "should return true when the count of object members more than the interface's", ->
+        it "should be true if the object members count great more than interface members", ->
             o.score = 90
             M.$support(IMan, o).should.be.true
 
-        it "should return false when the count of object members less than the interface's", ->
+        it "should throw error if object does not have required member", ->
             IMan.height = "number"
-            M.$support(IMan, o).should.be.false
+            (-> 
+                M.$support(IMan, o)).should.thrown
 
-        it "should return true when the protocol included in object.__interfaces__", ->
+        it "should pass and return true if object.__interfaces__ contains interface object", ->
             a = 
                 __interfaces__: [IMan]
 
             M.$support(IMan, a).should.be.true
 
-        it "should be same to function define when the protocol method member defined be Array format", ->
+        it "should support declare function member by array which contains parameters type info", ->
             IA = M.$interface(
                     sayHello: ["string"]
                 )
@@ -160,15 +161,15 @@ describe 'interface.js', ->
 
             M.$support(IA, a).should.be.true
 
-        it "should be same to Interface when the protocol be a pure object", ->
+        it "should support any object as interface agaist a object which link to Interfact as prototype", ->
             IA = { sayHello: "function"}
 
             a = { sayHello: -> }
 
             M.$support(IA, a).should.be.true
 
-    describe "$implement(protocol, object)", ->
-        it "should add protocol to object.__interfaces__ if the object supported that", ->
+    describe "$implement(interface, object)", ->
+        it "should add interface object to object.__interfaces__ if the object supported", ->
             o = {}
             IA = {}
 
@@ -176,7 +177,7 @@ describe 'interface.js', ->
 
             o.__interfaces__.should.containEql IA
 
-        it "should throw error when the object not supported protocol", ->
+        it "should throw error if object not supported interface", ->
             o = {}
 
             IA = {m: String}

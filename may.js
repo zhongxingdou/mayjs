@@ -646,7 +646,7 @@ M.util.run(function(M){
     */
     var $check = M.util.makeMultiTargetFn(function(result){
         if(result === false){
-            throw "$check failed!";
+            throw "$check failed";
         }
     });
 
@@ -764,12 +764,16 @@ M.util.run(function(M){
             if(isMataName.test(name))continue;
 
             if($is(Array, type)){ //用数组实例表示方法签名，如[TypeOfP1, TypeOfP2]，要表示成员类型是数组，用Array类
-                if(!typeof(member) == "function")return false;
+                if(!typeof(member) == "function"){
+                    //return false;
+                    throw name + " invalid";
+                }
                 continue;  
             }else if(!_is(type, member)){
-                return false;
+                //return false;
+                throw name + " invalid";
             } 
-      }
+        }
         return true;
     }
 
@@ -794,6 +798,17 @@ M.util.run(function(M){
             });
 
             interfaces.push(interface_);
+        }
+    }
+
+    M.$ensure = function(fn){
+        try{
+            return fn()
+        }catch(e){
+            if(typeof(console) != undefined){
+                console.error && console.error(e);
+            }
+            return false;
         }
     }
 
@@ -1415,7 +1430,7 @@ M.util.run(function(M){
             type = paramsMeta[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
-            if(!M._is(type, params[i])) {
+            if(!M.$ensure(function(){ return M._is(type, params[i]) })){
                 return false;
             }
         }

@@ -6,7 +6,7 @@ describe "overload.js", ->
   $overload = M.$overload
   $func = M.$func
 
-  it "找到参数数量一样的方法", ->
+  it "should find out the overwrite method that parameters count equals given", ->
     spy1 = sinon.spy()
     fn1 = $func ["string"], (name) ->
       spy1(name)
@@ -28,7 +28,7 @@ describe "overload.js", ->
     
     spy2.called.should.be.true
 
-  it "找到类型相同的方法", ->
+  it "should find out the overwrite method that parameters supported given", ->
     spy1 = sinon.spy()
     fn1 = $func ["string"], (name) ->
       spy1(name)
@@ -48,7 +48,7 @@ describe "overload.js", ->
     
     spy2.called.should.be.true
 
-  it "使用interface作为参数类型声明", ->
+  it "shoule use interface declare parameters type", ->
     spy1 = sinon.spy()
     fn1 = $func [
           name: "string",

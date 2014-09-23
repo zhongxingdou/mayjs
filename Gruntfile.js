@@ -24,7 +24,8 @@ module.exports = function(grunt) {
           'src/module.js',
           'src/base.js',
           'src/$.js',
-          'src/overload.js'
+          'src/overload.js',
+          'src/MObject.js'
          ],
         dest: 'may.js'
       }

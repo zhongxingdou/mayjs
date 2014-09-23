@@ -116,8 +116,13 @@ M.util.run(function(M) {
         }
     });
 
+    /** @lends M~Klass */
     var KlazzStatics = {
         __observers__: [],
+        /**
+         * 触发类的oninitialize事件
+         * @param  {Object} instance
+         */
         fireInitialized: function(instance){
             this.__observers__.forEach(function(observer){
                 observer(instance);

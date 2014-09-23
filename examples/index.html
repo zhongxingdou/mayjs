@@ -13,6 +13,8 @@
 
     <script>
         "use strict";
+        M.exportDSL(this);
+
         var log = function(msg){
             var p = document.createElement('p');
             p.innerHTML = msg;
@@ -36,41 +38,209 @@
         //log("The next number from 8 is " + M.$(8).next());
 
         M.$.reg({
-    mix: function(obj, src){
-        for(var p in src){ obj[p] = src[p] }
-    }, 
-    __option__: {
-        methodize: true,
-        supports: [Object]
-    }
-});
+            mix: function(obj, src){
+                for(var p in src){ obj[p] = src[p] }
+            }, 
+            __option__: {
+                methodize: true,
+                supports: [Object]
+            }
+        });
 
+        M(function($, $$){
+            //$() and $$() both use the same wrapper table
+
+            var Jim = {};
+            $(Jim).mix({
+                name: "Jim",
+                age: 20
+            });
+
+            Jim.name; //=> Jim
+            Jim.hasOwnProperty("mix"); //=> false
+            typeof(Jim.mix); //=> undefined
+
+            $$(Jim); //copy mix() to Jim directly
+            Jim.hasOwnProperty("mix"); //=> true
+
+            //register a wrapper locally
+            $.reg({
+                next: function(num){
+                    return num + 1;
+                },
+                __option__: {methodize: true}
+            }, Number);
+
+            $(8).next(); //=> 9
+        })
+
+
+        var MEvent = $module({
+            onIncluded: function(obj){
+                obj.__observers = {};
+            },
+            subscribe: function(obj, eventName, observer){
+                if(!obj.__observers[eventName]) obj.__observers[eventName] = [];
+                obj.__observers[eventName].push(observer);
+            },
+            publish: function(obj, eventName, data){
+                (obj.__observers[eventName] || []).forEach(function(observer){
+                    observer(data);
+                });
+            },
+            __option__: {
+                methodize: true
+            }
+        });
+
+        var obj = {};
+        $include(obj, MEvent);
+        obj.setName = function(name){
+            this.name = name;
+            this.publish("nameChanged", name);
+        }
+
+        obj.subscribe("nameChanged", function(newName){
+           console.info("name changed to:" + newName); 
+        });
+
+        obj.setName("Hal");
+        obj.setName("Jerry");
+
+        M(function(){
+            var Gender = $enum("Male","Female")
+
+            var IStudent = $interface({
+                name: String,
+                birthday: Date,
+                "[interest]": String
+            });
+
+            var Student = $class({
+                initialize: function(studentInfo){
+                    $support(IStudent, studentInfo);
+                    $mix(this, studentInfo);
+                }
+            });
+
+
+            var Jim = new Student({
+                name: "Jim",
+                birthday: new Date("1988/08/08")
+            });
+
+            var Lily = new Student({
+                name: "Luly",
+                birthday: new Date,
+                interest: "swimming"
+            });
+
+            var Lucy = new Student({
+                name: "Lucy",
+                birthday: "1990/08/08"
+            });
+        });
+    </script>
+
+<script>
+/*
 M(function($, $$){
-    //$() and $$() both use the same wrapper table
-
-    var Jim = {};
-    $(Jim).mix({
-        name: "Jim",
-        age: 20
+    var IMoveAble = $interface({
+        move: Function
     });
 
-    Jim.name; //=> Jim
-    Jim.hasOwnProperty("mix"); //=> false
-    typeof(Jim.mix); //=> undefined
-
-    $$(Jim); //copy mix() to Jim directly
-    Jim.hasOwnProperty("mix"); //=> true
-
-    //register a wrapper locally
-    $.reg({
-        next: function(num){
-            return num + 1;
+    var Car = $class({
+        initialize: function(name){
+            this.name = name;
         },
-        __option__: {methodize: true}
-    }, Number);
+        move: function(place){
+            console.info(this.name + " is running to " + place);
+        }
+    });
+    $implement(IMoveAble, Car.prototype);
 
-    $(8).next(); //=> 9
-})
-    </script>
+    var Man = $class({
+        initialize: function(name){
+            this.name = name;
+        },
+        move: function(place){
+            console.info(this.name + " is walking to " + place);
+        }
+    });
+    $implement(IMoveAble, Man.prototype);
+
+    var MoveStatus = $enum("Stoped", "Moving", "Arrived");
+
+    var Marathon = $module({
+        gotoPlace: function(obj, place, distance, secondsSpeed){
+            obj.status = MoveStatus.Moving;
+            obj.__moveTask ={
+                place: place,
+                distance: distance,
+                speed: secondsSpeed,
+                lastCounterTime: new Date 
+            }
+        },
+        cancel: function(){
+            obj.status = MoveStatus.Stoped;
+        },
+        checkStatus: function(obj){
+            var task = obj.__moveTask;
+            switch(obj.status){
+                case MoveStatus.Stoped:
+                    console.log(obj.name + ": Stoped");
+                    break;
+                case MoveStatus.Moving:
+                    var movedSeconds = (new Date() - task.lastCounterTime) / 1000;
+                    var movedDistance = Math.round(movedSeconds * task.speed * Math.random());
+                    if(movedDistance < task.distance){
+                        obj.move(task.place);
+                        var remaining = task.distance - movedDistance;
+                        console.log("   To " + task.place + " remaining: " + remaining);
+                        task.distance = remaining; 
+                        task.lastCounterTime = task.lastCounterTime;
+                    }else{
+                        obj.status = MoveStatus.Arrived;
+                    }
+                    break;
+                case MoveStatus.Arrived:
+                    console.info(obj.name + ": Arrived");
+                    break;
+            }
+            return obj.status;
+        },
+        onIncluded: function(obj){
+            obj.status = MoveStatus.Stoped;
+        },
+        __option__: {
+            methodize: true
+        }
+    });
+
+    $.reg(Marathon, IMoveAble);
+
+
+    var toyota = new Car("Toyota");
+    var liuXiang = new Man("LiuXiang");
+
+    var marathonMan = $(liuXiang);
+    var marathonCar = $(toyota);
+
+    marathonCar.gotoPlace("Beijing",  3 * 1000, 20);
+    marathonMan.gotoPlace("Home",  1 * 1000, 8);
+
+    var timer = setInterval(function(){
+        if(marathonMan.checkStatus() == MoveStatus.Arrived){
+            console.info("==== LiuXiang Win ====")
+            return clearInterval(timer);
+        }
+        if(marathonCar.checkStatus() == MoveStatus.Arrived){
+            console.info("==== Toyota Win ====")
+            clearInterval(timer);
+        }
+    }, 3000);
+});
+*/
+</script>
 </body>
 </html>

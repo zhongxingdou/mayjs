@@ -55,10 +55,10 @@
 <h2>Features</h2>
 <ul>
 <li>smart object wrap (wrapping any object like $() in jQuery)</li>
+<li>methodize (provides a simple way to make a pure function as members of an object)</li>
 <li>Module (inspirits by module of Ruby)</li>
 <li>Classes and inheritance</li>
 <li>Interfaces (for documentation implicit interface and validate object)</li>
-<li>methodize (provides a simple way to make a pure function as members of an object)</li>
 <li>method overload and overwrite</li>
 <li>keyword-like function (a series of function to simplify complex expressions and repetitive code)</li>
 </ul>
@@ -84,10 +84,61 @@
     &lt;body&gt;
     &lt;/body&gt;
 &lt;/html&gt;</code></pre>
-<h2>smart object wrap</h2>
+<h2>May.js DSL</h2>
 <pre><code class="lang-javascript">//export May.js keyword-like function to global object
-M.exportDSL(); //so you will got $class $module $interface $fn ...
+M.exportDSL(); //so you will got $class $module $interface $fn ...</code></pre>
+<h2>methodize</h2>
+<pre><code class="lang-javascript">&lt;script&gt;
+//in may.js, 'Pure function' means the function which does not refer to this object
+function capitalize(string){
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
+var china = new String(&quot;china&quot;); //value type object can't have members
+
+//string &quot;china&quot; will be binding as first parameter for capitalize
+china.capitalize = $methodize(capitalize, china); 
+
+china.capitalize(); //=&gt; China
+&lt;/script&gt;</code></pre>
+<h2>Module</h2>
+<pre><code class="lang-javascript">&lt;script&gt;
+var MEvent = $module({
+    onIncluded: function(obj){
+        obj.__observers = {};
+    },
+    subscribe: function(obj, eventName, observer){
+        if(!obj.__observers[eventName]) obj.__observers[eventName] = [];
+        obj.__observers[eventName].push(observer);
+    },
+    publish: function(obj, eventName, data){
+        (obj.__observers[eventName] || []).forEach(function(observer){
+            observer(data);
+        });
+    },
+    __option__: {
+        methodize: true
+    }
+});
+
+var man = {};
+
+$include(man, MEvent);
+
+man.setName = function(name){
+    this.name = name;
+    this.publish(&quot;nameChanged&quot;, name);
+}
+
+man.subscribe(&quot;nameChanged&quot;, function(newName){
+   console.info(&quot;name changed to:&quot; + newName); 
+});
+
+man.setName(&quot;Hal&quot;); //=&gt; name changed to:Hal 
+man.setName(&quot;Jerry&quot;); //=&gt; name changed to:Jerry 
+&lt;/script&gt;</code></pre>
+<h2>smart object wrap</h2>
+<pre><code class="lang-javascript">&lt;script&gt;
 //register a global wrapper
 M.$.reg({
     mix: function(obj, src){
@@ -126,9 +177,11 @@ M(function($, $$){
     $(8).next(); //=&gt; 9
 })
 
-M.$(8).next() //oh, No!</code></pre>
-<h3>Classes and inheritance</h3>
-<pre><code class="lang-javascript">M(function(){
+M.$(8).next() //oh, No!
+&lt;/script&gt;</code></pre>
+<h2>Classes and inheritance</h2>
+<pre><code class="lang-javascript">&lt;script&gt;
+M(function(){
     var Animal = $class({
         initialize: function(name){
             var _name = name || &quot;&quot;;
@@ -155,7 +208,146 @@ M.$(8).next() //oh, No!</code></pre>
 
     var duck = new Duck(&quot;Litter yellow duck&quot;);
     duck.eat(&quot;grass&quot;); // =&gt; Little yellow duck is eating grass, she is so happy: quack quack!
-});</code></pre></article>
+});
+&lt;/script&gt;</code></pre>
+<h2>Interface</h2>
+<h3>using interface to validate object</h3>
+<pre><code class="lang-javascript">&lt;script&gt;
+M(function(){
+    var Gender = $enum(&quot;Male&quot;,&quot;Female&quot;)
+
+    var IStudent = $interface({
+        name: String,
+        birthday: Date,
+        &quot;[interest]&quot;: String
+    });
+
+    var Student = $class({
+        initialize: function(studentInfo){
+            $support(IStudent, studentInfo);
+            $mix(this, studentInfo);
+        }
+    });
+
+    var Jim = new Student({
+        name: &quot;Jim&quot;,
+        birthday: new Date(&quot;1988/08/08&quot;)
+    });
+
+    var Lily = new Student({
+        name: &quot;Luly&quot;,
+        birthday: new Date,
+        interest: &quot;swimming&quot;
+    });
+
+    $ensure(function(){
+        var Lucy = new Student({
+            name: &quot;Lucy&quot;,
+            birthday: &quot;1990/08/08&quot;
+        });
+        // =&gt; error: birthday invlid
+    });
+});
+&lt;/script&gt;</code></pre>
+<h3>implementation interface</h3>
+<pre><code class="lang-javascript">&lt;script&gt;
+M(function($, $$){
+    var IMoveAble = $interface({
+        move: Function
+    });
+
+    var Car = $class({
+        initialize: function(name){
+            this.name = name;
+        },
+        move: function(place){
+            console.info(this.name + &quot; is running to &quot; + place);
+        }
+    });
+    $implement(IMoveAble, Car.prototype);
+
+    var Man = $class({
+        initialize: function(name){
+            this.name = name;
+        },
+        move: function(place){
+            console.info(this.name + &quot; is walking to &quot; + place);
+        }
+    });
+    $implement(IMoveAble, Man.prototype);
+
+    var MoveStatus = $enum(&quot;Stoped&quot;, &quot;Moving&quot;, &quot;Arrived&quot;);
+
+    var Marathon = $module({
+        gotoPlace: function(obj, place, distance, secondsSpeed){
+            obj.status = MoveStatus.Moving;
+            obj.__moveTask ={
+                place: place,
+                distance: distance,
+                speed: secondsSpeed,
+                lastCounterTime: new Date 
+            }
+        },
+        cancel: function(){
+            obj.status = MoveStatus.Stoped;
+        },
+        checkStatus: function(obj){
+            var task = obj.__moveTask;
+            switch(obj.status){
+                case MoveStatus.Stoped:
+                    console.log(obj.name + &quot;: Stoped&quot;);
+                    break;
+                case MoveStatus.Moving:
+                    var movedSeconds = (new Date() - task.lastCounterTime) / 1000;
+                    var movedDistance = Math.round(movedSeconds * task.speed * Math.random());
+                    if(movedDistance &lt; task.distance){
+                        obj.move(task.place);
+                        var remaining = task.distance - movedDistance;
+                        console.log(&quot;   To &quot; + task.place + &quot; remaining: &quot; + remaining);
+                        task.distance = remaining; 
+                        task.lastCounterTime = task.lastCounterTime;
+                    }else{
+                        obj.status = MoveStatus.Arrived;
+                    }
+                    break;
+                case MoveStatus.Arrived:
+                    console.info(obj.name + &quot;: Arrived&quot;);
+                    break;
+            }
+            return obj.status;
+        },
+        onIncluded: function(obj){
+            obj.status = MoveStatus.Stoped;
+        },
+        __option__: {
+            methodize: true
+        }
+    });
+
+    $.reg(Marathon, IMoveAble);
+
+
+    var toyota = new Car(&quot;Toyota&quot;);
+    var liuXiang = new Man(&quot;LiuXiang&quot;);
+
+    var marathonMan = $(liuXiang);
+    var marathonCar = $(toyota);
+
+    marathonCar.gotoPlace(&quot;Beijing&quot;,  3 * 1000, 20);
+    marathonMan.gotoPlace(&quot;Home&quot;,  1 * 1000, 8);
+
+    var timer = setInterval(function(){
+        if(marathonMan.checkStatus() == MoveStatus.Arrived){
+            console.info(&quot;==== LiuXiang Win ====&quot;)
+            return clearInterval(timer);
+        }
+        if(marathonCar.checkStatus() == MoveStatus.Arrived){
+            console.info(&quot;==== Toyota Win ====&quot;)
+            clearInterval(timer);
+        }
+    }, 3000);
+});
+&lt;/script&gt;</code></pre></article>
     </section>
 
 
@@ -172,7 +364,7 @@ M.$(8).next() //oh, No!</code></pre>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Sep 23 2014 15:04:56 GMT+0800 (GMT+08:00)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Sep 23 2014 20:32:31 GMT+0800 (GMT+08:00)
 </footer>
 
 <script> prettyPrint(); </script>

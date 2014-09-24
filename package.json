@@ -17,7 +17,8 @@
     "sinon": "~1.7.3",
     "grunt-jscoverage": "0.0.3",
     "coffee-script": "~1.6.3",
-    "grunt-jsdoc": "^0.5.7"
+    "grunt-jsdoc": "^0.5.7",
+    "ink-docstrap": "^0.4.12"
   },
   "licenses": [
     {

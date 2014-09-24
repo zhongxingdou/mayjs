@@ -199,6 +199,22 @@ describe 'interface.js', ->
                 M.$check(undefined)
                 M.$check(0)).should.not.throw
 
+    describe "$checkArgu(Type1, Type2)", ->
+        fn = (name, age) ->
+            return M.$checkArgu("string", "number")
+
+        it "should return true when the arguments valid", ->
+            fn("jim", 18).should.be.true
+
+        it "should return false when the arguments invalid", ->
+            fn("jim", "18").should.be.false
+
+        it "should pass by any value when the check type is defined be undefined", ->
+            fn2 = (name, age) ->
+                return M.$checkArgu("string", undefined, "number")
+
+            fn2("jim", "xx", 18).should.be.true
+            fn2("jim", null, 19).should.be.true
 
 
 

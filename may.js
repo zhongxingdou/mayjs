@@ -813,6 +813,28 @@ M.util.run(function(M){
         }
     }
 
+    function $checkArgu() {
+        var caller = arguments.callee.caller;
+        var args = caller["arguments"];
+        var arguTypes;
+        if(arguments.length === 0) {
+            arguTypes = caller.__argu_types__;
+        } else {
+            arguTypes = _parseArguTypes(Array.prototype.slice.call(arguments), M.util.parseArguNames(caller));
+        }
+        var type;
+
+        for(var i = 0, l = arguTypes.length; i < l; i++) {
+            type = arguTypes[i].type;
+            //将方法的参数声明为undefined类型，表明其可为任何值，所以总是验证通过
+            if(type === undefined) return true;
+            if(!_is(type, args[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     M.Interface = Interface;
 
     M.$interface = $interface;
@@ -820,6 +842,7 @@ M.util.run(function(M){
     M.$implement = $implement;
     M.$is = $is;
     M.$hasProto = $hasProto;
+    M.$checkArgu = $checkArgu;
     M.$func = $func;
     M.$check = $check;
     M._is = _is;

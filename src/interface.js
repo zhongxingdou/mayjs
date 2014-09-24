@@ -19,11 +19,11 @@ M.util.run(function(M){
 
         var objType = _getType(obj)
         if(type == "number" || type == Number){
-            return objType == _getType(Number.prototype);
+            return objType == _getType(new Number);
         }else if(type == "string" || type == String){
-            return objType == _getType(String.prototype);
+            return objType == _getType(new String);
         }else if(type == "boolean" || type == Boolean){
-            return objType == _getType(Boolean.prototype);
+            return objType == _getType(new Boolean);
         }else if(type == "function" || type == Function){
             return typeof(obj)== "function";
         }else{

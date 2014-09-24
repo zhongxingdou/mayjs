@@ -586,11 +586,11 @@ M.util.run(function(M){
 
         var objType = _getType(obj)
         if(type == "number" || type == Number){
-            return objType == _getType(Number.prototype);
+            return objType == _getType(new Number);
         }else if(type == "string" || type == String){
-            return objType == _getType(String.prototype);
+            return objType == _getType(new String);
         }else if(type == "boolean" || type == Boolean){
-            return objType == _getType(Boolean.prototype);
+            return objType == _getType(new Boolean);
         }else if(type == "function" || type == Function){
             return typeof(obj)== "function";
         }else{
@@ -1357,7 +1357,7 @@ M.util.run(function(M) {
 
             while(proto) {
                 wrappers = wrappers.concat(self.findWrappersByType(proto));
-                if(proto.hasOwnProperty("__interfaces__")){
+                if(proto.hasOwnProperty && proto.hasOwnProperty("__interfaces__")){
                     proto.__interfaces__.forEach(function(interface_) {
                         wrappers = wrappers.concat(self.findWrappersByType(interface_));
                     });
@@ -1387,7 +1387,7 @@ M.util.run(function(M) {
             var objType = typeof obj;
             if(objType == "object" || objType == "function") { //reference type
                 wrappers = wrappers.concat(this.__findWrappersByPrototype(obj["__proto__"] || obj.constructor.prototype));
-                if(obj.hasOwnProperty("__interfaces__")){
+                if(obj.hasOwnProperty && obj.hasOwnProperty("__interfaces__")){
                     obj.__interfaces__.forEach(function(interface_) {
                         addTypeWrappers(interface_);
                     });

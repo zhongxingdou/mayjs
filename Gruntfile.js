@@ -61,7 +61,9 @@ module.exports = function(grunt) {
         dist : {
             src: ['may.js','readme.md'], 
             options: {
-                destination: 'doc'
+                destination: 'doc',
+                template: "node_modules/ink-docstrap/template",
+                configure: "jsdoc.json"
             }
         }
     },
@@ -70,7 +72,7 @@ module.exports = function(grunt) {
         files: ['src/*.js', 'test/*.coffee'],
         tasks: ['coffee', 'concat:js', 'cafemocha'],
         options: {
-          spawn: true //为false时可能导致测试失败
+          spawn: true, //为false时可能导致测试失败
         }
       }
     }

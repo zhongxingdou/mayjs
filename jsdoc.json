@@ -11,5 +11,20 @@
     "opts": {
         "destination": "./doc/",
         "recurse": false
-    }
+    },
+    "templates" : {  
+        "cleverLinks"     : false,  
+        "monospaceLinks"  : false,  
+        "default"         : {  
+            "outputSourceFiles" : true  
+        },  
+        "systemName"      : "May.js",  
+        "footer"          : "",  
+        "copyright"       : "",  
+        "navType"         : "vertical",  
+        "theme"           : "Cosmo",  
+        "linenums"        : true,  
+        "collapseSymbols" : false,  
+        "inverseNav"      : true  
+    } 
 }

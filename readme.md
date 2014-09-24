@@ -250,6 +250,7 @@ M(function($, $$){
 ```
 ## register an module map to an interface
 ``` javascript
+    //continued codeblock above
     var MoveStatus = $enum("Stoped", "Moving", "Arrived");
 
     var Marathon = $module({
@@ -323,3 +324,77 @@ M(function($, $$){
     }, 3000);
 });
 ```
+## method overload
+may.js implementation method overload rely on interface and $is()
+```javascript
+### lets writes an tiny jQuery
+<script>
+M(function($, $$){
+    var supportCollectionFn = function(fn){
+        return function(el){
+            var self = this;
+            var args = Array.prototype.slice(arguments, 1);
+            if(el instanceof HTMLCollection){
+                var result;
+                Array.prototype.slice.call(el).forEach(function (el) {
+                    result = fn.apply(self, [el].concat(args));
+                });
+                return result;
+            }else{
+                return fn.apply(self, arguments);
+            }
+        }
+    }
+
+    var DomHelper = {
+        css: supportCollectionFn(function(el, cssProp, cssValue){
+            el.style[cssProp] = cssValue;
+            return this;
+        }),
+        html: supportCollectionFn(function(el, html){
+            if(html){
+                el.innerHTML = html;
+            }else{
+                return el.innerHTML;
+            }
+            return this;
+        }),
+        prop: supportCollectionFn(function(el, prop, propValue){
+            if(attrValue){
+                el[prop];
+            }else{
+                el[prop] = propValue;
+            }
+            return this;
+        }),
+        __option__: {
+            supports: [Element, HTMLCollection],
+            methodize: true
+        }
+    }
+
+    $.reg(DomHelper);
+
+    var jjQuery = $overload([String], function(selector){
+        return $(document.querySelectorAll(selector));
+    }).overload([Element],function(el){
+        return $(el);
+    }).overload([HTMLCollection],function(els){
+        return $(els);
+    }).overload([String,Element], function(selector, parentElement){
+        return $(parentElement.querySelectorAll(selector));
+    }).overload([/^#[^ ]*/],function(id){
+        return $(document.getElementById(id));
+    });
+
+    jjQuery("#content").html("Hi, Mayjs!");
+    jjQuery(document.body).css("backgroundColor","gray");
+    jjQuery(document.forms).css("backgroundColor", "blue");
+    jjQuery("button", document.forms[0]).prop("disabled", true);
+    jjQuery("#myForm input").prop("backgroundColor", "yellow");
+})
+</script>
+```
+
+
+

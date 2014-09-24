@@ -15,7 +15,9 @@ describe "overload.js", ->
     fn2 = $func ["string", "string"], (name, interest) ->
       spy2(name, interest)
 
-    fn = $overload(fn1).overload(fn2)
+    spy3 = sinon.spy()
+
+    fn = $overload(fn1).overload(fn2).overload(spy3)
 
     p1 = "jim"
     fn(p1)
@@ -27,6 +29,9 @@ describe "overload.js", ->
     fn(p2, p3)
     
     spy2.called.should.be.true
+
+    fn()
+    spy3.called.should.be.true
 
   it "should find out the overwrite method that parameters supported given", ->
     spy1 = sinon.spy()
@@ -48,7 +53,7 @@ describe "overload.js", ->
     
     spy2.called.should.be.true
 
-  it "shoule use interface declare parameters type", ->
+  it "should use interface declare parameters type", ->
     spy1 = sinon.spy()
     fn1 = $func [
           name: "string",
@@ -72,3 +77,26 @@ describe "overload.js", ->
     spy1.reset()
     fn(p2)
     spy1.called.should.be.false
+
+  it "should use RegExp declare params", ->
+    spy1 = sinon.spy()
+    spy2 = sinon.spy()
+    spy3 = sinon.spy()
+
+    fn = $overload([/^#/], (id)->
+      spy1(id)
+    ).overload([/^\./], (className)->
+      spy2(className)
+    ).overload(["string"], (str)->
+      spy3(str)
+    )
+
+    fn("#id")
+    spy1.called.should.be.true
+
+    fn(".panel")
+    spy2.called.should.be.true
+
+    fn("hello")
+    spy3.called.should.be.true
+

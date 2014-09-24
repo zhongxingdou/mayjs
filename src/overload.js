@@ -10,8 +10,16 @@ M.util.run(function(M){
             type = paramsMeta[i].type;
             //将方法的参数声明为null类型，表明其可为任何值，所以总是验证通过
             if(type === null) return true;
-            if(!M.$ensure(function(){ return M._is(type, params[i]) })){
-                return false;
+            if(type instanceof RegExp){
+                if(!type.test(params[i])) return false;
+            }else{
+                if(!M.$ensure(function(){ return M._is(type, params[i]) })){
+                    //if(typeof type == "function"){ //参数的类型为function，且不是参数的原型或者构造器，则可能是验证函数
+                        //@todo type.isChecker = true;
+                        //if(!type(params[i]) === false)return false;
+                    //}
+                    return false;
+                }
             }
         }
         return true;
@@ -25,6 +33,7 @@ M.util.run(function(M){
         });
         
         if(matches.length == 0) return null;
+        if(params.length == 0) return matches[0];
 
         var fn;
         while((fn = matches.shift())) {
@@ -58,8 +67,21 @@ M.util.run(function(M){
      */
     function $overload(paramTypes, fn) {
         //存储重载的方法
-        var _overloads = {};
-        _overloads.value = [ typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn)];
+        var _overloads = {value: []};
+        var pushFn = function(paramTypes, fn){
+            if(typeof paramTypes == "function"){
+                fn=paramTypes;
+                paramTypes = null;
+                if(!fn.hasOwnProperty("__argu_types__")){
+                    fn.__argu_types__ = [];
+                }
+            }else{
+                $func(paramTypes, fn);
+            }
+            _overloads.value.push(fn);
+        }
+
+        pushFn(paramTypes, fn);
 
         var main = function() {
                 var params = arguments;
@@ -70,7 +92,8 @@ M.util.run(function(M){
             };
 
         main.overload = function(paramTypes, fn) {
-            _overloads.value.push(typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn));
+            pushFn(paramTypes, fn);
+            //_overloads.value.push(typeof paramTypes == "function" ? paramTypes : $func(paramTypes, fn));
             _overloads.value = _overloads.value.sort(function(fn1, fn2) {
                 return fn1.__argu_types__.length - fn2.__argu_types__.length;
             });

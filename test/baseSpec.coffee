@@ -126,8 +126,8 @@ describe 'base.js', ->
             A.prototype.should.have.property("p1", m1.p1)
             A.prototype.should.have.property("p2", m2.p2)
 
-            new A()
-            m1.onIncluded.called.should.be.true
+            a = new A()
+            m1.onIncluded.calledWith(a).should.be.true
 
             
 

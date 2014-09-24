@@ -408,7 +408,7 @@ M(function($, $$){
     jjQuery(document.body).css("backgroundColor","gray");
     jjQuery(document.forms).css("backgroundColor", "blue");
     jjQuery("button", document.forms[0]).prop("disabled", true);
-    jjQuery("#myForm input").prop("backgroundColor", "yellow");
+    jjQuery("#myForm input").css("backgroundColor", "yellow");
 })
 ```
 

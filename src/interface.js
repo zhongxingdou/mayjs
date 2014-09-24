@@ -77,11 +77,12 @@ M.util.run(function(M){
     * @function
     * @param {...boolean} result
     */
-    var $check = M.util.makeMultiTargetFn(function(result){
+    var $check = function(result, msg){
         if(result === false){
+            if(msg)throw msg;
             throw "$check failed";
         }
-    });
+    }
 
     function _parseArguTypes(arguTypes, arguNames) {
         var meta = [];

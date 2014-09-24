@@ -185,8 +185,6 @@ M(function(){
 ### using interface to validate object
 ```javascript
 M(function(){
-    var Gender = $enum("Male","Female")
-
     var IStudent = $interface({
         name: String,
         birthday: Date,
@@ -413,7 +411,82 @@ M(function($, $$){
 ```
 
 ## keyword-like function
-```javascript
 
+### type assert
+```javascript
+$is("string", "hello");
+$is(String, "hello");
+
+$is(Array, []); 
+$is(null, undefined);
+
+A=$class({});
+$is(A, new a);
+
+$hasProto(A.prototype, new A);
+```
+
+
+### synatx sugar
+```javascript
+//$obj() object extend
+var a=$obj({name: "jerry", "gender":"male"});
+var b=a.extend({name:"hal", age:18});
+b.gender; //=> male
+a.isPrototypeOf(b); //=> true
+
+//$run() just run function
+$run(function(){
+    console.info("hello, mayjs");
+});
+
+//$ensure() Preventing errors thrown
+var errorFn = function(){
+    throw "some error"
+}
+$ensure(errorFn); //=> false
+$ensure(function(){}); //=> undefined
+$ensure(function(){ return "hello"; }); //=> hello
+
+//$overwrite()
+var a={hi: function(){
+    return "hello";
+}}
+
+$overwrite(a, "hi", function(hi){
+    return hi() + " world!"; 
+})
+
+a.hi(); //=> hello world!
+
+//$merge
+var man = function(option){
+    option = $merge({name: "noname"}, {age: 0}, option);
+    return option;
+}
+
+var hal = man({name: "hal", age: 20}); 
+hal.name; //=> hal
+hal.age; //=> 20
+
+
+//$mix
+var a = {};
+$mix(a, {name: "jim"});
+a.name; //=> jim
+
+
+//$enum
+var Gender = $enum("Male","Female")
+
+//both are unique object
+typeof Gender.Male //=> object
+typeof Gender.Female //=> object
+
+var Gender2 = {
+    male: 1,
+    female: 2
+}
+Gender2 == $enum(Gender2); //=> true
 ```
 

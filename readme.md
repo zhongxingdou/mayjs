@@ -12,7 +12,7 @@
 + Keep JavaScript as JavaScript
 
 ##Features
-+ smart object wrap (wrapping any object like $() in jQuery)
++ smart object wrapping(wrap any object like $() in jQuery)
 + methodize (provides a simple way to make a pure function as members of an object)
 + Module (inspirits by module of Ruby)
 + Classes and inheritance
@@ -325,9 +325,10 @@ M(function($, $$){
 });
 ```
 ## method overload
-may.js implementation method overload rely on interface and $is()
+may.js $overload() rely on interface and $is()
+
+### lets write an tiny jQuery
 ```javascript
-### lets writes an tiny jQuery
 M(function($, $$){
     var supportCollectionFn = function(fn){
         return function(el){
@@ -385,6 +386,23 @@ M(function($, $$){
     }).overload([/^#[^ ]*/],function(id){
         return $(document.getElementById(id));
     });
+
+    //we assume you have a html like below
+    /*
+        <div id="content"></div>
+        <form id="myForm">
+            <legend>Form1</legend>
+            <fieldset>
+                <label for="name">Name</label><input type="" id="name"/>
+                <label for="age" >Age</label><input type="" id="age"/>
+                <button>Save</button>
+                <button>Reset</button>
+            </fieldset>
+        </form>
+        <form id="myForm2">
+            <legend>Form2</legend>
+        </form>
+     */
 
     jjQuery("#content").html("Hi, Mayjs!");
     jjQuery(document.body).css("backgroundColor","gray");

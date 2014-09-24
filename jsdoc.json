@@ -22,7 +22,7 @@
         "footer"          : "",  
         "copyright"       : "Copyright (c) 2013 - 2099 Zhong Xingdou",
         "navType"         : "vertical",  
-        "theme"           : "Cosmo",  
+        "theme"           : "cosmo",  
         "linenums"        : true,  
         "collapseSymbols" : false,  
         "inverseNav"      : true  

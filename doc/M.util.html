@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>May.js Class: Wrapper</title>
+	<title>May.js Namespace: util</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -86,14 +86,14 @@
 					
 
 
-	<h1 class="page-title">Class: Wrapper</h1>
+	<h1 class="page-title">Namespace: util</h1>
 <section>
 
 <header>
     <h2>
         <span class="ancestors"><a href="M.html">M</a>.</span>
     
-    Wrapper
+    util
     </h2>
     
 </header>
@@ -104,166 +104,8 @@
 
     
         
-<dt>
-    <h4 class="name" id="Wrapper"><span class="type-signature"></span>new Wrapper<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        <dl>
-            
-<dt class="name" id="__DSL__">
-    <h4><span class="type-signature"></span>__DSL__<span class="type-signature"> :Object</span></h4>
-
-    
-</dt>
-<dd>
-    
-
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Object</span>
-
-
-            </li>
-        </ul>
-    
-
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-</dd>
 
         
-            
-<dt class="name" id="__map__">
-    <h4><span class="type-signature"></span>__map__<span class="type-signature"> :Array</span></h4>
-
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        type -- module map
-    </div>
-    
-
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Array</span>
-
-
-            </li>
-        </ul>
-    
-
-    
 <dl class="details">
 	
 
@@ -295,10 +137,20 @@
 </dl>
 
 
+        
     
-</dd>
+    </div>
 
-        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+
     
 
     
@@ -307,7 +159,7 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="$"><span class="type-signature"></span>$<span class="signature">(obj)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="dsl"><span class="type-signature">&lt;static> </span>dsl<span class="signature">(<span class="optional">obj</span>, <span class="optional">members</span>)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
     
 </dt>
@@ -315,7 +167,8 @@
     
     
     <div class="description">
-        wrap对象，非侵入
+        生成将对象的成员导出到当前作用域的代码，该代码可被eval()正确执行,
+该函数生成的代码不能在strict模式下运行
     </div>
     
 
@@ -337,7 +190,11 @@
 		<th>Type</th>
 
 		
+		<th>Argument</th>
+		
 
+		
+		<th>Default</th>
 		
 
 		<th class="last">Description</th>
@@ -355,132 +212,70 @@
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    this
+                
+                </td>
             
 
             <td class="description last"></td>
         </tr>
 
 	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="$$"><span class="type-signature"></span>$$<span class="signature">(obj)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        直接复制wrap modules中的成员到指定对象
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
 
         <tr>
             
-                <td class="name"><code>obj</code></td>
+                <td class="name"><code>members</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last">对象</td>
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">指定要导入的成员，未指定则导入全部成员，用空格分隔成员名</td>
         </tr>
 
 	
@@ -530,80 +325,47 @@
     
     
     
+    <h5>Returns:</h5>
     
-    
-</dd>
-
-        
             
-<dt>
-    <h4 class="name" id="$clear"><span class="type-signature"></span>$clear<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        清空wrap module表
-    </div>
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
 
 
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">string</span>
 
-	
 
-	
-
-	
-
-	
+	</dd>
 </dl>
 
-    
-    
 
+        
     
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">var Calculator = {
+    add: function(a, b){ return a + b },
+    sub: function(a, b){ return a - b }
+}
 
-    
-    
-    
-    
-    
-    
+eval(M.util.dsl(Calculator));
+
+add(4, 6);
+sub(10, 4);</pre>
+
+
     
 </dd>
 
         
             
 <dt>
-    <h4 class="name" id="$reg"><span class="type-signature"></span>$reg<span class="signature">(module, supports, <span class="optional">option</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="enumeration"><span class="type-signature">&lt;static> </span>enumeration<span class="signature">(names)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -611,7 +373,7 @@
     
     
     <div class="description">
-        将wrap module注册到prototype,Interface或Class
+        声明一个枚举
     </div>
     
 
@@ -647,13 +409,13 @@
 
         <tr>
             
-                <td class="name"><code>module</code></td>
+                <td class="name"><code>names</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">String</span>
 
 
             
@@ -666,77 +428,204 @@
                 
 
                 
+                    &lt;repeatable><br>
+                
                 </td>
             
 
             
 
-            <td class="description last"></td>
+            <td class="description last">enumeration key</td>
         </tr>
 
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">var color = M.$enum(&quot;BLUE&quot;, &quot;RED&quot;, &quot;YELLOW&quot;);
+color.BLUE
+color.RED
+color.YELLOW
+
+var color = M.$enum({
+ &quot;BLUE&quot;: -1,
+ &quot;RED&quot;: 1
+})</pre>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="fn"><span class="type-signature">&lt;static> </span>fn<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        在函数内部调用函数自身, 代替引用auguments.callee
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="makeMultiTargetFn"><span class="type-signature">&lt;static> </span>makeMultiTargetFn<span class="signature">(fn)</span><span class="type-signature"> &rarr; {function}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        包装只有两个参数的函数, 包装后会把第二个参数开始的所有参数依次传递给原函数运行
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
 	
 
         <tr>
             
-                <td class="name"><code>supports</code></td>
+                <td class="name"><code>fn</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
-|
-
-<span class="param-type">Interface</span>
-|
-
 <span class="param-type">function</span>
 
 
             
             </td>
 
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>option</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
             
 
             
@@ -791,6 +680,25 @@
     
     
     
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">function</span>
+
+
+	</dd>
+</dl>
+
+
+        
     
     
 </dd>
@@ -798,7 +706,7 @@
         
             
 <dt>
-    <h4 class="name" id="findWrappersByType"><span class="type-signature"></span>findWrappersByType<span class="signature">(type)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    <h4 class="name" id="methodize"><span class="type-signature">&lt;static> </span>methodize<span class="signature">(fn, <span class="optional">firstParam</span>, <span class="optional">getFirstParam</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
     
     
 </dt>
@@ -806,7 +714,233 @@
     
     
     <div class="description">
-        根据prototype,Interface或Class查找已注册的wrap modules
+        包装纯函数，包装时指定纯函数的第一参数
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">纯函数</td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>firstParam</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    this
+                
+                </td>
+            
+
+            <td class="description last">fn的第一个参数，如果未传递getFirstParam参数</td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>getFirstParam</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">获取fn的第一个参数的函数，调用时将把firstParam传递给它</td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">function</span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="overwrite"><span class="type-signature">&lt;static> </span>overwrite<span class="signature">(obj, funcName, overwriter)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        重写对象的方法，新方法将调用overwriter并把原方法作为第一个参数传递给它
     </div>
     
 
@@ -840,19 +974,331 @@
 
         <tr>
             
-                <td class="name"><code>type</code></td>
+                <td class="name"><code>obj</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">Object</span>
-|
 
-<span class="param-type">Interface</span>
-|
 
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">要重写方法的对象</td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>funcName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">被重写的方法名</td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>overwriter</code></td>
+            
+
+            <td class="type">
+            
+                
 <span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">真正的覆盖函数</td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">var Jim = {
+    sayHi: function(){ return &quot;Hi&quot;}
+}
+
+M.util.overwrite(Jim, &quot;sayHi&quot;, function(oldFn, name){
+    return oldFn.call(this) + &quot;, &quot; + name + &quot;!&quot;;
+})
+
+Jim.sayHi(&quot;Lucy&quot;);
+=&gt; &quot;Hi, Lucy!&quot;</pre>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="parseArguNames"><span class="type-signature">&lt;static> </span>parseArguNames<span class="signature">(fn)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        获取函数的参数名称
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array</span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">function Add(number1, number2){}
+M.util.parseArguNames(Add);
+=&gt; [&quot;number1&quot;, &quot;number2&quot;]</pre>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="parseArray"><span class="type-signature">&lt;static> </span>parseArray<span class="signature">(arrayLikeObj)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        将类Array对象转换成真正的Array
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>arrayLikeObj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
 
 
             
@@ -935,242 +1381,10 @@
     
 </dd>
 
-        </dl>
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-
-	<h1 class="page-title">Class: Wrapper</h1>
-<section>
-
-<header>
-    <h2>
-        <span class="ancestors"><a href="M.html">M</a>.</span>
-    
-    Wrapper
-    </h2>
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-
-    
-        
-<dt>
-    <h4 class="name" id="Wrapper"><span class="type-signature"></span>new Wrapper<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        <dl>
-            
-<dt class="name" id="__DSL__">
-    <h4><span class="type-signature"></span>__DSL__<span class="type-signature"> :Object</span></h4>
-
-    
-</dt>
-<dd>
-    
-
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Object</span>
-
-
-            </li>
-        </ul>
-    
-
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-</dd>
-
         
             
-<dt class="name" id="__map__">
-    <h4><span class="type-signature"></span>__map__<span class="type-signature"> :Array</span></h4>
-
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        type -- module map
-    </div>
-    
-
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Array</span>
-
-
-            </li>
-        </ul>
-    
-
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-</dd>
-
-        </dl>
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-            
 <dt>
-    <h4 class="name" id="$"><span class="type-signature"></span>$<span class="signature">(obj)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="run"><span class="type-signature">&lt;static> </span>run<span class="signature">(fn)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -1178,7 +1392,7 @@
     
     
     <div class="description">
-        wrap对象，非侵入
+        运行指定方法，避免在全局作用域下产生全局变量
     </div>
     
 
@@ -1212,347 +1426,12 @@
 
         <tr>
             
-                <td class="name"><code>obj</code></td>
+                <td class="name"><code>fn</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="$$"><span class="type-signature"></span>$$<span class="signature">(obj)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        直接复制wrap modules中的成员到指定对象
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>obj</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">对象</td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="$clear"><span class="type-signature"></span>$clear<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        清空wrap module表
-    </div>
-    
-
-    
-    
-    
-    
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="$reg"><span class="type-signature"></span>$reg<span class="signature">(module, supports, <span class="optional">option</span>)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        将wrap module注册到prototype,Interface或Class
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-		<th>Argument</th>
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>module</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>supports</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-|
-
-<span class="param-type">Interface</span>
-|
-
 <span class="param-type">function</span>
 
 
@@ -1560,47 +1439,6 @@
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>option</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
@@ -1661,7 +1499,7 @@
         
             
 <dt>
-    <h4 class="name" id="findWrappersByType"><span class="type-signature"></span>findWrappersByType<span class="signature">(type)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    <h4 class="name" id="toObject"><span class="type-signature">&lt;static> </span>toObject<span class="signature">(value)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
     
 </dt>
@@ -1669,7 +1507,7 @@
     
     
     <div class="description">
-        根据prototype,Interface或Class查找已注册的wrap modules
+        将值转换成其对应的引用对象
     </div>
     
 
@@ -1703,19 +1541,19 @@
 
         <tr>
             
-                <td class="name"><code>type</code></td>
+                <td class="name"><code>value</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 |
 
-<span class="param-type">Interface</span>
+<span class="param-type">number</span>
 |
 
-<span class="param-type">function</span>
+<span class="param-type">bool</span>
 
 
             
@@ -1786,7 +1624,7 @@
 	</dt>
 	<dd>
 		
-<span class="param-type">Array</span>
+<span class="param-type">Object</span>
 
 
 	</dd>

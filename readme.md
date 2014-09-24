@@ -6,12 +6,12 @@
 
 [![NPM](https://nodei.co/npm/mayjs.png?downloads=true)](https://nodei.co/npm/mayjs/)
 
-##Principle
+## Principle
 + Simple, but clear
 + Focus better javascript
 + Keep JavaScript as JavaScript
 
-##Features
+## Features
 + smart object wrapping(similary $() in jQuery but supported wrap any object )
 + methodize (provides a simple way to wrap pure function as member of object)
 + Module (inspirits by module of Ruby)
@@ -20,9 +20,18 @@
 + method overload
 + keyword-like function (a series of function to simplify complex expressions and repetitive code)
 
-##Getting started
-The quickest way to start using May.js in your project, is by simply including may.js
+## INSTALL
+install for nodejs
+```bash
+npm intall mayjs
+```
+install for browser
+```bash
+bower install mayjs
+```
 
+## Getting started
+The quickest way to start using May.js in your project, is by simply including may.js
 ```html
 <!DOCTYPE html>
 <html>
@@ -499,3 +508,7 @@ var Gender2 = {
 Gender2 == $enum(Gender2); //=> true
 ```
 
+## License
+
+Copyright (c) 2013 Zhong Xingdou
+Licensed under the MIT license.

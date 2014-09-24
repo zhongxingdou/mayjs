@@ -13,7 +13,7 @@
 
 ##Features
 + smart object wrapping(similary $() in jQuery but supported wrap any object )
-+ methodize (provides a simple way to wrap pure function as members of object)
++ methodize (provides a simple way to wrap pure function as member of object)
 + Module (inspirits by module of Ruby)
 + Classes and inheritance
 + Interfaces (for documentation implicit interface and validate object)
@@ -387,7 +387,7 @@ M(function($, $$){
         return $(document.getElementById(id));
     });
 
-    //we assume you have a html like below
+    //we assume you have some html like below
     /*
         <div id="content"></div>
         <form id="myForm">

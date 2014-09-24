@@ -1288,7 +1288,6 @@ M.util.run(function(M) {
             for(var i=0,l=types.length; i<l; i++){
                 var type = types[i];
 
-                var $ = this;
                 if(type != Function.prototype) { // typeof Function.prototype == "function" true
                     if(typeof type == "function") {
                         type = type.prototype;

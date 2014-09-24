@@ -135,10 +135,10 @@
                 interest: "swimming"
             });
 
-            var Lucy = new Student({
+            /*var Lucy = new Student({
                 name: "Lucy",
                 birthday: "1990/08/08"
-            });
+            });*/
         });
     </script>
 
@@ -241,6 +241,91 @@ M(function($, $$){
     }, 3000);
 });
 */
+</script>
+<div id="content">
+
+</div>
+<form id="myForm">
+    <legend>Form1</legend>
+    <fieldset>
+        <label for="name">Name</label><input type="" id="name"/>
+        <label for="age" >Age</label><input type="" id="age"/>
+        <button>Save</button>
+        <button>Reset</button>
+    </fieldset>
+</form>
+
+<form id="myForm2">
+    <legend>Form2</legend>
+    <fieldset>
+        <button>Save2</button>
+    </fieldset>
+</form>
+<script>
+M(function($, $$){
+    var supportCollectionFn = function(fn){
+        return function(el){
+            var self = this;
+            var args = Array.prototype.slice.call(arguments, 1);
+            if(el instanceof HTMLCollection || el instanceof NodeList){
+                var result;
+                Array.prototype.slice.call(el).forEach(function (item) {
+                    result = fn.apply(self, [item].concat(args));
+                });
+                return result;
+            }else{
+                return fn.apply(self, arguments);
+            }
+        }
+    }
+
+    var DomHelper = {
+        css: supportCollectionFn(function(el, cssProp, cssValue){
+            el.style[cssProp] = cssValue;
+            return this;
+        }),
+        html: supportCollectionFn(function(el, html){
+            if(html){
+                el.innerHTML = html;
+            }else{
+                return el.innerHTML;
+            }
+            return this;
+        }),
+        prop: supportCollectionFn(function(el, prop, propValue){
+            if(propValue){
+                el[prop] = propValue;
+            }else{
+                return el[prop];
+            }
+            return this;
+        }),
+        __option__: {
+            supports: [Element, NodeList, HTMLCollection],
+            methodize: true
+        }
+    }
+
+    $.reg(DomHelper);
+
+    var jjQuery = $overload([String], function(selector){
+        return $(document.querySelectorAll(selector));
+    }).overload([Element],function(el){
+        return $(el);
+    }).overload([HTMLCollection],function(els){
+        return $(els);
+    }).overload([String,Element], function(selector, parentElement){
+        return $(parentElement.querySelectorAll(selector));
+    }).overload([/^#[^ ]*/],function(id){
+        return $(document.getElementById(id));
+    });
+
+    jjQuery("#content").html("Hi, Mayjs!");
+    jjQuery(document.body).css("backgroundColor","gray");
+    jjQuery(document.forms).css("backgroundColor", "blue");
+    jjQuery("button", document.forms[0]).prop("disabled", true);
+    jjQuery("#myForm input").prop("backgroundColor", "yellow");
+})
 </script>
 </body>
 </html>

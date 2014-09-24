@@ -328,16 +328,15 @@ M(function($, $$){
 may.js implementation method overload rely on interface and $is()
 ```javascript
 ### lets writes an tiny jQuery
-<script>
 M(function($, $$){
     var supportCollectionFn = function(fn){
         return function(el){
             var self = this;
-            var args = Array.prototype.slice(arguments, 1);
-            if(el instanceof HTMLCollection){
+            var args = Array.prototype.slice.call(arguments, 1);
+            if(el instanceof HTMLCollection || el instanceof NodeList){
                 var result;
-                Array.prototype.slice.call(el).forEach(function (el) {
-                    result = fn.apply(self, [el].concat(args));
+                Array.prototype.slice.call(el).forEach(function (item) {
+                    result = fn.apply(self, [item].concat(args));
                 });
                 return result;
             }else{
@@ -360,15 +359,15 @@ M(function($, $$){
             return this;
         }),
         prop: supportCollectionFn(function(el, prop, propValue){
-            if(attrValue){
-                el[prop];
-            }else{
+            if(propValue){
                 el[prop] = propValue;
+            }else{
+                return el[prop];
             }
             return this;
         }),
         __option__: {
-            supports: [Element, HTMLCollection],
+            supports: [Element, NodeList, HTMLCollection],
             methodize: true
         }
     }
@@ -393,7 +392,6 @@ M(function($, $$){
     jjQuery("button", document.forms[0]).prop("disabled", true);
     jjQuery("#myForm input").prop("backgroundColor", "yellow");
 })
-</script>
 ```
 
 

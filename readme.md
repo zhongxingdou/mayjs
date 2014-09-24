@@ -412,7 +412,7 @@ M(function($, $$){
 
 ## keyword-like function
 
-### type assert
+### $is() and $check() type assert
 ```javascript
 $is("string", "hello");
 $is(String, "hello");
@@ -424,6 +424,15 @@ A=$class({});
 $is(A, new a);
 
 $hasProto(A.prototype, new A);
+
+function Person(name, age){
+   $check($is(String, name), "name invalid"); 
+   $check($is(Number, age), "age invalid"); 
+   this.name = name;
+   this.age = age;
+}
+
+var lily = new Person("lily", "16"); //throw error=> age invalid
 ```
 
 
@@ -459,7 +468,7 @@ $overwrite(a, "hi", function(hi){
 
 a.hi(); //=> hello world!
 
-//$merge
+//$merge()
 var man = function(option){
     option = $merge({name: "noname"}, {age: 0}, option);
     return option;
@@ -470,13 +479,13 @@ hal.name; //=> hal
 hal.age; //=> 20
 
 
-//$mix
+//$mix()
 var a = {};
 $mix(a, {name: "jim"});
 a.name; //=> jim
 
 
-//$enum
+//$enum()
 var Gender = $enum("Male","Female")
 
 //both are unique object

@@ -1,0 +1,27 @@
+{
+  "name": "mayjs",
+  "version": "0.1.0",
+  "homepage": "https://github.com/zhongxingdou/mayjs",
+  "authors": [
+    "zhongxingdou <zhongxingdou@gmail.com>"
+  ],
+  "description": "for better javascript lang",
+  "main": "may.js",
+  "keywords": [
+    "classes",
+    "inheritance",
+    "interface",
+    "methodize",
+    "module",
+    "object-wrap"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

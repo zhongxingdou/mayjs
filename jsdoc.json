@@ -20,7 +20,7 @@
         },  
         "systemName"      : "May.js",  
         "footer"          : "",  
-        "copyright"       : "",  
+        "copyright"       : "Copyright (c) 2013 - 2099 Zhong Xingdou",
         "navType"         : "vertical",  
         "theme"           : "Cosmo",  
         "linenums"        : true,  

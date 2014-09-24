@@ -6,14 +6,14 @@
 
 [![NPM](https://nodei.co/npm/mayjs.png?downloads=true)](https://nodei.co/npm/mayjs/)
 
-##principle
+##Principle
 + Simple, but clear
 + Focus better javascript
 + Keep JavaScript as JavaScript
 
 ##Features
-+ smart object wrapping(wrap any object like $() in jQuery)
-+ methodize (provides a simple way to make a pure function as members of an object)
++ smart object wrapping(similary $() in jQuery but supported wrap any object )
++ methodize (provides a simple way to wrap pure function as members of object)
 + Module (inspirits by module of Ruby)
 + Classes and inheritance
 + Interfaces (for documentation implicit interface and validate object)

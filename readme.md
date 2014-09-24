@@ -17,7 +17,7 @@
 + Module (inspirits by module of Ruby)
 + Classes and inheritance
 + Interfaces (for documentation implicit interface and validate object)
-+ method overload and overwrite
++ method overload
 + keyword-like function (a series of function to simplify complex expressions and repetitive code)
 
 ##Getting started
@@ -327,7 +327,7 @@ M(function($, $$){
 ## method overload
 may.js $overload() rely on interface and $is()
 
-### lets write an tiny jQuery
+### lets write a tiny jQuery
 ```javascript
 M(function($, $$){
     var supportCollectionFn = function(fn){
@@ -368,7 +368,7 @@ M(function($, $$){
             return this;
         }),
         __option__: {
-            supports: [Element, NodeList, HTMLCollection],
+            supports: [Element.prototype, NodeList.prototype, HTMLCollection.prototype],
             methodize: true
         }
     }
@@ -377,11 +377,11 @@ M(function($, $$){
 
     var jjQuery = $overload([String], function(selector){
         return $(document.querySelectorAll(selector));
-    }).overload([Element],function(el){
+    }).overload([Element.prototype],function(el){
         return $(el);
-    }).overload([HTMLCollection],function(els){
+    }).overload([HTMLCollection.prototype],function(els){
         return $(els);
-    }).overload([String,Element], function(selector, parentElement){
+    }).overload([String,Element.prototype], function(selector, parentElement){
         return $(parentElement.querySelectorAll(selector));
     }).overload([/^#[^ ]*/],function(id){
         return $(document.getElementById(id));
@@ -412,5 +412,8 @@ M(function($, $$){
 })
 ```
 
+## keyword-like function
+```javascript
 
+```
 

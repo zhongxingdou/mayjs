@@ -301,7 +301,7 @@ M(function($, $$){
             return this;
         }),
         __option__: {
-            supports: [Element, NodeList, HTMLCollection],
+            supports: [Element.prototype, NodeList.prototype, HTMLCollection.prototype],
             methodize: true
         }
     }
@@ -310,11 +310,11 @@ M(function($, $$){
 
     var jjQuery = $overload([String], function(selector){
         return $(document.querySelectorAll(selector));
-    }).overload([Element],function(el){
+    }).overload([Element.prototype],function(el){
         return $(el);
-    }).overload([HTMLCollection],function(els){
+    }).overload([HTMLCollection.prototype],function(els){
         return $(els);
-    }).overload([String,Element], function(selector, parentElement){
+    }).overload([String,Element.prototype], function(selector, parentElement){
         return $(parentElement.querySelectorAll(selector));
     }).overload([/^#[^ ]*/],function(id){
         return $(document.getElementById(id));

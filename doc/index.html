@@ -46,7 +46,7 @@
 <a href="http://badge.fury.io/js/mayjs"><img src="https://badge.fury.io/js/mayjs.png" alt="NPM version"></a>
 <a href="https://sourcegraph.com/github.com/zhongxingdou/mayjs"><img src="https://sourcegraph.com/api/repos/github.com/zhongxingdou/mayjs/counters/views-24h.png" alt="Views"></a></p>
 <p><a href="https://nodei.co/npm/mayjs/"><img src="https://nodei.co/npm/mayjs.png?downloads=true" alt="NPM"></a></p>
-<h2>principle</h2>
+<h2>Principle</h2>
 <ul>
 <li>Simple, but clear</li>
 <li>Focus better javascript</li>
@@ -54,12 +54,12 @@
 </ul>
 <h2>Features</h2>
 <ul>
-<li>smart object wrap (wrapping any object like $() in jQuery)</li>
-<li>methodize (provides a simple way to make a pure function as members of an object)</li>
+<li>smart object wrapping(similary $() in jQuery but supported wrap any object )</li>
+<li>methodize (provides a simple way to wrap pure function as member of object)</li>
 <li>Module (inspirits by module of Ruby)</li>
 <li>Classes and inheritance</li>
 <li>Interfaces (for documentation implicit interface and validate object)</li>
-<li>method overload and overwrite</li>
+<li>method overload</li>
 <li>keyword-like function (a series of function to simplify complex expressions and repetitive code)</li>
 </ul>
 <h2>Getting started</h2>
@@ -84,12 +84,11 @@
     &lt;body&gt;
     &lt;/body&gt;
 &lt;/html&gt;</code></pre>
-<h2>May.js DSL</h2>
-<pre><code class="lang-javascript">//export May.js keyword-like function to global object
-M.exportDSL(); //so you will got $class $module $interface $fn ...</code></pre>
+<h2>export May.js keyword-like function to global object</h2>
+<pre><code class="lang-javascript">M.exportDSL(M.global); 
+//so you will got $class $module $interface $fn ...</code></pre>
 <h2>methodize</h2>
-<pre><code class="lang-javascript">&lt;script&gt;
-//in may.js, 'Pure function' means the function which does not refer to this object
+<pre><code class="lang-javascript">//in may.js, 'Pure function' means the function which does not refer to this object
 function capitalize(string){
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -99,11 +98,9 @@ var china = new String(&quot;china&quot;); //value type object can't have member
 //string &quot;china&quot; will be binding as first parameter for capitalize
 china.capitalize = $methodize(capitalize, china); 
 
-china.capitalize(); //=&gt; China
-&lt;/script&gt;</code></pre>
+china.capitalize(); //=&gt; China</code></pre>
 <h2>Module</h2>
-<pre><code class="lang-javascript">&lt;script&gt;
-var MEvent = $module({
+<pre><code class="lang-javascript">var MEvent = $module({
     onIncluded: function(obj){
         obj.__observers = {};
     },
@@ -135,11 +132,9 @@ man.subscribe(&quot;nameChanged&quot;, function(newName){
 });
 
 man.setName(&quot;Hal&quot;); //=&gt; name changed to:Hal 
-man.setName(&quot;Jerry&quot;); //=&gt; name changed to:Jerry 
-&lt;/script&gt;</code></pre>
+man.setName(&quot;Jerry&quot;); //=&gt; name changed to:Jerry</code></pre>
 <h2>smart object wrap</h2>
-<pre><code class="lang-javascript">&lt;script&gt;
-//register a global wrapper
+<pre><code class="lang-javascript">//register a global wrapper
 M.$.reg({
     mix: function(obj, src){
         for(var p in src){ obj[p] = src[p] }
@@ -177,11 +172,9 @@ M(function($, $$){
     $(8).next(); //=&gt; 9
 })
 
-M.$(8).next() //oh, No!
-&lt;/script&gt;</code></pre>
+M.$(8).next() //oh, No!</code></pre>
 <h2>Classes and inheritance</h2>
-<pre><code class="lang-javascript">&lt;script&gt;
-M(function(){
+<pre><code class="lang-javascript">M(function(){
     var Animal = $class({
         initialize: function(name){
             var _name = name || &quot;&quot;;
@@ -208,14 +201,10 @@ M(function(){
 
     var duck = new Duck(&quot;Litter yellow duck&quot;);
     duck.eat(&quot;grass&quot;); // =&gt; Little yellow duck is eating grass, she is so happy: quack quack!
-});
-&lt;/script&gt;</code></pre>
+});</code></pre>
 <h2>Interface</h2>
 <h3>using interface to validate object</h3>
-<pre><code class="lang-javascript">&lt;script&gt;
-M(function(){
-    var Gender = $enum(&quot;Male&quot;,&quot;Female&quot;)
-
+<pre><code class="lang-javascript">M(function(){
     var IStudent = $interface({
         name: String,
         birthday: Date,
@@ -247,11 +236,9 @@ M(function(){
         });
         // =&gt; error: birthday invlid
     });
-});
-&lt;/script&gt;</code></pre>
+});</code></pre>
 <h3>implementation interface</h3>
-<pre><code class="lang-javascript">&lt;script&gt;
-M(function($, $$){
+<pre><code class="lang-javascript">M(function($, $$){
     var IMoveAble = $interface({
         move: Function
     });
@@ -274,8 +261,9 @@ M(function($, $$){
             console.info(this.name + &quot; is walking to &quot; + place);
         }
     });
-    $implement(IMoveAble, Man.prototype);
-
+    $implement(IMoveAble, Man.prototype);</code></pre>
+<h2>register an module map to an interface</h2>
+<pre><code class="lang-javascript">    //continued codeblock above
     var MoveStatus = $enum(&quot;Stoped&quot;, &quot;Moving&quot;, &quot;Arrived&quot;);
 
     var Marathon = $module({
@@ -330,6 +318,7 @@ M(function($, $$){
     var toyota = new Car(&quot;Toyota&quot;);
     var liuXiang = new Man(&quot;LiuXiang&quot;);
 
+    //liuXiang and toyota will wrapping by Marathon cause Car and Man both implementation IMoveAble 
     var marathonMan = $(liuXiang);
     var marathonCar = $(toyota);
 
@@ -346,8 +335,172 @@ M(function($, $$){
             clearInterval(timer);
         }
     }, 3000);
+});</code></pre>
+<h2>method overload</h2>
+<p>may.js $overload() rely on interface and $is()</p>
+<h3>lets write a tiny jQuery</h3>
+<pre><code class="lang-javascript">M(function($, $$){
+    var supportCollectionFn = function(fn){
+        return function(el){
+            var self = this;
+            var args = Array.prototype.slice.call(arguments, 1);
+            if(el instanceof HTMLCollection || el instanceof NodeList){
+                var result;
+                Array.prototype.slice.call(el).forEach(function (item) {
+                    result = fn.apply(self, [item].concat(args));
+                });
+                return result;
+            }else{
+                return fn.apply(self, arguments);
+            }
+        }
+    }
+
+    var DomHelper = {
+        css: supportCollectionFn(function(el, cssProp, cssValue){
+            el.style[cssProp] = cssValue;
+            return this;
+        }),
+        html: supportCollectionFn(function(el, html){
+            if(html){
+                el.innerHTML = html;
+            }else{
+                return el.innerHTML;
+            }
+            return this;
+        }),
+        prop: supportCollectionFn(function(el, prop, propValue){
+            if(propValue){
+                el[prop] = propValue;
+            }else{
+                return el[prop];
+            }
+            return this;
+        }),
+        __option__: {
+            supports: [Element.prototype, NodeList.prototype, HTMLCollection.prototype],
+            methodize: true
+        }
+    }
+
+    $.reg(DomHelper);
+
+    var jjQuery = $overload([String], function(selector){
+        return $(document.querySelectorAll(selector));
+    }).overload([Element.prototype],function(el){
+        return $(el);
+    }).overload([HTMLCollection.prototype],function(els){
+        return $(els);
+    }).overload([String,Element.prototype], function(selector, parentElement){
+        return $(parentElement.querySelectorAll(selector));
+    }).overload([/^#[^ ]*/],function(id){
+        return $(document.getElementById(id));
+    });
+
+    //we assume you have some html like below
+    /*
+        &lt;div id=&quot;content&quot;&gt;&lt;/div&gt;
+        &lt;form id=&quot;myForm&quot;&gt;
+            &lt;legend&gt;Form1&lt;/legend&gt;
+            &lt;fieldset&gt;
+                &lt;label for=&quot;name&quot;&gt;Name&lt;/label&gt;&lt;input type=&quot;&quot; id=&quot;name&quot;/&gt;
+                &lt;label for=&quot;age&quot; &gt;Age&lt;/label&gt;&lt;input type=&quot;&quot; id=&quot;age&quot;/&gt;
+                &lt;button&gt;Save&lt;/button&gt;
+                &lt;button&gt;Reset&lt;/button&gt;
+            &lt;/fieldset&gt;
+        &lt;/form&gt;
+        &lt;form id=&quot;myForm2&quot;&gt;
+            &lt;legend&gt;Form2&lt;/legend&gt;
+        &lt;/form&gt;
+     */
+
+    jjQuery(&quot;#content&quot;).html(&quot;Hi, Mayjs!&quot;);
+    jjQuery(document.body).css(&quot;backgroundColor&quot;,&quot;gray&quot;);
+    jjQuery(document.forms).css(&quot;backgroundColor&quot;, &quot;blue&quot;);
+    jjQuery(&quot;button&quot;, document.forms[0]).prop(&quot;disabled&quot;, true);
+    jjQuery(&quot;#myForm input&quot;).css(&quot;backgroundColor&quot;, &quot;yellow&quot;);
+})</code></pre>
+<h2>keyword-like function</h2>
+<h3>$is() and $check() type assert</h3>
+<pre><code class="lang-javascript">$is(&quot;string&quot;, &quot;hello&quot;);
+$is(String, &quot;hello&quot;);
+
+$is(Array, []); 
+$is(null, undefined);
+
+A=$class({});
+$is(A, new a);
+
+$hasProto(A.prototype, new A);
+
+function Person(name, age){
+   $check($is(String, name), &quot;name invalid&quot;); 
+   $check($is(Number, age), &quot;age invalid&quot;); 
+   this.name = name;
+   this.age = age;
+}
+
+var lily = new Person(&quot;lily&quot;, &quot;16&quot;); //throw error=&gt; age invalid</code></pre>
+<h3>synatx sugar</h3>
+<pre><code class="lang-javascript">//$obj() object extend
+var a=$obj({name: &quot;jerry&quot;, &quot;gender&quot;:&quot;male&quot;});
+var b=a.extend({name:&quot;hal&quot;, age:18});
+b.gender; //=&gt; male
+a.isPrototypeOf(b); //=&gt; true
+
+//$run() just run function
+$run(function(){
+    console.info(&quot;hello, mayjs&quot;);
 });
-&lt;/script&gt;</code></pre></article>
+
+//$ensure() Preventing errors thrown
+var errorFn = function(){
+    throw &quot;some error&quot;
+}
+$ensure(errorFn); //=&gt; false
+$ensure(function(){}); //=&gt; undefined
+$ensure(function(){ return &quot;hello&quot;; }); //=&gt; hello
+
+//$overwrite()
+var a={hi: function(){
+    return &quot;hello&quot;;
+}}
+
+$overwrite(a, &quot;hi&quot;, function(hi){
+    return hi() + &quot; world!&quot;; 
+})
+
+a.hi(); //=&gt; hello world!
+
+//$merge()
+var man = function(option){
+    option = $merge({name: &quot;noname&quot;}, {age: 0}, option);
+    return option;
+}
+
+var hal = man({name: &quot;hal&quot;, age: 20}); 
+hal.name; //=&gt; hal
+hal.age; //=&gt; 20
+
+
+//$mix()
+var a = {};
+$mix(a, {name: &quot;jim&quot;});
+a.name; //=&gt; jim
+
+
+//$enum()
+var Gender = $enum(&quot;Male&quot;,&quot;Female&quot;)
+
+//both are unique object
+typeof Gender.Male //=&gt; object
+typeof Gender.Female //=&gt; object
+
+var Gender2 = {
+    male: 1,
+    female: 2
+}
+Gender2 == $enum(Gender2); //=&gt; true</code></pre></article>
     </section>
 
 
@@ -364,7 +517,7 @@ M(function($, $$){
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Tue Sep 23 2014 20:32:31 GMT+0800 (GMT+08:00)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Wed Sep 24 2014 12:15:02 GMT+0800 (GMT+08:00)
 </footer>
 
 <script> prettyPrint(); </script>

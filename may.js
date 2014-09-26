@@ -369,7 +369,21 @@ M.MObjectUtil = {
     * @returns {boolean}
     */
     has: function(obj, property) {
-        return(obj && obj.hasOwnProperty(property) && typeof obj[property] != "function") || false;
+        if(!obj || !property)return false;
+        if(!(/\./.test(property))){
+            return obj.hasOwnProperty(property);
+        }
+
+        var names = property.split('.');
+
+        var prop;
+        var lastProp = names.pop();
+        var currObj = obj;
+        while(prop=names.shift()){
+            currObj = currObj[prop];
+            if(!currObj)return false;
+        }
+        return currObj.hasOwnProperty(lastProp);
     },
 
     /**
@@ -379,7 +393,23 @@ M.MObjectUtil = {
     * @returns {boolean}
     */
     can: function(obj, funcName) {
-        return(obj && obj[funcName] && typeof obj[funcName] == "function") || false;
+        if(!obj || !funcName)return false;
+
+        if(!(/\./.test(funcName))){
+            return typeof obj[funcName] == "function";
+        }
+
+        var names = funcName.split('.');
+        var funcName = names.pop();
+
+        var prop;
+        var currObj = obj;
+        while(prop=names.shift()){
+            currObj = currObj[prop];
+            if(!currObj)return false;
+        }
+
+        return typeof currObj[funcName] == "function";
     },
 
     /**

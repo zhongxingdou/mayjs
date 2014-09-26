@@ -34,12 +34,28 @@ describe 'MObjectUtil', ->
             isPublic('_fn').should.be.false
 
     describe '#has()', ->
+        has = util.has
         it 'should assert an object whether it has a property with given name', ->
-            has = util.has
             o = 'p' : {}
             has(o, 'p').should.be.true
 
             has(o, 'toString').should.be.false
+
+        it 'should supported namepath like a.b.c', ->
+            a = 
+                b: 
+                    c:
+                        d: {}
+
+            has(a, 'b.c.d').should.be.true
+
+            b =
+                a: 
+                    __proto__: 
+                        d: {}
+
+            has(a, 'a.d').should.be.false
+
 
     describe "#can()", ->
         it 'should assert an object whether it have a method with given name', ->
@@ -48,6 +64,16 @@ describe 'MObjectUtil', ->
             can(o, 'doAction').should.be.true
 
             can(o, 'doAny').should.be.false
+
+        it 'should supported namepath like a.b.c', ->
+            a = 
+                b: 
+                    c:
+                        d: ->
+
+            util.can(a, 'b.c.d').should.be.true
+            util.can(a, 'b.c').should.be.false
+
 
     describe "#eachAll()", ->
         it 'should each every member of an object unless it is not enumerably', ->

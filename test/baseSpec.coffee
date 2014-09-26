@@ -14,6 +14,15 @@ describe 'base.js', ->
 
             sub.should.have.property(member) for member of  subProto
 
+        it "should invoke onExtend() callback", ->
+            base = M.BaseObj.extend
+                onExtend: sinon.spy()
+
+            base.extend({})
+
+            base.onExtend.called.should.be.true
+
+
     describe "BaseObj.base()", ->
         baseFunc = base = a = b = aspy = null
 
@@ -60,6 +69,8 @@ describe 'base.js', ->
                 aspy()
             Func: aFuncSpy
 
+        ABase.onExtend = sinon.spy()
+
         instance = new ABase()
 
         bspy = sinon.spy()
@@ -76,6 +87,9 @@ describe 'base.js', ->
         describe "BaseClass.extend", ->
             it "should return a Class", ->
                 ABase.should.be.type "function"
+
+            it  "should invoke onExtend callback", ->
+                ABase.onExtend.called.should.be.true
 
         describe "ABase", ->
             it "should have member extend()", ->
@@ -94,7 +108,7 @@ describe 'base.js', ->
                 M.BaseClass.prototype.isPrototypeOf(instance).should.be.true
 
         describe "new SubClass()", ->
-            it "shold call ABase.initialize", ->
+            it "should call ABase.initialize", ->
                 aspy.reset()
                 subInstance = new SubClass()
                 subInstance.should.not.equal null
@@ -109,19 +123,20 @@ describe 'base.js', ->
                 subInstance.Func()
                 aFuncSpy.called.should.be.true
                 bFuncSpy.called.should.be.true
-    
+
+
     describe "class include module", ->
+        m1 = 
+            p1: ->
+            onIncluded: sinon.spy()
+
+        m2 = 
+            p2: ->
+        
+        A = M.BaseClass.extend
+            modules: [m1, m2]
+
         it "should include module", ->
-
-            m1 = 
-                p1: ->
-                onIncluded: sinon.spy()
-
-            m2 = 
-                p2: ->
-            
-            A = M.BaseClass.extend
-                modules: [m1, m2]
 
             A.prototype.should.have.property("p1", m1.p1)
             A.prototype.should.have.property("p2", m2.p2)
@@ -129,6 +144,9 @@ describe 'base.js', ->
             a = new A()
             m1.onIncluded.calledWith(a).should.be.true
 
+        it "should do not copy modules to prototype of new class", ->
+
+            A.prototype.should.not.have.property("modules")
             
 
 

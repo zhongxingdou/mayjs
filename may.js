@@ -974,6 +974,12 @@ M.util.run(function(M) {
         * @member
         */
         __interfaces__: [],
+        /**
+         * 啥也不做，有需要的时候可以在Mayjs加载后，声明实际需要做的事，
+         * 覆盖这个空的
+         * @return {[type]} [description]
+         */
+        onExtend: function(){},
         /** 初始化方法 **/
         /** 
         * 使用定义信息生成新的对象，新对象的prototype为当前对象
@@ -996,6 +1002,8 @@ M.util.run(function(M) {
                     member.__name__ = name;
                 }
             }
+
+            if(typeof this.onExtend == "function")this.onExtend(obj);
 
             return obj;
         },
@@ -1060,7 +1068,7 @@ M.util.run(function(M) {
     * Klass类，{@link M.BaseObj}是其prototype
     * @inner
     * @memberof M
-    * @augments {M.BaseObj}
+    <p></p>* @augments {M.BaseObj}
     * @constructor
     */
     function Klass(){}
@@ -1123,6 +1131,9 @@ M.util.run(function(M) {
         * @param {Object} classDefine
         */
         extend: function(classDefine){
+            var modules = classDefine.modules;
+            if(modules)delete classDefine.modules;
+
             var proto = this.prototype.extend(classDefine);
 
             //如果prototype未定义initialize，则为其添加一个
@@ -1165,11 +1176,13 @@ M.util.run(function(M) {
 
             M.MObjectUtil.mix(clazz, Object.create(KlazzStatics));
 
-            if(classDefine.modules && clazz.include){
-                classDefine.modules.forEach(function(module){
+            if(modules && clazz.include){
+                modules.forEach(function(module){
                     clazz.include(module);
                 })
             }
+
+            if(typeof this.onExtend == "function") this.onExtend(clazz);
 
             return clazz;
         }

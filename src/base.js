@@ -2,6 +2,36 @@ M.util.run(function(M) {
     var traverseChain = M.MObjectUtil.traverseChain;
     var mix = M.MObjectUtil.mix;
 
+    /* 
+    === How to understand May.js Classes ===
+
+    Object.prototype  ◄------------┓
+                                   |
+                                   |
+    BaseObj.__proto__  ------------┛
+       ▲
+       |
+       ┗---------------------------┓
+                                   |
+    Klass.prototype.__proto__ -----┛
+              ▲
+              |
+              ┗--------------------┓
+                                   |
+    BaseClass.prototype.__proto__ -┛
+                  ▲
+                  |
+                  ┗----------------┓
+                                   |
+    NewClass = $class(define)      |
+    NewClass.prototype.__proto__  -┛
+                  ▲
+                  |
+                  ┗----------------┓
+                                   |
+    (new NewClass()).__proto__  ---┛
+    */
+
     /**
     * @namespace
     * @memberOf M

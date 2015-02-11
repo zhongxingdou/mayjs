@@ -510,5 +510,5 @@ Gender2 == $enum(Gender2); //=> true
 
 ## License
 
-Copyright (c) 2013 Zhong Xingdou
+Copyright (c) 2015 Zhong Xingdou
 Licensed under the MIT license.

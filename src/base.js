@@ -119,13 +119,16 @@ M.util.run(function(M) {
                 if(callerOwner)return callerOwner;
 
                 traverseChain(this, "__proto__", function(proto) {
-                    Object.keys(proto).forEach(function(p) {
-                        if(proto[p] == caller) {
+                    var keys = Object.keys(proto);
+                    var p;
+                    for(var i=0,l=keys.length; i<l; i++){
+                        p = keys[i];
+                        if(proto[p] === caller) {
                             callerOwner = proto;
                             caller.__name__ = p;
-                            return false;
+                            break;
                         }
-                    });
+                    }
                 });
             }
             return callerOwner;

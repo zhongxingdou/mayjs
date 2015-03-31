@@ -189,11 +189,7 @@ M.util.run(function(M) {
                 option.stopCallback = true;
 
                 M.$include(this.prototype, module, option);
-
-                this.onInitialize(function(instance){
-                    var context = option.context || instance;
-                    module.onIncluded.call(instance, context);
-                });
+                module.onIncluded(this);
             }else{
                 M.$include(this.prototype, module, option);
             }

@@ -134,9 +134,11 @@ describe 'base.js', ->
 
 
     describe "class include module", ->
+        spy = sinon.spy()
         m1 = 
             p1: ->
-            onIncluded: sinon.spy()
+            onIncluded: (clazz) ->
+                spy(clazz)
 
         m2 = 
             p2: ->
@@ -150,7 +152,7 @@ describe 'base.js', ->
             A.prototype.should.have.property("p2", m2.p2)
 
             a = new A()
-            shouldCalled m1.onIncluded
+            spy.calledWith(A).should.be.true
 
         it "should do not copy modules to prototype of new class", ->
 

@@ -158,15 +158,17 @@ M.util.run(function(M) {
     });
 
     /** @lends M~Klass */
-    var KlazzStatics = {
-        __observers__: [],
+    var KlazzStatics = function(){
+        this.__initObservers__ = [];
+    }
+    KlazzStatics.prototype = {
         /**
          * 触发类的oninitialize事件
          * @param  {Object} instance
          */
         fireInitialized: function(instance){
-            this.__observers__.forEach(function(observer){
-                observer(instance);
+            this.__initObservers__.forEach(function(observer){
+                observer.call(instance);
             });        
         },
         /**
@@ -174,7 +176,7 @@ M.util.run(function(M) {
          * @param  {function} observer
          */
         onInitialize: function(observer){
-            this.__observers__.push(observer);
+            this.__initObservers__.push(observer);
         },
         /**
          * 包含指定的module到当前类中
@@ -246,7 +248,7 @@ M.util.run(function(M) {
                 }
             }*/
 
-            M.MObjectUtil.mix(clazz, Object.create(KlazzStatics));
+            M.MObjectUtil.mix(clazz, new KlazzStatics());
 
             if(modules && clazz.include){
                 modules.forEach(function(module){
@@ -260,7 +262,7 @@ M.util.run(function(M) {
         }
     }    
 
-    M.MObjectUtil.mix(Klass, Object.create(KlazzStatics));
+    M.MObjectUtil.mix(Klass, new KlazzStatics());
 
     /**
     * BaseClass

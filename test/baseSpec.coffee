@@ -4,6 +4,9 @@ sinon = require 'sinon'
 describe 'base.js', ->
     M = require("../may.js")
 
+    shouldCalled = (spy) ->
+        spy.called.should.be.true
+
     describe "BaseObj.extend(subProto)", ->
         it "should merge subProto", ->
             subProto= 
@@ -20,7 +23,7 @@ describe 'base.js', ->
 
             base.extend({})
 
-            base.onExtend.called.should.be.true
+            shouldCalled base.onExtend
 
 
     describe "BaseObj.base()", ->
@@ -41,7 +44,7 @@ describe 'base.js', ->
 
         it "should call the same name function of base", ->
             a.func()
-            baseFunc.called.should.be.true
+            shouldCalled baseFunc
 
         it "should call the same name function of base and base.base", ->
             bspy = sinon.spy()
@@ -56,9 +59,9 @@ describe 'base.js', ->
 
             c.func()
 
-            bspy.called.should.be.true
-            aspy.called.should.be.true
-            baseFunc.called.should.be.true
+            shouldCalled bspy
+            shouldCalled aspy
+            shouldCalled baseFunc
 
     describe "BaseClass.extend(classDefine)", ->
         aspy = sinon.spy()
@@ -89,15 +92,20 @@ describe 'base.js', ->
                 ABase.should.be.type "function"
 
             it  "should invoke onExtend callback", ->
-                ABase.onExtend.called.should.be.true
+                shouldCalled ABase.onExtend
 
         describe "ABase", ->
             it "should have member extend()", ->
                 ABase.should.have.property("extend")
 
+            it "should have __initObservers__", ->
+                ABase.should.have.property("__initObservers__")
+                ABase.__initObservers__.should.be.empty
+                ABase.__initObservers__.should.not.equal(M.BaseClass.__initObservers__)
+
         describe "new ABase()", ->
             it "should call initialize", ->
-                aspy.called.should.be.true
+                shouldCalled aspy
 
             it "should return a instance", ->
                 instance.should.not.equal null
@@ -113,16 +121,16 @@ describe 'base.js', ->
                 subInstance = new SubClass()
                 subInstance.should.not.equal null
 
-                aspy.called.should.be.true
-                bspy.called.should.be.true
+                shouldCalled aspy
+                shouldCalled bspy
 
 
                 subInstance.Func = ->
                     this.base()
 
                 subInstance.Func()
-                aFuncSpy.called.should.be.true
-                bFuncSpy.called.should.be.true
+                shouldCalled aFuncSpy
+                shouldCalled bFuncSpy
 
 
     describe "class include module", ->
@@ -142,12 +150,22 @@ describe 'base.js', ->
             A.prototype.should.have.property("p2", m2.p2)
 
             a = new A()
-            m1.onIncluded.calledWith(a).should.be.true
+            shouldCalled m1.onIncluded
 
         it "should do not copy modules to prototype of new class", ->
 
             A.prototype.should.not.have.property("modules")
+
+    describe "onInitialize", ->
+        spy = sinon.spy()
+        A = M.BaseClass.extend({})
+        A.onInitialize ->
+            spy(this)
             
+        a = new A()
+        spy.calledWith(a).should.be.true
+
+
 
 
 

@@ -3,6 +3,14 @@ M.util.run(function(M) {
     var merge = M.MObjectUtil.merge;
     var mix = M.MObjectUtil.mix;
 
+    var md5Proto = function(proto){
+        var key = Object.keys(proto).join('');
+        if(key === ''){
+            key = proto.constructor.toString();
+        }
+        return M.md5(key);
+    }
+
     /**
     * @memberof M
     * @class
@@ -41,7 +49,7 @@ M.util.run(function(M) {
             if(wrappers.length === 0) return obj;
 
             wrappers.forEach(function(wrapper) {
-                var includeOption = merge(option || {}, wrapper.includeOption);
+                var includeOption = option ? merge(option, wrapper.includeOption) : wrapper.includeOption;
                 M.$include(proxy, wrapper.module, includeOption);
             });
 
@@ -80,59 +88,41 @@ M.util.run(function(M) {
          * @param {Object} [option] 
          */
         $reg: function(module, supports, option) {
+            if(!module || typeof module != "object") return;
+
             var includeOption = option || module.__option__ || {};
             supports = supports || includeOption.supports;
             var types = Array.prototype.isPrototypeOf(supports) ? supports : [supports];
 
             for(var i=0,l=types.length; i<l; i++){
                 var type = types[i];
-
-                if(type != Function.prototype) { // typeof Function.prototype == "function" true
-                    if(typeof type == "function") {
-                        type = type.prototype;
-                    }
-
-                    if(type != Function.prototype) {
-                        if(!type || ["string", "object"].indexOf(typeof type) == -1) return;
-                    }
+                if(typeof type === 'function'){
+                    type = type.prototype;
                 }
-
-                if(typeof module != "object") return;
-
-                var map = this.__map__;
-                var typeWrappers = map.filter(function(item) {
-                    return item.type == type;
-                });
+                if(!type)continue;
 
                 var wrapper = {
                     "module": module,
                     "includeOption": includeOption
-                };
+                }
 
-                if(typeWrappers.length === 0) {
-                    typeWrappers = {
-                        "type": type,
-                        modules: [wrapper]
-                    };
-                    map.push(typeWrappers);
-                } else {
-                    if(typeWrappers[0].modules.filter(function(wrapper) {
-                        return wrapper.module == module;
-                    }).length === 0) {
-                        typeWrappers[0].modules.push(wrapper);
+                var map = this.__map__;
+                var id = md5Proto(type);
+                if(!map[id]){
+                    map[id] = [wrapper];
+                }else{
+                    var typeWrappers = map[id];
+                    if(!typeWrappers.some(function(item){ return item.module === module; })){
+                        typeWrappers.push(wrapper);
                     }
                 }
             }
             return this;
         },
 
-
         __findWrappersByType: function(type) {
-            var ms = this.__map__.filter(function(item) {
-                return item.type == type;
-            });
-
-            return ms.length === 0 ? [] : ms[0].modules;
+            var id = md5Proto(type);
+            return this.__map__[id] || [];
         },
 
         /**

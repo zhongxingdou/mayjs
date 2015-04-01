@@ -18,6 +18,7 @@ module.exports = function(grunt) {
       js: {
         src: [
           'src/boot.js',
+          'src/md5.js',
           'src/util.js',
           'src/MObjectUtil.js',
           'src/interface.js',

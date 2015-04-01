@@ -21,7 +21,7 @@ describe '$.js', ->
 
             it "包装引用类型", ->
                 m = 
-                    wrap: ->
+                    wrap1: ->
                     __option__: 
                         supports: [Array]
 
@@ -30,18 +30,18 @@ describe '$.js', ->
                 a = []
                 $a = $(a)
 
-                $a.should.have.property "wrap", m.wrap
+                $a.should.have.property "wrap1", m.wrap1
 
             it "should wrap a object if its prototype wrapper registed", ->
                 m = 
-                    wrap: ->
+                    wrap2: ->
                     __option__: 
                         supports: [Array.prototype]
 
                 $.reg m
 
                 $a = $([])
-                $a.should.have.property "wrap", m.wrap
+                $a.should.have.property "wrap2", m.wrap2
 
             it "should wrap a object if its __interfaces__ wrapper registed", ->
                 IA = {}
@@ -53,7 +53,7 @@ describe '$.js', ->
                     __interfaces__: [IB]
 
                 m = 
-                    wrap: ->
+                    wrap3: ->
                     __option__:
                         supports: [IA,IB]
 
@@ -61,12 +61,12 @@ describe '$.js', ->
 
                 $a = $(a)
                 $b = $(b)
-                $a.should.have.property "wrap", m.wrap
-                $b.should.have.property "wrap", m.wrap
+                $a.should.have.property "wrap3", m.wrap3
+                $b.should.have.property "wrap3", m.wrap3
 
             it "should not wrap the object which wrapper module not registed", ->
                 m = 
-                    wrap: ->
+                    wrap4: ->
                     __option__:
                         supports: [Array]
 
@@ -74,11 +74,11 @@ describe '$.js', ->
 
                 $a = $({})
 
-                $a.should.not.have.property "wrap"
+                $a.should.not.have.property "wrap4"
 
             it "should wrap all of objects if that wrapper module registed", ->
                 m = 
-                    wrap: ->
+                    wrap5: ->
                     __option__:
                         supports: [Array, Number]
 
@@ -87,8 +87,8 @@ describe '$.js', ->
                 $a = $([])
                 $n = $(8)
 
-                $a.should.have.property "wrap", m.wrap
-                $n.should.have.property "wrap", m.wrap
+                $a.should.have.property "wrap5", m.wrap5
+                $n.should.have.property "wrap5", m.wrap5
 
 
             it "每个M.$wrapper()都将产生新的实例", ->
@@ -96,11 +96,11 @@ describe '$.js', ->
                 $2 = M.$wrapper()
 
                 m1 = 
-                    wrap: ->
+                    wrap6: ->
                     __option__:
                         supports: [Object]
                 m2 = 
-                    wrap: ->
+                    wrap6: ->
                     __option__:
                         supports: [Object]
 
@@ -111,14 +111,14 @@ describe '$.js', ->
                 $o1 = $1.$(obj)
                 $o2 = $2.$(obj)
 
-                $o1.should.have.property "wrap", m1.wrap
-                $o2.should.have.property "wrap", m2.wrap
+                $o1.should.have.property "wrap6", m1.wrap6
+                $o2.should.have.property "wrap6", m2.wrap6
 
 
         describe "$$()", ->
             it "should wrap value type object", ->
                 m = 
-                    wrap: ->
+                    wrap7: ->
                     __option__:
                         supports: [Number]
 
@@ -126,11 +126,12 @@ describe '$.js', ->
 
                 $8 = $$(8)
 
-                # $8.should.have.ownProperty("wrap").equal(m.wrap)
+                $8.hasOwnProperty("wrap7").should.be.ture
+                $8.wrap7.should.equal(m.wrap7)
 
             it "should wrap reference type object", ->
                 m = 
-                    wrap: ->
+                    wrap8: ->
                     __option__:
                         supports: [Array]
 
@@ -139,13 +140,13 @@ describe '$.js', ->
                 a = []
                 $$(a)
 
-                a.should.have.property "wrap", m.wrap
+                a.should.have.property "wrap8", m.wrap8
 
         describe "$() with methodize", ->
             it "should wrap method by methodize", ->
                 spy = sinon.spy()
                 m = 
-                    wrap: (self) ->
+                    wrap9: (self) ->
                         self
                     spy: spy
                     wrapA: ->
@@ -162,7 +163,7 @@ describe '$.js', ->
 
                 $a = $(a)
 
-                $a.wrap().should.eql a
+                $a.wrap9().should.eql a
                 $a.wrapA()
                 spy.called.should.be.true
 

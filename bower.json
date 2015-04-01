@@ -1,6 +1,6 @@
 {
   "name": "mayjs",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "homepage": "https://github.com/zhongxingdou/mayjs",
   "authors": [
     "zhongxingdou <zhongxingdou@gmail.com>"
@@ -16,7 +16,7 @@
     "object-wrap"
   ],
   "license": "MIT",
-  "private": true,
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",

@@ -153,7 +153,12 @@ M.util.run(function(M) {
              */
             this.__interfaces__ = [];
 
-            this.constructor.fireInitialized && this.constructor.fireInitialized(this);
+            var self = this;
+            traverseChain(this, "__proto__", function(proto) {
+                if(proto.constructor.fireInitialized){
+                   proto.constructor.fireInitialized(self); 
+                }
+            });
         }
     });
 
@@ -234,7 +239,7 @@ M.util.run(function(M) {
                 }
             }
 
-            proto.constructor = this;
+            proto.constructor = clazz;
             clazz.prototype = proto;
             /*
             var excludes = ["prototype"];

@@ -159,14 +159,30 @@ describe 'base.js', ->
             A.prototype.should.not.have.property("modules")
 
     describe "onInitialize", ->
-        spy = sinon.spy()
-        A = M.BaseClass.extend({})
-        A.onInitialize ->
-            spy(this)
-            
-        a = new A()
-        spy.calledWith(a).should.be.true
+        it "should invoke", ->
+            spy = sinon.spy()
+            A = M.BaseClass.extend({})
+            A.onInitialize ->
+                spy(this)
+                
+            a = new A()
+            spy.calledWith(a).should.be.true
 
+        it "should invoke in multiple inheritance", ->
+            A = M.BaseClass.extend({})
+            aSpy = sinon.spy()
+            A.onInitialize aSpy
+
+            B = A.extend({})
+
+            C = B.extend({})
+            cSpy = sinon.spy()
+            C.onInitialize cSpy
+
+            new C()
+            shouldCalled aSpy
+            shouldCalled cSpy
+              
 
 
 

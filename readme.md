@@ -6,32 +6,49 @@
 
 [![NPM](https://nodei.co/npm/mayjs.png?downloads=true)](https://nodei.co/npm/mayjs/)
 
+
 ## Principle
+
 + Simple, but clear
+
 + Focus better javascript
+
 + Keep JavaScript as JavaScript
 
+
 ## Features
+
 + smart object wrapping(similary $() in jQuery but supported wrap any object )
+
 + methodize (provides a simple way to wrap pure function as member of object)
+
 + Module (inspirits by module of Ruby)
+
 + Classes and inheritance
+
 + Interfaces (for documentation implicit interface and validate object)
+
 + method overload
+
 + keyword-like function (a series of function to simplify complex expressions and repetitive code)
 
-## INSTALL
+
+## Install
+
 install for nodejs
+
 ```bash
 npm intall mayjs
 ```
 install for browser
+
 ```bash
 bower install mayjs
 ```
 
 ## Getting started
 The quickest way to start using May.js in your project, is by simply including may.js
+
 ```html
 <!DOCTYPE html>
 <html>
@@ -54,28 +71,17 @@ The quickest way to start using May.js in your project, is by simply including m
 	</body>
 </html>
 ```
-## Export May.js keyword-like function to global object
+
+Export May.js keyword-like function to global object
+
 ```javascript
 M.exportDSL(M.global); 
-//so you will got $class $module $interface $fn ...
+// so you will got $class $module $interface $fn ...
 ```
 
-## Methodize
-```javascript
-//in may.js, 'Pure function' means the function which does not refer to this object
-function capitalize(string){
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-var china = new String("china"); //value type object can't have members
-
-//string "china" will be binding as first parameter for capitalize
-china.capitalize = $methodize(capitalize, china); 
-
-china.capitalize(); //=> China
-```
 
 ## Module
+
 ```javascript
 var MEvent = $module({
     onIncluded: function(obj){
@@ -96,7 +102,6 @@ var MEvent = $module({
 });
 
 var man = {};
-
 $include(man, MEvent);
 
 man.setName = function(name){
@@ -108,14 +113,15 @@ man.subscribe("nameChanged", function(newName){
    console.info("name changed to:" + newName); 
 });
 
-man.setName("Hal"); //=> name changed to:Hal 
-man.setName("Jerry"); //=> name changed to:Jerry 
+man.setName("Hal"); // => name changed to:Hal 
+man.setName("Jerry"); // => name changed to:Jerry 
 ```
 
 
 ## Smart object wrap
+
 ```javascript
-//register a global wrapper
+// register a global wrapper
 M.$.reg({
     mix: function(obj, src){
         for(var p in src){ obj[p] = src[p] }
@@ -135,12 +141,12 @@ M(function($, $$){
         age: 20
     });
 
-    Jim.name; //=> Jim
-    Jim.hasOwnProperty("mix"); //=> false
-    typeof(Jim.mix); //=> undefined
+    Jim.name; // => Jim
+    Jim.hasOwnProperty("mix"); // => false
+    typeof(Jim.mix); // => undefined
 
     $$(Jim); //copy mix() to Jim directly
-    Jim.hasOwnProperty("mix"); //=> true
+    Jim.hasOwnProperty("mix"); // => true
 
     //register a wrapper locally
     $.reg({
@@ -150,14 +156,15 @@ M(function($, $$){
         __option__: {methodize: true}
     }, Number);
 
-    $(8).next(); //=> 9
+    $(8).next(); // => 9
 })
 
-M.$(8).next() //oh, No!
+M.$(8).next() //Oh, no!
 ```
 
 
 ## Classes and inheritance
+
 ```javascript
 M(function(){
     var Animal = $class({
@@ -191,7 +198,8 @@ M(function(){
 
 ## Interface
 
-### Using interface to validate object
+Using interface to validate object
+
 ```javascript
 M(function(){
     var IStudent = $interface({
@@ -228,7 +236,8 @@ M(function(){
 });
 ```
 
-### Implementation interface
+Implementation interface
+
 ```javascript
 M(function($, $$){
     var IMoveAble = $interface({
@@ -255,7 +264,9 @@ M(function($, $$){
     });
     $implement(IMoveAble, Man.prototype);
 ```
-## Register an module map to an interface
+
+Register an module map to an interface
+
 ``` javascript
     //continued codeblock above
     var MoveStatus = $enum("Stoped", "Moving", "Arrived");
@@ -331,10 +342,13 @@ M(function($, $$){
     }, 3000);
 });
 ```
+
 ## Method overload
 may.js $overload() rely on interface and $is()
 
-### Lets write a tiny jQuery
+
+Lets write a tiny jQuery
+
 ```javascript
 M(function($, $$){
     var supportCollectionFn = function(fn){
@@ -421,7 +435,8 @@ M(function($, $$){
 
 ## Keyword-like function
 
-### $is() and $check() type assert
+assertion
+
 ```javascript
 $is("string", "hello");
 $is(String, "hello");
@@ -444,14 +459,15 @@ function Person(name, age){
 var lily = new Person("lily", "16"); //throw error=> age invalid
 ```
 
+Syntactic sugar
 
-### Syntactic sugar
 ```javascript
+
 //$obj() object extend
 var a=$obj({name: "jerry", "gender":"male"});
 var b=a.extend({name:"hal", age:18});
-b.gender; //=> male
-a.isPrototypeOf(b); //=> true
+b.gender; // => male
+a.isPrototypeOf(b); // => true
 
 //$run() just run function
 $run(function(){
@@ -462,11 +478,25 @@ $run(function(){
 var errorFn = function(){
     throw "some error"
 }
-$ensure(errorFn); //=> false
-$ensure(function(){}); //=> undefined
-$ensure(function(){ return "hello"; }); //=> hello
+$ensure(errorFn); // => false
+$ensure(function(){}); // => undefined
+$ensure(function(){ return "hello"; }); // => hello
 
-//$overwrite()
+// $methodize()
+// in may.js, 'Pure function' means the function which does not refer to this object
+function capitalize(string){
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+var china = new String("china"); //value type object can't have members
+
+// string "china" will be binding as first parameter for capitalize
+china.capitalize = $methodize(capitalize, china); 
+
+china.capitalize(); // => China
+
+
+// $overwrite()
 var a={hi: function(){
     return "hello";
 }}
@@ -475,37 +505,37 @@ $overwrite(a, "hi", function(hi){
     return hi() + " world!"; 
 })
 
-a.hi(); //=> hello world!
+a.hi(); // => hello world!
 
-//$merge()
+// $merge()
 var man = function(option){
     option = $merge({name: "noname"}, {age: 0}, option);
     return option;
 }
 
 var hal = man({name: "hal", age: 20}); 
-hal.name; //=> hal
-hal.age; //=> 20
+hal.name; // => hal
+hal.age; // => 20
 
 
-//$mix()
+// $mix()
 var a = {};
 $mix(a, {name: "jim"});
-a.name; //=> jim
+a.name; // => jim
 
 
-//$enum()
+// $enum()
 var Gender = $enum("Male","Female")
 
-//both are unique object
-typeof Gender.Male //=> object
-typeof Gender.Female //=> object
+// both are unique object
+typeof Gender.Male // => object
+typeof Gender.Female // => object
 
 var Gender2 = {
     male: 1,
     female: 2
 }
-Gender2 == $enum(Gender2); //=> true
+Gender2 == $enum(Gender2); // => true
 ```
 
 ## License

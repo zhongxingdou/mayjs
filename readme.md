@@ -102,6 +102,7 @@ var MEvent = $module({
 });
 
 var man = {};
+
 $include(man, MEvent);
 
 man.setName = function(name){
@@ -118,7 +119,7 @@ man.setName("Jerry"); // => name changed to:Jerry
 ```
 
 
-## Smart object wrap
+## Object wrap
 
 ```javascript
 // register a global wrapper
@@ -347,7 +348,7 @@ Register an module map to an interface
 may.js $overload() rely on interface and $is()
 
 
-Lets write a tiny jQuery
+lets write a tiny jQuery
 
 ```javascript
 M(function($, $$){
@@ -459,7 +460,7 @@ function Person(name, age){
 var lily = new Person("lily", "16"); //throw error=> age invalid
 ```
 
-Syntactic sugar
+syntactic sugar
 
 ```javascript
 

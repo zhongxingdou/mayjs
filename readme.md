@@ -18,19 +18,34 @@
 
 ## Features
 
-+ smart object wrapping(similary $() in jQuery but supported wrap any object )
++ object wrapping
 
-+ methodize (provides a simple way to wrap pure function as member of object)
+  similary $() in jQuery but supported wrap any object
+  
 
-+ Module (inspirits by module of Ruby)
++ module 
 
-+ Classes and inheritance
+  inspirits by module of Ruby
+  
 
-+ Interfaces (for documentation implicit interface and validate object)
++ classes and inheritance
+
+  simple and extension able
+
+
++ interfaces 
+
+  for documentation implicit interface and validate object
+  
 
 + method overload
 
-+ keyword-like function (a series of function to simplify complex expressions and repetitive code)
+  help you clean up type assertion of paramerters in function head lines
+
+
++ keyword-like function
+
+  a series of function to simplify complex expressions and repetitive code  
 
 
 ## Install

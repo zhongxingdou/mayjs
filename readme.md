@@ -54,13 +54,13 @@ The quickest way to start using May.js in your project, is by simply including m
 	</body>
 </html>
 ```
-## export May.js keyword-like function to global object
+## Export May.js keyword-like function to global object
 ```javascript
 M.exportDSL(M.global); 
 //so you will got $class $module $interface $fn ...
 ```
 
-## methodize
+## Methodize
 ```javascript
 //in may.js, 'Pure function' means the function which does not refer to this object
 function capitalize(string){
@@ -113,7 +113,7 @@ man.setName("Jerry"); //=> name changed to:Jerry
 ```
 
 
-##smart object wrap
+## Smart object wrap
 ```javascript
 //register a global wrapper
 M.$.reg({
@@ -191,7 +191,7 @@ M(function(){
 
 ## Interface
 
-### using interface to validate object
+### Using interface to validate object
 ```javascript
 M(function(){
     var IStudent = $interface({
@@ -228,7 +228,7 @@ M(function(){
 });
 ```
 
-### implementation interface
+### Implementation interface
 ```javascript
 M(function($, $$){
     var IMoveAble = $interface({
@@ -255,7 +255,7 @@ M(function($, $$){
     });
     $implement(IMoveAble, Man.prototype);
 ```
-## register an module map to an interface
+## Register an module map to an interface
 ``` javascript
     //continued codeblock above
     var MoveStatus = $enum("Stoped", "Moving", "Arrived");
@@ -331,10 +331,10 @@ M(function($, $$){
     }, 3000);
 });
 ```
-## method overload
+## Method overload
 may.js $overload() rely on interface and $is()
 
-### lets write a tiny jQuery
+### Lets write a tiny jQuery
 ```javascript
 M(function($, $$){
     var supportCollectionFn = function(fn){
@@ -419,7 +419,7 @@ M(function($, $$){
 })
 ```
 
-## keyword-like function
+## Keyword-like function
 
 ### $is() and $check() type assert
 ```javascript
@@ -445,7 +445,7 @@ var lily = new Person("lily", "16"); //throw error=> age invalid
 ```
 
 
-### synatx sugar
+### Syntactic sugar
 ```javascript
 //$obj() object extend
 var a=$obj({name: "jerry", "gender":"male"});

@@ -18,28 +18,28 @@
 
 ## Features
 
-+ **object wrapping**   
- *similary $() in jQuery but supported wrap any object*
++ object wrapping  
+  <small>similary $() in jQuery but supported wrap any object</small>
   
 
-+ **module**  
-  *inspirits by module of Ruby*  
++ module  
+  <small>inspirits by module of Ruby</small>
   
 
-+ **classes and inheritance**  
-  *bring onExtend() and onInitialize() hook*
++ classes and inheritance  
+  <small>bring onExtend() and onInitialize() hook and more</small>
   
  
-+ **interface**  
-  *for documentation implicit interface and validate objects*
++ interface  
+  <small>for documentation implicit interface and validate objects</small>
   
 
-+ **method overload**  
-  *help you clean up type assertion of paramerters in function head lines*
++ method overload  
+  <small>help you clean up type assertion of paramerters in function head lines</small>
 
 
-+ **keyword-like function**  
-  *a series of function to simplify complex expressions and repetitive code*  
++ keyword-like function  
+  <small>a series of function to simplify complex expressions and repetitive code</small> 
 
 
 ## Install

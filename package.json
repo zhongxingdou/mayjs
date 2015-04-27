@@ -1,6 +1,6 @@
 {
   "name": "mayjs",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "main": "may.js",
   "devDependencies": {
     "grunt": "~0.4.1",

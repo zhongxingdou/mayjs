@@ -1471,7 +1471,7 @@ M.util.run(function(M) {
         * @memberof M~Klass
         * @param {Object} classDefine
         */
-        extend: function(classDefine){
+        extend: function(classDefine, statics){
             var modules = classDefine.modules;
             if(modules)delete classDefine.modules;
 
@@ -1516,6 +1516,9 @@ M.util.run(function(M) {
             }*/
 
             M.MObjectUtil.mix(clazz, new KlazzStatics());
+            if(statics){
+                M.MObjectUtil.mix(clazz, statics);
+            }
 
             if(modules && clazz.include){
                 modules.forEach(function(module){

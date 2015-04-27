@@ -66,11 +66,16 @@ describe 'base.js', ->
     describe "BaseClass.extend(classDefine)", ->
         aspy = sinon.spy()
         aFuncSpy  = sinon.spy()
+        statics = 
+            a: {}
+            b: {}
         ABase = M.BaseClass.extend
             initialize: ->
                 this.base()
                 aspy()
             Func: aFuncSpy
+            ,
+            statics
 
         ABase.onExtend = sinon.spy()
 
@@ -86,6 +91,8 @@ describe 'base.js', ->
                 this.base()
                 bFuncSpy()
 
+        it "should mix statics", ->
+            ABase.should.have.property(key, value) for key, value of statics
 
         describe "BaseClass.extend", ->
             it "should return a Class", ->

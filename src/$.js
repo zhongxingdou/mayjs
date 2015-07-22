@@ -4,10 +4,16 @@ M.util.run(function(M) {
     var mix = M.MObjectUtil.mix;
 
     var md5Proto = function(proto){
+        var nativeIdx = [String, Number, RegExp, Array, Boolean, Object, Date, Function].indexOf(proto.constructor);
+        if(nativeIdx >= 0){
+            return ["String", "Number", "RegExp", "Array", "Boolean", "Object", "Date", "Function"][nativeIdx];
+        }
+
         var key = Object.keys(proto).join('');
         if(key === ''){
             key = proto.constructor.toString();
         }
+
         return M.md5(key);
     }
 

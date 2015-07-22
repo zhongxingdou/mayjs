@@ -259,7 +259,7 @@ M.util.run(function(M){
 
         for(var i = 0, l = arguTypes.length; i < l; i++) {
             type = arguTypes[i].type;
-            //将方法的参数声明为undefined类型，表明其可为任何值，所以总是验证通过
+            // 将方法的参数声明为undefined类型，表明其可为任何值，所以总是验证通过
             if(type === undefined) return true;
             if(!_is(type, args[i])) {
                 return false;
